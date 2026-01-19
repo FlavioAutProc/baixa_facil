@@ -1,0 +1,9 @@
+RESUMO GERAL:
+Data: __/__/____
+Produto:_______________________________
+Código de Barras:_______________________________
+Total Retirado::_______________________________
+
+deve ser individual para cada tipo de Produtojá os mesmo produtos retirados mais de uma vez, devem ser adicionado
+o total ao Resumo mas que seja no mesmo periodo
+periodos diferentes devem ser resumos diferentes
