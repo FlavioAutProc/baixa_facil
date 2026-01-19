@@ -138,28 +138,13 @@ function validateBarcode(barcode) {
     }
     
     // Verificar duplicidade com base no tempo configurado
-    const duplicateTime = parseInt(AppState.settings.duplicateTime) || 1;
+       
     
-    if (duplicateTime > 0) {
-        const now = new Date();
-        const isDuplicate = AppState.records.some(record => {
-            if (record.barcode === barcode) {
-                const recordTime = new Date(record.timestamp);
-                const timeDiff = Math.abs(now - recordTime) / (1000 * 60); // Diferença em minutos
-                return timeDiff < duplicateTime;
-            }
-            return false;
-        });
-        
-        if (isDuplicate) {
-            showAlert(`Este código foi registrado há menos de ${duplicateTime} minuto(s). Verifique se não é duplicado.`, 'warning');
-            return false;
-        }
-    }
     
     return true;
 }
 
+// FUNÇÃO VALIDATEFORM MODIFICADA PARA REMOVER REFERÊNCIA À DUPLICIDADE
 function validateForm() {
     const productName = document.getElementById('product-name').value.trim();
     const barcode = document.getElementById('barcode').value.trim();
@@ -172,7 +157,10 @@ function validateForm() {
         return false;
     }
     
-    if (!validateBarcode(barcode)) return false;
+    if (!barcode || barcode.trim() === '') {
+        showAlert('O código de barras é obrigatório.', 'error');
+        return false;
+    }
     
     if (!validateQuantity(quantity)) return false;
     
@@ -465,7 +453,6 @@ function loadSettings() {
     document.getElementById('max-quantity').value = AppState.settings.maxQuantity;
     document.getElementById('auto-save').value = AppState.settings.autoSave;
     document.getElementById('scan-sound').value = AppState.settings.scanSound;
-    document.getElementById('duplicate-time').value = AppState.settings.duplicateTime;
     
     // Atualizar display da quantidade máxima
     updateMaxQuantityDisplay();
@@ -493,7 +480,6 @@ function saveSettings() {
     AppState.settings.maxQuantity = parseInt(document.getElementById('max-quantity').value) || 9999;
     AppState.settings.autoSave = document.getElementById('auto-save').value;
     AppState.settings.scanSound = document.getElementById('scan-sound').value;
-    AppState.settings.duplicateTime = parseInt(document.getElementById('duplicate-time').value) || 1;
     
     localStorage.setItem('stocktrack_settings', JSON.stringify(AppState.settings));
     

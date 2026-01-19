@@ -824,3 +824,421 @@ body {
 .new-record {
     animation: highlight 2s ease;
 }
+
+/* ADICIONAR AO style.css - Estilos específicos para exportação no formato Frame 1 */
+
+.export-frame1-container {
+    width: 800px;
+    padding: 40px;
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+    color: #2c3e50;
+}
+
+.frame1-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.frame1-title {
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.frame1-subtitle {
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: normal;
+    margin-bottom: 20px;
+}
+
+.frame1-date {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+.frame1-summary-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    border-collapse: collapse;
+}
+
+.frame1-summary-table th {
+    border: 2px solid #2c3e50;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    width: 50%;
+}
+
+.frame1-summary-table td {
+    border: 2px solid #2c3e50;
+    padding: 20px;
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.frame1-summary-label {
+    border: 2px solid #2c3e50;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+}
+
+.frame1-average {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 30px auto;
+}
+
+.frame1-average-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.frame1-average-percent {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.frame1-average-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.frame1-divider {
+    border: none;
+    height: 2px;
+    background-color: #e8eaed;
+    margin: 40px 0;
+}
+
+.frame1-products-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.frame1-product-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    border-collapse: collapse;
+    border: 2px solid #2c3e50;
+}
+
+.frame1-product-name {
+    border-right: 2px solid #2c3e50;
+    padding: 15px;
+    width: 60%;
+    vertical-align: top;
+}
+
+.frame1-product-name-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.frame1-barcode {
+    font-size: 16px;
+    color: #3498db;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.frame1-product-quantity {
+    padding: 15px;
+    width: 40%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.frame1-product-quantity-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.frame1-product-unit {
+    font-size: 14px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+}
+
+.frame1-product-details {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.frame1-detail-item {
+    font-size: 14px;
+    color: #5d6d7e;
+    margin-bottom: 5px;
+    padding-left: 15px;
+    border-left: 3px solid #3498db;
+}
+
+.frame1-footer {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #e8eaed;
+    color: #7f8c8d;
+    font-size: 12px;
+}
+
+
+/* ADICIONAR AO style.css - Estilos para o formato Frame1 */
+
+/* Container principal do relatório Frame1 */
+.export-frame1-container {
+    width: 800px;
+    padding: 40px;
+    background-color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    color: #2c3e50;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+/* Tabelas no estilo Frame1 */
+.frame1-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    border: 2px solid #2c3e50;
+}
+
+.frame1-table th {
+    background-color: #f8f9fa;
+    border: 2px solid #2c3e50;
+    padding: 15px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.frame1-table td {
+    border: 2px solid #2c3e50;
+    padding: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.frame1-value-large {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.frame1-label {
+    font-size: 12px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Seção de produto individual */
+.product-section-frame1 {
+    margin-bottom: 40px;
+    border: 2px solid #e8eaed;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.product-header-frame1 {
+    background-color: #f8fafc;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.product-name-frame1 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.barcode-frame1 {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #3498db;
+    font-size: 14px;
+    background-color: #f0f8ff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.product-details-frame1 {
+    padding: 20px;
+}
+
+.quantity-frame1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.unit-frame1 {
+    font-size: 12px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Grid para códigos */
+.codes-grid-frame1 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.code-item-frame1 {
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: #f8fafc;
+}
+
+.code-value-frame1 {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #0d47a1;
+    font-size: 13px;
+    margin-bottom: 5px;
+    word-break: break-all;
+}
+
+.code-count-frame1 {
+    font-size: 11px;
+    color: #7f8c8d;
+}
+
+/* Cabeçalho azul no estilo Frame1 */
+.frame1-blue-header {
+    background-color: #2980b9;
+    color: white;
+    padding: 25px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.frame1-main-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.frame1-sub-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.frame1-date {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Seção de média */
+.average-section-frame1 {
+    text-align: center;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    max-width: 600px;
+}
+
+.average-title-frame1 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.average-percent-frame1 {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.average-value-frame1 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Divider */
+.frame1-divider {
+    border: none;
+    height: 2px;
+    background-color: #e8eaed;
+    margin: 40px 0;
+}
+
+/* Detalhamento de retiradas */
+.withdrawals-details-frame1 {
+    margin-left: 20px;
+    margin-top: 15px;
+}
+
+.withdrawal-item-frame1 {
+    font-size: 12px;
+    color: #5d6d7e;
+    margin-bottom: 8px;
+    padding-left: 15px;
+    border-left: 3px solid #3498db;
+    line-height: 1.5;
+}
+
+/* Resumo do produto */
+.product-summary-frame1 {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* Rodapé */
+.frame1-footer {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #e8eaed;
+    color: #7f8c8d;
+    font-size: 11px;
+}

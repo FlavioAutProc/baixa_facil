@@ -7,3 +7,37 @@ Total Retirado::_______________________________
 deve ser individual para cada tipo de Produtojá os mesmo produtos retirados mais de uma vez, devem ser adicionado
 o total ao Resumo mas que seja no mesmo periodo
 periodos diferentes devem ser resumos diferentes
+--------------------------------------------------------------------
+Resumo Estatístico
+SEGUE O MESMO PADRÃO
+
+EXPORTAÇÃO PDF:
+ESTRUTURA ORIGINAL
+
+Detalhamento por Produto
+Pão Integral
+25 unidades • 2 registro(s) • 1 código(s)
+Pão Francês 50g
+20 unidades • 1 registro(s) • 1 código(s)
+Pão de Forma
+10 unidades • 1 registro(s) • 1 código(s)
+------------------------------------------
+COMO DEVE SER:
+Detalhamento por Produto
+
+Produto: Pão Integral                 
+Qtd Retirada: 25(unidade de medida kg/un et)
+Codigo de Barras: 7891000000039
+
+Registros: 3
+Periodo:
+Retiradas detalhadas:
+Flavio 7891000000039
+18:33 • 25 un
+Flavio 7891000000039
+18:22 • 10 un
+Flavio 7891000000039
+14:47 • 15 un
+-----------------------------------------
+EXPORTAÇÃO IMG:
+SEGUE ESTRUTURA ORIGINAL ADIVIONADNO APENAS O CODIGO DE BARRAS DO PRODUTO
