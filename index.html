@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Registro de Produtos | Sistema de Baixa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.5;
+            max-width: 100%;
+            overflow-x: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        /* Header estilo app */
+        .app-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .app-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .header-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        
+        .header-btn:active {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Navegação estilo app */
+        .app-nav {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e5e5e7;
+            position: sticky;
+            top: 80px;
+            z-index: 90;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 16px 10px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #8e8e93;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .nav-item.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .nav-item:active {
+            background-color: #f2f2f7;
+        }
+        
+        /* Conteúdo das abas */
+        .tab-content {
+            display: none;
+            padding: 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Seção de formulário */
+        .form-section {
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #2563eb;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ef4444;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: white;
+            -webkit-appearance: none;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .input-field.error {
+            border-color: #ef4444;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        /* Scanner */
+        .scanner-container {
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        #scanner-viewport {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .scanner-line {
+            position: absolute;
+            width: 80%;
+            height: 2px;
+            background: #2563eb;
+            top: 50%;
+            left: 10%;
+            animation: scan 2s infinite linear;
+        }
+        
+        @keyframes scan {
+            0%, 100% { top: 10%; }
+            50% { top: 90%; }
+        }
+        
+        .scanner-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .scanner-btn:active {
+            background: #1e40af;
+        }
+        
+        /* Botões de ação */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            position: sticky;
+            bottom: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:active {
+            background: #1e40af;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:active {
+            background: #e5e7eb;
+        }
+        
+        /* Lista de registros */
+        .registros-container {
+            padding: 0;
+        }
+        
+        .registro-item {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e5e5e7;
+            background: white;
+            transition: background 0.2s;
+        }
+        
+        .registro-item:active {
+            background: #f9fafb;
+        }
+        
+        .registro-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .registro-produto {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .registro-data {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        .registro-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+        
+        .registro-detail {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Modal de confirmação */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            display: none;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalAppear 0.3s;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            padding: 24px 24px 0;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .modal-body {
+            padding: 20px 24px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            border-top: 1px solid #e5e5e7;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 18px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .modal-btn:active {
+            background-color: #f9fafb;
+        }
+        
+        .modal-btn-primary {
+            color: #2563eb;
+        }
+        
+        .modal-btn-danger {
+            color: #ef4444;
+        }
+        
+        /* Resumo */
+        .resumo-container {
+            padding: 20px;
+        }
+        
+        .resumo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .resumo-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #4b5563;
+        }
+        
+        .resumo-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+        
+        /* Para desktop */
+        @media (min-width: 768px) {
+            .app-container {
+                margin: 20px auto;
+                min-height: calc(100vh - 40px);
+                border-radius: 20px;
+                overflow: hidden;
+            }
+        }
+        
+        /* Feedback visual */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            display: none;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header do app -->
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <div class="app-title">Registro de Produtos</div>
+                    <div class="app-subtitle">Sistema de baixa para produção</div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" id="btnRelatorios">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                    <button class="header-btn" id="btnConfig">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Navegação estilo app -->
+        <nav class="app-nav">
+            <button class="nav-item active" data-tab="registrar">
+                <i class="fas fa-plus-circle"></i> Registrar
+            </button>
+            <button class="nav-item" data-tab="registros">
+                <i class="fas fa-list"></i> Registros
+            </button>
+            <button class="nav-item" data-tab="resumo">
+                <i class="fas fa-chart-pie"></i> Resumo
+            </button>
+        </nav>
+        
+        <!-- Conteúdo: Registrar -->
+        <section id="registrar" class="tab-content active">
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-box-open"></i>
+                    <span>Novo Registro de Produto</span>
+                </div>
+                
+                <!-- Leitor de código de barras -->
+                <div class="scanner-container" id="scannerContainer">
+                    <div id="scanner-viewport">
+                        <div class="scanner-overlay">
+                            <div class="scanner-line"></div>
+                        </div>
+                        <div id="scanner-placeholder" style="color: white; text-align: center; padding: 20px;">
+                            <i class="fas fa-barcode" style="font-size: 48px; margin-bottom: 16px; opacity: 0.7;"></i>
+                            <p>Clique no botão abaixo para ativar a câmera</p>
+                        </div>
+                    </div>
+                    <button class="scanner-btn" id="btnToggleScanner">
+                        <i class="fas fa-camera"></i>
+                        Ativar Leitor de Código de Barras
+                    </button>
+                </div>
+                
+                <!-- Formulário -->
+                <div class="input-group">
+                    <label class="input-label required" for="produto">Produto</label>
+                    <input type="text" id="produto" class="input-field" placeholder="Digite o nome do produto">
+                    <div class="error-message" id="produtoError">O nome do produto é obrigatório</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="codigo">Código de Barras</label>
+                    <input type="text" id="codigo" class="input-field" placeholder="Digite ou escaneie o código">
+                    <div class="error-message" id="codigoError">O código de barras é obrigatório</div>
+                    <div class="error-message" id="codigoDuplicadoError" style="color: #f59e0b;">Este código já foi registrado hoje</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="quantidade">Quantidade</label>
+                    <input type="number" id="quantidade" class="input-field" placeholder="Digite a quantidade" min="1" value="1">
+                    <div class="error-message" id="quantidadeError">A quantidade deve ser entre 1 e 999</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="setor">Setor de Origem</label>
+                    <select id="setor" class="input-field">
+                        <option value="">Selecione um setor</option>
+                        <option value="estoque">Estoque Principal</option>
+                        <option value="loja">Loja (Vendas)</option>
+                        <option value="producao">Produção</option>
+                        <option value="expedicao">Expedição</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                    <div class="error-message" id="setorError">O setor de origem é obrigatório</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="colaborador">Colaborador Responsável</label>
+                    <select id="colaborador" class="input-field">
+                        <option value="">Selecione um colaborador</option>
+                        <option value="joao">João Silva</option>
+                        <option value="maria">Maria Santos</option>
+                        <option value="carlos">Carlos Oliveira</option>
+                        <option value="ana">Ana Costa</option>
+                    </select>
+                    <div class="error-message" id="colaboradorError">O colaborador responsável é obrigatório</div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="btnLimpar">
+                        <i class="fas fa-eraser"></i> Limpar
+                    </button>
+                    <button class="btn btn-primary" id="btnSalvar">
+                        <i class="fas fa-check"></i> Salvar Registro
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Conteúdo: Registros -->
+        <section id="registros" class="tab-content">
+            <div class="registros-container">
+                <div class="section-title" style="padding: 20px 20px 0;">
+                    <i class="fas fa-history"></i>
+                    <span>Registros Recentes</span>
+                </div>
+                
+                <div id="listaRegistros">
+                    <!-- Registros serão inseridos aqui via JavaScript -->
+                </div>
+                
+                <div style="padding: 20px; text-align: center; color: #6b7280;" id="semRegistros">
+                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                    <p>Nenhum registro encontrado</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Conteúdo: Resumo -->
+        <section id="resumo" class="tab-content">
+            <div class="resumo-container">
+                <div class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Resumo e Estatísticas</span>
+                </div>
+                
+                <div class="resumo-card">
+                    <div class="resumo-title">Total de Itens Registrados Hoje</div>
+                    <div class="resumo-value" id="totalItens">0</div>
+                </div>
+                
+                <div class="resumo-card">
+                    <div class="resumo-title">Produto Mais Retirado</div>
+                    <div class="resumo-value" id="produtoMaisRetirado">-</div>
+                </div>
+                
+                <div class="resumo-card">
+                    <div class="resumo-title">Setor com Mais Retiradas</div>
+                    <div class="resumo-value" id="setorMaisRetirado">-</div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-primary" id="btnExportarPDF" style="width: 100%;">
+                        <i class="fas fa-file-pdf"></i> Gerar Relatório em PDF
+                    </button>
+                    <button class="btn btn-secondary" id="btnCompartilhar" style="width: 100%; margin-top: 12px;">
+                        <i class="fas fa-share-alt"></i> Compartilhar Relatório
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Confirmar Registro</div>
+                <div style="color: #6b7280; font-size: 14px;">Revise os dados antes de confirmar</div>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Produto:</div>
+                    <div id="confirmProduto">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Código:</div>
+                    <div id="confirmCodigo">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Quantidade:</div>
+                    <div id="confirmQuantidade">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Setor de Origem:</div>
+                    <div id="confirmSetor">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Colaborador:</div>
+                    <div id="confirmColaborador">-</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="btnCancelar">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" id="btnConfirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast de feedback -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check"></i>
+        <span>Registro salvo com sucesso!</span>
+    </div>
+    
+    <script>
+        // Estado da aplicação
+        const estado = {
+            scannerAtivo: false,
+            registros: JSON.parse(localStorage.getItem('registrosProdutos')) || [],
+            codigosRegistradosHoje: new Set()
+        };
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar lista de códigos registrados hoje
+            atualizarCodigosRegistradosHoje();
+            
+            // Configurar navegação por abas
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Ativar aba clicada
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mostrar conteúdo da aba
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Se for a aba de registros ou resumo, atualizar dados
+                    if (tabId === 'registros') {
+                        carregarRegistros();
+                    } else if (tabId === 'resumo') {
+                        atualizarResumo();
+                    }
+                });
+            });
+            
+            // Configurar botões
+            document.getElementById('btnSalvar').addEventListener('click', validarFormulario);
+            document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
+            document.getElementById('btnToggleScanner').addEventListener('click', toggleScanner);
+            document.getElementById('btnExportarPDF').addEventListener('click', exportarPDF);
+            document.getElementById('btnCompartilhar').addEventListener('click', compartilharRelatorio);
+            document.getElementById('btnCancelar').addEventListener('click', fecharModal);
+            document.getElementById('btnConfirmar').addEventListener('click', salvarRegistro);
+            
+            // Configurar validação em tempo real
+            document.getElementById('codigo').addEventListener('input', validarCodigoUnico);
+            document.getElementById('quantidade').addEventListener('input', validarQuantidade);
+            
+            // Carregar registros iniciais
+            carregarRegistros();
+            atualizarResumo();
+        });
+        
+        // Atualizar lista de códigos registrados hoje
+        function atualizarCodigosRegistradosHoje() {
+            const hoje = new Date().toDateString();
+            estado.codigosRegistradosHoje.clear();
+            
+            estado.registros.forEach(registro => {
+                const dataRegistro = new Date(registro.dataHora).toDateString();
+                if (dataRegistro === hoje) {
+                    estado.codigosRegistradosHoje.add(registro.codigo);
+                }
+            });
+        }
+        
+        // Carregar registros na lista
+        function carregarRegistros() {
+            const listaRegistros = document.getElementById('listaRegistros');
+            const semRegistros = document.getElementById('semRegistros');
+            
+            // Ordenar registros por data (mais recente primeiro)
+            const registrosOrdenados = [...estado.registros].sort((a, b) => 
+                new Date(b.dataHora) - new Date(a.dataHora)
+            );
+            
+            if (registrosOrdenados.length === 0) {
+                semRegistros.style.display = 'block';
+                listaRegistros.innerHTML = '';
+                return;
+            }
+            
+            semRegistros.style.display = 'none';
+            
+            let html = '';
+            registrosOrdenados.forEach((registro, index) => {
+                const data = new Date(registro.dataHora);
+                const dataFormatada = data.toLocaleDateString('pt-BR');
+                const horaFormatada = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                
+                html += `
+                    <div class="registro-item" data-index="${index}">
+                        <div class="registro-header">
+                            <div class="registro-produto">${registro.produto}</div>
+                            <div class="registro-data">${dataFormatada} ${horaFormatada}</div>
+                        </div>
+                        <div class="registro-details">
+                            <div class="registro-detail">
+                                <i class="fas fa-barcode"></i>
+                                <span>${registro.codigo}</span>
+                            </div>
+                            <div class="registro-detail">
+                                <i class="fas fa-box"></i>
+                                <span>${registro.quantidade} un.</span>
+                            </div>
+                            <div class="registro-detail">
+                                <i class="fas fa-warehouse"></i>
+                                <span>${formatarSetor(registro.setor)}</span>
+                            </div>
+                            <div class="registro-detail">
+                                <i class="fas fa-user"></i>
+                                <span>${formatarColaborador(registro.colaborador)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listaRegistros.innerHTML = html;
+            
+            // Adicionar evento de clique para cada item
+            document.querySelectorAll('.registro-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    mostrarDetalhesRegistro(index);
+                });
+            });
+        }
+        
+        // Atualizar resumo
+        function atualizarResumo() {
+            const hoje = new Date().toDateString();
+            const registrosHoje = estado.registros.filter(registro => 
+                new Date(registro.dataHora).toDateString() === hoje
+            );
+            
+            // Total de itens
+            const totalItens = registrosHoje.reduce((total, registro) => total + parseInt(registro.quantidade), 0);
+            document.getElementById('totalItens').textContent = totalItens;
+            
+            // Produto mais retirado
+            if (registrosHoje.length > 0) {
+                const produtosContagem = {};
+                registrosHoje.forEach(registro => {
+                    produtosContagem[registro.produto] = (produtosContagem[registro.produto] || 0) + parseInt(registro.quantidade);
+                });
+                
+                const produtoMaisRetirado = Object.keys(produtosContagem).reduce((a, b) => 
+                    produtosContagem[a] > produtosContagem[b] ? a : b
+                );
+                document.getElementById('produtoMaisRetirado').textContent = produtoMaisRetirado;
+                
+                // Setor com mais retiradas
+                const setoresContagem = {};
+                registrosHoje.forEach(registro => {
+                    setoresContagem[registro.setor] = (setoresContagem[registro.setor] || 0) + parseInt(registro.quantidade);
+                });
+                
+                const setorMaisRetirado = Object.keys(setoresContagem).reduce((a, b) => 
+                    setoresContagem[a] > setoresContagem[b] ? a : b
+                );
+                document.getElementById('setorMaisRetirado').textContent = formatarSetor(setorMaisRetirado);
+            }
+        }
+        
+        // Validar formulário
+        function validarFormulario() {
+            let valido = true;
+            
+            // Obter valores
+            const produto = document.getElementById('produto').value.trim();
+            const codigo = document.getElementById('codigo').value.trim();
+            const quantidade = document.getElementById('quantidade').value;
+            const setor = document.getElementById('setor').value;
+            const colaborador = document.getElementById('colaborador').value;
+            
+            // Validar produto
+            if (produto === '') {
+                mostrarErro('produtoError');
+                valido = false;
+            } else {
+                esconderErro('produtoError');
+            }
+            
+            // Validar código
+            if (codigo === '') {
+                mostrarErro('codigoError');
+                valido = false;
+            } else {
+                esconderErro('codigoError');
+            }
+            
+            // Validar quantidade
+            const qtdNum = parseInt(quantidade);
+            if (isNaN(qtdNum) || qtdNum < 1 || qtdNum > 999) {
+                mostrarErro('quantidadeError');
+                valido = false;
+            } else {
+                esconderErro('quantidadeError');
+            }
+            
+            // Validar setor
+            if (setor === '') {
+                mostrarErro('setorError');
+                valido = false;
+            } else {
+                esconderErro('setorError');
+            }
+            
+            // Validar colaborador
+            if (colaborador === '') {
+                mostrarErro('colaboradorError');
+                valido = false;
+            } else {
+                esconderErro('colaboradorError');
+            }
+            
+            // Se válido, mostrar modal de confirmação
+            if (valido) {
+                mostrarModalConfirmacao(produto, codigo, quantidade, setor, colaborador);
+            }
+            
+            return valido;
+        }
+        
+        // Validar código único
+        function validarCodigoUnico() {
+            const codigo = document.getElementById('codigo').value.trim();
+            const hoje = new Date().toDateString();
+            
+            // Verificar se código já foi registrado hoje
+            if (codigo !== '' && estado.codigosRegistradosHoje.has(codigo)) {
+                mostrarErro('codigoDuplicadoError');
+                return false;
+            } else {
+                esconderErro('codigoDuplicadoError');
+                return true;
+            }
+        }
+        
+        // Validar quantidade
+        function validarQuantidade() {
+            const quantidade = document.getElementById('quantidade').value;
+            const qtdNum = parseInt(quantidade);
+            
+            if (isNaN(qtdNum) || qtdNum < 1 || qtdNum > 999) {
+                mostrarErro('quantidadeError');
+                return false;
+            } else {
+                esconderErro('quantidadeError');
+                return true;
+            }
+        }
+        
+        // Mostrar modal de confirmação
+        function mostrarModalConfirmacao(produto, codigo, quantidade, setor, colaborador) {
+            document.getElementById('confirmProduto').textContent = produto;
+            document.getElementById('confirmCodigo').textContent = codigo;
+            document.getElementById('confirmQuantidade').textContent = `${quantidade} unidade(s)`;
+            document.getElementById('confirmSetor').textContent = formatarSetor(setor);
+            document.getElementById('confirmColaborador').textContent = formatarColaborador(colaborador);
+            
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+        
+        // Fechar modal
+        function fecharModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+        
+        // Salvar registro
+        function salvarRegistro() {
+            // Obter valores do formulário
+            const produto = document.getElementById('produto').value.trim();
+            const codigo = document.getElementById('codigo').value.trim();
+            const quantidade = document.getElementById('quantidade').value;
+            const setor = document.getElementById('setor').value;
+            const colaborador = document.getElementById('colaborador').value;
+            const dataHora = new Date().toISOString();
+            
+            // Criar objeto de registro
+            const registro = {
+                produto,
+                codigo,
+                quantidade: parseInt(quantidade),
+                setor,
+                colaborador,
+                dataHora
+            };
+            
+            // Adicionar ao estado
+            estado.registros.push(registro);
+            estado.codigosRegistradosHoje.add(codigo);
+            
+            // Salvar no localStorage
+            localStorage.setItem('registrosProdutos', JSON.stringify(estado.registros));
+            
+            // Fechar modal
+            fecharModal();
+            
+            // Limpar formulário
+            limparFormulario();
+            
+            // Mostrar feedback
+            mostrarToast('Registro salvo com sucesso!', false);
+            
+            // Atualizar listas
+            carregarRegistros();
+            atualizarResumo();
+            
+            // Mudar para aba de registros
+            document.querySelector('.nav-item[data-tab="registros"]').click();
+        }
+        
+        // Limpar formulário
+        function limparFormulario() {
+            document.getElementById('produto').value = '';
+            document.getElementById('codigo').value = '';
+            document.getElementById('quantidade').value = '1';
+            document.getElementById('setor').value = '';
+            document.getElementById('colaborador').value = '';
+            
+            // Limpar erros
+            esconderErro('produtoError');
+            esconderErro('codigoError');
+            esconderErro('quantidadeError');
+            esconderErro('setorError');
+            esconderErro('colaboradorError');
+            esconderErro('codigoDuplicadoError');
+        }
+        
+        // Mostrar detalhes do registro
+        function mostrarDetalhesRegistro(index) {
+            const registro = estado.registros[index];
+            
+            // Em um sistema real, abriria um modal com detalhes completos
+            // Aqui mostraremos um alerta com os dados
+            const data = new Date(registro.dataHora);
+            const dataFormatada = data.toLocaleDateString('pt-BR');
+            const horaFormatada = data.toLocaleTimeString('pt-BR');
+            
+            alert(`Detalhes do Registro:\n\n` +
+                  `Produto: ${registro.produto}\n` +
+                  `Código: ${registro.codigo}\n` +
+                  `Quantidade: ${registro.quantidade} un.\n` +
+                  `Setor: ${formatarSetor(registro.setor)}\n` +
+                  `Colaborador: ${formatarColaborador(registro.colaborador)}\n` +
+                  `Data/Hora: ${dataFormatada} ${horaFormatada}`);
+        }
+        
+        // Exportar PDF
+        function exportarPDF() {
+            // Simulação de geração de PDF
+            mostrarToast('Gerando relatório em PDF...', false);
+            
+            // Em um sistema real, usaríamos jsPDF para gerar o PDF
+            setTimeout(() => {
+                mostrarToast('PDF gerado com sucesso!', false);
+                
+                // Simular download
+                const link = document.createElement('a');
+                link.href = '#';
+                link.download = `relatorio-produtos-${new Date().toISOString().slice(0,10)}.pdf`;
+                link.click();
+            }, 1500);
+        }
+        
+        // Compartilhar relatório
+        function compartilharRelatorio() {
+            // Verificar se Web Share API está disponível
+            if (navigator.share) {
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                
+                navigator.share({
+                    title: `Relatório de Produtos - ${hoje}`,
+                    text: `Relatório de baixa de produtos gerado em ${hoje}.`,
+                    url: window.location.href
+                })
+                .then(() => mostrarToast('Relatório compartilhado!', false))
+                .catch(error => {
+                    if (error.name !== 'AbortError') {
+                        mostrarToast('Erro ao compartilhar', true);
+                    }
+                });
+            } else {
+                // Fallback para dispositivos sem Web Share API
+                mostrarToast('Compartilhamento não suportado neste dispositivo', true);
+            }
+        }
+        
+        // Toggle scanner (simulação)
+        function toggleScanner() {
+            const btn = document.getElementById('btnToggleScanner');
+            const placeholder = document.getElementById('scanner-placeholder');
+            
+            if (!estado.scannerAtivo) {
+                // Simular ativação do scanner
+                estado.scannerAtivo = true;
+                btn.innerHTML = '<i class="fas fa-stop"></i> Parar Leitura';
+                placeholder.innerHTML = '<i class="fas fa-camera" style="font-size: 48px; margin-bottom: 16px; opacity: 0.7;"></i><p>Apontando a câmera para o código de barras...</p>';
+                
+                // Simular leitura após 3 segundos
+                setTimeout(() => {
+                    if (estado.scannerAtivo) {
+                        // Gerar código de barras aleatório para simulação
+                        const codigoSimulado = '789' + Math.floor(100000000 + Math.random() * 900000000);
+                        document.getElementById('codigo').value = codigoSimulado;
+                        
+                        // Validar código
+                        validarCodigoUnico();
+                        
+                        // Desativar scanner
+                        toggleScanner();
+                        
+                        // Feedback
+                        mostrarToast('Código lido com sucesso!', false);
+                    }
+                }, 3000);
+            } else {
+                // Desativar scanner
+                estado.scannerAtivo = false;
+                btn.innerHTML = '<i class="fas fa-camera"></i> Ativar Leitor de Código de Barras';
+                placeholder.innerHTML = '<i class="fas fa-barcode" style="font-size: 48px; margin-bottom: 16px; opacity: 0.7;"></i><p>Clique no botão abaixo para ativar a câmera</p>';
+            }
+        }
+        
+        // Funções auxiliares
+        function mostrarErro(id) {
+            document.getElementById(id).style.display = 'block';
+            document.getElementById(id.split('Error')[0]).classList.add('error');
+        }
+        
+        function esconderErro(id) {
+            document.getElementById(id).style.display = 'none';
+            document.getElementById(id.split('Error')[0]).classList.remove('error');
+        }
+        
+        function mostrarToast(mensagem, isError) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').textContent = mensagem;
+            
+            if (isError) {
+                toast.classList.add('error');
+                toast.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.remove('error');
+                toast.querySelector('i').className = 'fas fa-check';
+            }
+            
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        function formatarSetor(setor) {
+            const setores = {
+                'estoque': 'Estoque Principal',
+                'loja': 'Loja (Vendas)',
+                'producao': 'Produção',
+                'expedicao': 'Expedição',
+                'outro': 'Outro'
+            };
+            return setores[setor] || setor;
+        }
+        
+        function formatarColaborador(colaborador) {
+            const colaboradores = {
+                'joao': 'João Silva',
+                'maria': 'Maria Santos',
+                'carlos': 'Carlos Oliveira',
+                'ana': 'Ana Costa'
+            };
+            return colaboradores[colaborador] || colaborador;
+        }
+    </script>
+</body>
+</html>
