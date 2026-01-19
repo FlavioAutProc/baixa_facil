@@ -1,2046 +1,477 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Registro de Produção</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <script
-      src="https://unpkg.com/html5-qrcode"
-      type="text/javascript"
-    ></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StockTrack - Registro de Retiradas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <style>
-      /* RESET E ESTILOS GERAIS */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-          sans-serif;
-      }
-
-      body {
-        background-color: #f5f5f7;
-        color: #1d1d1f;
-        font-size: 16px;
-        line-height: 1.5;
-        overflow-x: hidden;
-        padding-bottom: 80px; /* Espaço para o menu inferior */
-      }
-
-      /* LAYOUT MOBILE-FIRST */
-      .app-container {
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 0;
-        min-height: 100vh;
-      }
-
-      /* HEADER */
-      .app-header {
-        background: linear-gradient(135deg, #2d5be3 0%, #1e40af 100%);
-        color: white;
-        padding: 18px 16px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-
-      .header-title {
-        font-size: 20px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      /* CONTEÚDO PRINCIPAL */
-      .main-content {
-        padding: 16px;
-        padding-bottom: 90px; /* Espaço extra para evitar corte no conteúdo */
-      }
-
-      .screen {
-        display: none;
-        animation: fadeIn 0.3s ease;
-      }
-
-      .screen.active {
-        display: block;
-      }
-
-      /* CARDS */
-      .card {
-        background: white;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e5ea;
-      }
-
-      .card-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 16px;
-        color: #1d1d1f;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      /* FORMULÁRIOS */
-      .form-group {
-        margin-bottom: 20px;
-      }
-
-      .form-label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 8px;
-        color: #3a3a3c;
-        font-size: 15px;
-      }
-
-      .form-control {
-        width: 100%;
-        padding: 16px;
-        border: 1px solid #c7c7cc;
-        border-radius: 12px;
-        font-size: 17px;
-        transition: all 0.2s;
-        background-color: #fafafa;
-      }
-
-      .form-control:focus {
-        outline: none;
-        border-color: #2d5be3;
-        background-color: white;
-        box-shadow: 0 0 0 3px rgba(45, 91, 227, 0.1);
-      }
-
-      /* BOTÕES */
-      .btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        padding: 18px;
-        border: none;
-        border-radius: 14px;
-        font-size: 17px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-top: 10px;
-      }
-
-      .btn-primary {
-        background-color: #2d5be3;
-        color: white;
-      }
-
-      .btn-primary:active {
-        background-color: #1e40af;
-        transform: scale(0.98);
-      }
-
-      .btn-secondary {
-        background-color: #e5e5ea;
-        color: #3a3a3c;
-      }
-
-      .btn-secondary:active {
-        background-color: #d1d1d6;
-      }
-
-      .btn-success {
-        background-color: #34c759;
-        color: white;
-      }
-
-      .btn-success:active {
-        background-color: #2ca44e;
-      }
-
-      .btn-danger {
-        background-color: #ff3b30;
-        color: white;
-      }
-
-      .btn-danger:active {
-        background-color: #d70015;
-      }
-
-      .btn-small {
-        padding: 10px 16px;
-        font-size: 15px;
-        border-radius: 10px;
-        width: auto;
-      }
-
-      /* SCANNER DE CÓDIGO DE BARRAS */
-      .scanner-container {
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        position: relative;
-      }
-
-      #qr-reader {
-        width: 100%;
-        height: 300px;
-        position: relative;
-      }
-
-      .scanner-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 10;
-      }
-
-      .scanner-frame {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 70%;
-        height: 150px;
-        border: 3px solid #2d5be3;
-        border-radius: 12px;
-        box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.7);
-      }
-
-      .scanner-line {
-        position: absolute;
-        width: 100%;
-        height: 3px;
-        background-color: #2d5be3;
-        top: 50%;
-        animation: scanLine 2s infinite linear;
-      }
-
-      /* TABELA DE REGISTROS */
-      .table-container {
-        overflow-x: auto;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-      }
-
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white;
-      }
-
-      .data-table th {
-        background-color: #f2f2f7;
-        padding: 14px 12px;
-        text-align: left;
-        font-weight: 600;
-        color: #3a3a3c;
-        font-size: 15px;
-        border-bottom: 1px solid #e5e5ea;
-      }
-
-      .data-table td {
-        padding: 14px 12px;
-        border-bottom: 1px solid #f2f2f7;
-        font-size: 15px;
-      }
-
-      .data-table tr:last-child td {
-        border-bottom: none;
-      }
-
-      .data-table tr {
-        transition: background-color 0.2s;
-      }
-
-      .data-table tr:active {
-        background-color: #f2f2f7;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 500;
-      }
-
-      .badge-success {
-        background-color: #d4f4dd;
-        color: #1f7a3d;
-      }
-
-      .badge-warning {
-        background-color: #fff3cd;
-        color: #856404;
-      }
-
-      /* MENU INFERIOR */
-      .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: white;
-        border-top: 1px solid #e5e5ea;
-        display: flex;
-        justify-content: space-around;
-        padding: 12px 0;
-        z-index: 1000;
-        box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
-      }
-
-      .nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 25%;
-        padding: 8px 0;
-        border-radius: 12px;
-        transition: all 0.2s;
-      }
-
-      .nav-item:active {
-        background-color: #f2f2f7;
-        transform: scale(0.95);
-      }
-
-      .nav-item.active {
-        color: #2d5be3;
-      }
-
-      .nav-icon {
-        font-size: 22px;
-        margin-bottom: 4px;
-      }
-
-      .nav-label {
-        font-size: 12px;
-        font-weight: 500;
-      }
-
-      /* MENSAGENS */
-      .alert {
-        padding: 16px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .alert-success {
-        background-color: #d4f4dd;
-        color: #1f7a3d;
-        border: 1px solid #a3e9b8;
-      }
-
-      .alert-error {
-        background-color: #ffeaea;
-        color: #d70015;
-        border: 1px solid #ffb3b3;
-      }
-
-      .alert-warning {
-        background-color: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
-      }
-
-      .alert-info {
-        background-color: #e3f2fd;
-        color: #0d47a1;
-        border: 1px solid #bbdefb;
-      }
-
-      /* MODAL */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-      }
-
-      .modal.active {
-        display: flex;
-        animation: fadeIn 0.3s ease;
-      }
-
-      .modal-content {
-        background-color: white;
-        border-radius: 20px;
-        width: 100%;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        animation: slideUp 0.3s ease;
-      }
-
-      .modal-header {
-        padding: 20px;
-        border-bottom: 1px solid #e5e5ea;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .modal-title {
-        font-size: 20px;
-        font-weight: 600;
-      }
-
-      .modal-close {
-        background: none;
-        border: none;
-        font-size: 24px;
-        color: #8e8e93;
-        cursor: pointer;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .modal-close:active {
-        background-color: #f2f2f7;
-      }
-
-      .modal-body {
-        padding: 20px;
-      }
-
-      /* ANIMAÇÕES */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideUp {
-        from {
-          transform: translateY(30px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
-      @keyframes scanLine {
-        0% {
-          top: 10%;
-        }
-        50% {
-          top: 90%;
-        }
-        100% {
-          top: 10%;
-        }
-      }
-
-      /* UTILITÁRIOS */
-      .d-flex {
-        display: flex;
-      }
-
-      .justify-between {
-        justify-content: space-between;
-      }
-
-      .align-center {
-        align-items: center;
-      }
-
-      .gap-1 {
-        gap: 8px;
-      }
-
-      .gap-2 {
-        gap: 16px;
-      }
-
-      .mb-1 {
-        margin-bottom: 8px;
-      }
-
-      .mb-2 {
-        margin-bottom: 16px;
-      }
-
-      .mb-3 {
-        margin-bottom: 24px;
-      }
-
-      .mt-2 {
-        margin-top: 16px;
-      }
-
-      .text-center {
-        text-align: center;
-      }
-
-      .text-muted {
-        color: #8e8e93;
-      }
-
-      .fw-600 {
-        font-weight: 600;
-      }
-
-      /* RESPONSIVIDADE PARA DESKTOP */
-      @media (min-width: 768px) {
-        body {
-          padding-top: 20px;
-          padding-bottom: 20px;
-          background-color: #e5e5ea;
-        }
-
-        .app-container {
-          max-width: 500px;
-          margin: 0 auto;
-          border-radius: 20px;
-          overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-          min-height: 90vh;
-          position: relative;
-        }
-
-        .bottom-nav {
-          border-radius: 0 0 20px 20px;
-        }
-      }
-
-      /* ESTADOS DE CARREGAMENTO */
-      .loading {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: white;
-        animation: spin 1s ease-in-out infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      /* ESTILOS PARA A LISTA DE REGISTROS */
-      .empty-state {
-        padding: 40px 20px;
-        text-align: center;
-        color: #8e8e93;
-      }
-
-      .empty-state i {
-        font-size: 48px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-      }
-
-      .summary-card {
-        background: linear-gradient(135deg, #2d5be3 0%, #1e40af 100%);
-        color: white;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 20px;
-      }
-
-      .summary-title {
-        font-size: 16px;
-        font-weight: 500;
-        margin-bottom: 10px;
-        opacity: 0.9;
-      }
-
-      .summary-value {
-        font-size: 28px;
-        font-weight: 700;
-      }
-
-      .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-      }
-
-      .fab-button {
-        position: fixed;
-        bottom: 90px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background-color: #2d5be3;
-        color: white;
-        border: none;
-        box-shadow: 0 4px 15px rgba(45, 91, 227, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 100;
-        transition: all 0.2s;
-      }
-
-      .fab-button:active {
-        transform: scale(0.9);
-        box-shadow: 0 2px 10px rgba(45, 91, 227, 0.6);
-      }
-    </style>
-  </head>
-  <body>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <div class="app-container">
-      <!-- HEADER -->
-      <header class="app-header">
-        <div class="header-title">
-          <i class="fas fa-boxes"></i>
-          <span>Registro de Produção</span>
-        </div>
-      </header>
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-title">
+                <i class="fas fa-boxes-stacked"></i>
+                <span>StockTrack - Retiradas</span>
+            </div>
+            <div class="header-subtitle">Controle de Materiais</div>
+        </header>
 
-      <!-- CONTEÚDO PRINCIPAL -->
-      <main class="main-content">
-        <!-- TELA DE REGISTRO -->
-        <section id="register-screen" class="screen active">
-          <div class="card">
-            <h2 class="card-title">
-              <i class="fas fa-barcode"></i>
-              Novo Registro
-            </h2>
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <!-- TELA DE REGISTRO -->
+            <section id="register-screen" class="screen active">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-hand-holding"></i>
+                        Nova Retirada
+                    </h2>
+                    
+                    <div id="form-alert" class="alert" style="display: none;"></div>
+                    
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label class="form-label" for="product-name">Produto *</label>
+                            <input type="text" id="product-name" class="form-control" placeholder="Digite o nome do produto" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="barcode">Código de Barras *</label>
+                            <div class="d-flex gap-1">
+                                <input type="text" id="barcode" class="form-control" placeholder="Digite ou escaneie o código" required>
+                                <button type="button" id="scan-btn" class="btn btn-secondary btn-small">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="quantity">Quantidade *</label>
+                            <input type="number" id="quantity" class="form-control" placeholder="0" min="1" max="9999" required>
+                            <div class="text-muted" style="font-size: 14px; margin-top: 5px;">Mínimo: 1 | Máximo: <span id="max-quantity-display">9999</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="origin-sector">Setor de Origem *</label>
+                            <select id="origin-sector" class="form-control" required>
+                                <option value="">Selecione o setor</option>
+                                <option value="estoque">Estoque Principal</option>
+                                <option value="loja">Loja</option>
+                                <option value="producao">Área de Produção</option>
+                                <option value="expedicao">Expedição</option>
+                                <option value="manutencao">Manutenção</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="employee">Colaborador *</label>
+                            <input type="text" id="employee" class="form-control" placeholder="Nome do colaborador" required>
+                        </div>
 
-            <div id="form-alert" class="alert" style="display: none"></div>
-
-            <form id="register-form">
-              <div class="form-group">
-                <label class="form-label" for="product-name">Produto *</label>
-                <input
-                  type="text"
-                  id="product-name"
-                  class="form-control"
-                  placeholder="Digite o nome do produto"
-                  required
-                />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="barcode"
-                  >Código de Barras *</label
-                >
-                <div class="d-flex gap-1">
-                  <input
-                    type="text"
-                    id="barcode"
-                    class="form-control"
-                    placeholder="Digite ou escaneie o código"
-                    required
-                  />
-                  <button
-                    type="button"
-                    id="scan-btn"
-                    class="btn btn-secondary btn-small"
-                  >
-                    <i class="fas fa-camera"></i>
-                  </button>
+                        <div class="form-group">
+                            <label class="form-label" for="notes">Observações</label>
+                            <textarea id="notes" class="form-control" placeholder="Observações adicionais (opcional)" rows="2"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check-circle"></i>
+                            Registrar Retirada
+                        </button>
+                    </form>
                 </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="quantity">Quantidade *</label>
-                <input
-                  type="number"
-                  id="quantity"
-                  class="form-control"
-                  placeholder="0"
-                  min="1"
-                  max="9999"
-                  required
-                />
-                <div
-                  class="text-muted"
-                  style="font-size: 14px; margin-top: 5px"
-                >
-                  Mínimo: 1 | Máximo: 9999
+                
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-history"></i>
+                        Última Retirada
+                    </h2>
+                    <div id="last-registration" class="text-muted text-center">
+                        Nenhuma retirada recente
+                    </div>
                 </div>
-              </div>
+            </section>
 
-              <div class="form-group">
-                <label class="form-label" for="origin-sector"
-                  >Setor de Origem *</label
-                >
-                <select id="origin-sector" class="form-control" required>
-                  <option value="">Selecione o setor</option>
-                  <option value="estoque">Estoque Principal</option>
-                  <option value="loja">Loja</option>
-                  <option value="producao">Área de Produção</option>
-                  <option value="expedicao">Expedição</option>
-                  <option value="outro">Outro</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="employee"
-                  >Colaborador Responsável *</label
-                >
-                <input
-                  type="text"
-                  id="employee"
-                  class="form-control"
-                  placeholder="Nome do colaborador"
-                  required
-                />
-              </div>
-
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-check-circle"></i>
-                Registrar Retirada
-              </button>
-            </form>
-          </div>
-
-          <div class="card">
-            <h2 class="card-title">
-              <i class="fas fa-history"></i>
-              Registro Anterior
-            </h2>
-            <div id="last-registration" class="text-muted text-center">
-              Nenhum registro recente
-            </div>
-          </div>
-        </section>
-
-        <!-- TELA DE REGISTROS -->
-        <section id="records-screen" class="screen">
-          <div class="summary-card">
-            <div class="summary-title">Total de Itens Registrados Hoje</div>
-            <div class="summary-value" id="total-items">0</div>
-          </div>
-
-          <div class="card">
-            <h2 class="card-title">
-              <i class="fas fa-list"></i>
-              Registros Recentes
-            </h2>
-
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Produto</th>
-                    <th>Qtd</th>
-                    <th>Setor</th>
-                    <th>Data</th>
-                  </tr>
-                </thead>
-                <tbody id="records-list">
-                  <!-- Registros serão inseridos aqui via JavaScript -->
-                </tbody>
-              </table>
-            </div>
-
-            <div id="empty-records" class="empty-state">
-              <i class="fas fa-clipboard-list"></i>
-              <p>Nenhum registro encontrado</p>
-              <p class="text-muted" style="font-size: 14px; margin-top: 10px">
-                Os registros aparecerão aqui após serem cadastrados
-              </p>
-            </div>
-
-            <div class="d-flex justify-between mt-2">
-              <button id="export-pdf-btn" class="btn btn-secondary btn-small">
-                <i class="fas fa-file-pdf"></i> Exportar PDF
-              </button>
-              <button id="clear-records-btn" class="btn btn-danger btn-small">
-                <i class="fas fa-trash-alt"></i> Limpar Tudo
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- TELA DE RELATÓRIOS -->
-        <section id="reports-screen" class="screen">
-          <div class="card">
-            <h2 class="card-title">
-              <i class="fas fa-chart-bar"></i>
-              Relatórios e Resumos
-            </h2>
-
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle"></i>
-              <div>
-                <strong>Resumos por período</strong>
-                <p>Os produtos são agrupados automaticamente por data</p>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="report-period"
-                >Período do Relatório</label
-              >
-              <select id="report-period" class="form-control">
-                <option value="today">Hoje</option>
-                <option value="yesterday">Ontem</option>
-                <option value="week">Esta Semana</option>
-                <option value="month">Este Mês</option>
-                <option value="custom">Personalizado</option>
-              </select>
-            </div>
-
-            <div id="custom-period" style="display: none">
-              <div class="d-flex gap-2">
-                <div class="form-group" style="flex: 1">
-                  <label class="form-label" for="start-date"
-                    >Data Inicial</label
-                  >
-                  <input type="date" id="start-date" class="form-control" />
+            <!-- TELA DE REGISTROS -->
+            <section id="records-screen" class="screen">
+                <div class="summary-card">
+                    <div class="summary-row">
+                        <div>
+                            <div class="summary-title">Itens Retirados Hoje</div>
+                            <div class="summary-value" id="total-items">0</div>
+                        </div>
+                        <div>
+                            <div class="summary-title">Total de Registros</div>
+                            <div class="summary-value" id="total-records">0</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group" style="flex: 1">
-                  <label class="form-label" for="end-date">Data Final</label>
-                  <input type="date" id="end-date" class="form-control" />
+                
+                <div class="card">
+                    <div class="d-flex justify-between align-center mb-2">
+                        <h2 class="card-title" style="margin: 0;">
+                            <i class="fas fa-list"></i>
+                            Histórico de Retiradas
+                        </h2>
+                        <button id="filter-records" class="btn btn-secondary btn-small">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Qtd</th>
+                                    <th>Setor</th>
+                                    <th>Horário</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-list">
+                                <!-- Registros serão inseridos aqui via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="empty-records" class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>Nenhuma retirada registrada</p>
+                        <p class="text-muted" style="font-size: 14px; margin-top: 10px;">
+                            As retiradas aparecerão aqui após serem cadastradas
+                        </p>
+                    </div>
+                    
+                    <div class="d-flex justify-between mt-2">
+                        <button id="export-excel-btn" class="btn btn-secondary btn-small">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button id="export-pdf-btn" class="btn btn-secondary btn-small">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button id="export-image-btn" class="btn btn-secondary btn-small">
+                            <i class="fas fa-file-image"></i> Imagem
+                        </button>
+                        <button id="clear-records-btn" class="btn btn-danger btn-small">
+                            <i class="fas fa-trash-alt"></i> Limpar
+                        </button>
+                    </div>
                 </div>
-              </div>
-            </div>
+            </section>
 
-            <div class="form-group">
-              <label class="form-label" for="group-by">Agrupar por</label>
-              <select id="group-by" class="form-control">
-                <option value="product">Produto</option>
-                <option value="sector">Setor</option>
-                <option value="employee">Colaborador</option>
-              </select>
-            </div>
-
-            <button id="generate-report-btn" class="btn btn-primary">
-              <i class="fas fa-chart-pie"></i>
-              Gerar Relatório
-            </button>
-
-            <button id="share-report-btn" class="btn btn-success mt-2">
-              <i class="fas fa-share-alt"></i>
-              Compartilhar Relatório
-            </button>
-          </div>
-
-          <div class="card">
-            <h2 class="card-title">
-              <i class="fas fa-file-pdf"></i>
-              Relatório Gerado
-            </h2>
-            <div id="report-content" class="text-muted text-center">
-              <p>Nenhum relatório gerado ainda</p>
-              <p style="font-size: 14px">
-                Use o formulário acima para gerar um relatório
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- TELA DE CONFIGURAÇÕES -->
-        <section id="settings-screen" class="screen">
-          <div class="card">
-            <h2 class="card-title">
-              <i class="fas fa-cog"></i>
-              Configurações
-            </h2>
-
-            <div class="form-group">
-              <label class="form-label" for="max-quantity"
-                >Quantidade Máxima Permitida</label
-              >
-              <input
-                type="number"
-                id="max-quantity"
-                class="form-control"
-                value="9999"
-                min="100"
-                max="99999"
-              />
-              <div class="text-muted" style="font-size: 14px; margin-top: 5px">
-                Define o limite máximo para registros de quantidade
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="auto-save"
-                >Salvamento Automático</label
-              >
-              <select id="auto-save" class="form-control">
-                <option value="enabled">Ativado</option>
-                <option value="disabled">Desativado</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="scan-sound">Som ao Escanear</label>
-              <select id="scan-sound" class="form-control">
-                <option value="enabled">Ativado</option>
-                <option value="disabled">Desativado</option>
-              </select>
-            </div>
-
-            <div class="alert alert-warning">
-              <i class="fas fa-exclamation-triangle"></i>
-              <div>
-                <strong>Dados Locais</strong>
-                <p>Seus registros são armazenados apenas neste dispositivo</p>
-              </div>
-            </div>
-
-            <button id="save-settings-btn" class="btn btn-primary">
-              <i class="fas fa-save"></i>
-              Salvar Configurações
-            </button>
-
-            <button id="backup-data-btn" class="btn btn-secondary mt-2">
-              <i class="fas fa-download"></i>
-              Backup dos Dados
-            </button>
-          </div>
-        </section>
-      </main>
-
-      <!-- MENU INFERIOR -->
-      <nav class="bottom-nav">
-        <div class="nav-item active" data-screen="register">
-          <i class="fas fa-plus-circle nav-icon"></i>
-          <span class="nav-label">Registrar</span>
-        </div>
-        <div class="nav-item" data-screen="records">
-          <i class="fas fa-clipboard-list nav-icon"></i>
-          <span class="nav-label">Registros</span>
-        </div>
-        <div class="nav-item" data-screen="reports">
-          <i class="fas fa-chart-bar nav-icon"></i>
-          <span class="nav-label">Relatórios</span>
-        </div>
-        <div class="nav-item" data-screen="settings">
-          <i class="fas fa-cog nav-icon"></i>
-          <span class="nav-label">Configurações</span>
-        </div>
-      </nav>
-
-      <!-- MODAL DO SCANNER -->
-      <div id="scanner-modal" class="modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title">
-              <i class="fas fa-camera"></i>
-              Escanear Código de Barras
-            </h3>
-            <button class="modal-close" id="close-scanner">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-info mb-2">
-              <i class="fas fa-info-circle"></i>
-              <div>
-                <strong>Como escanear</strong>
-                <p>Posicione o código de barras dentro do quadro</p>
-              </div>
-            </div>
-
-            <div class="scanner-container">
-              <div id="qr-reader"></div>
-              <div class="scanner-overlay">
-                <div class="scanner-frame">
-                  <div class="scanner-line"></div>
+            <!-- TELA DE RELATÓRIOS -->
+            <section id="reports-screen" class="screen">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Relatórios
+                    </h2>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Relatórios por período</strong>
+                            <p>Os dados são agrupados automaticamente conforme selecionado</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="report-period">Período</label>
+                        <select id="report-period" class="form-control">
+                            <option value="today">Hoje</option>
+                            <option value="yesterday">Ontem</option>
+                            <option value="week">Esta Semana</option>
+                            <option value="month">Este Mês</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                    
+                    <div id="custom-period" style="display: none;">
+                        <div class="d-flex gap-2">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" for="start-date">Data Inicial</label>
+                                <input type="date" id="start-date" class="form-control">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" for="end-date">Data Final</label>
+                                <input type="date" id="end-date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="group-by">Agrupar por</label>
+                        <select id="group-by" class="form-control">
+                            <option value="product">Produto</option>
+                            <option value="sector">Setor</option>
+                            <option value="employee">Colaborador</option>
+                            <option value="hour">Hora do Dia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button id="generate-report-btn" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-chart-pie"></i>
+                            Gerar
+                        </button>
+                        <button id="share-report-btn" class="btn btn-success" style="flex: 1;">
+                            <i class="fas fa-share-alt"></i>
+                            Compartilhar
+                        </button>
+                    </div>
                 </div>
-              </div>
-            </div>
+                
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        Resumo do Relatório
+                    </h2>
+                    <div id="report-summary" class="text-muted text-center">
+                        <p>Nenhum relatório gerado</p>
+                        <p style="font-size: 14px;">Use o formulário acima para gerar um relatório</p>
+                    </div>
+                </div>
 
-            <div class="text-center mt-2">
-              <button id="toggle-camera" class="btn btn-secondary btn-small">
-                <i class="fas fa-sync-alt"></i>
-                Trocar Câmera
-              </button>
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-file-alt"></i>
+                        Relatório Detalhado
+                    </h2>
+                    <div id="report-content">
+                        <!-- Conteúdo do relatório será inserido aqui -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TELA DE CONFIGURAÇÕES -->
+            <section id="settings-screen" class="screen">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-cog"></i>
+                        Configurações
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="company-name">Nome da Empresa</label>
+                        <input type="text" id="company-name" class="form-control" placeholder="Nome da sua empresa" value="StockTrack">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="max-quantity">Quantidade Máxima</label>
+                        <input type="number" id="max-quantity" class="form-control" value="9999" min="100" max="99999">
+                        <div class="text-muted" style="font-size: 14px; margin-top: 5px;">
+                            Define o limite máximo para retiradas por item
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="auto-save">Salvamento Automático</label>
+                        <select id="auto-save" class="form-control">
+                            <option value="enabled">Ativado</option>
+                            <option value="disabled">Desativado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="scan-sound">Som ao Escanear</label>
+                        <select id="scan-sound" class="form-control">
+                            <option value="enabled">Ativado</option>
+                            <option value="disabled">Desativado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="duplicate-time">Tempo mínimo entre registros</label>
+                        <select id="duplicate-time" class="form-control">
+                            <option value="1">1 minuto</option>
+                            <option value="5">5 minutos</option>
+                            <option value="15">15 minutos</option>
+                            <option value="0">Sem restrição</option>
+                        </select>
+                        <div class="text-muted" style="font-size: 14px; margin-top: 5px;">
+                            Evita registros duplicados acidentais
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Dados Locais</strong>
+                            <p>Seus registros são armazenados apenas neste dispositivo</p>
+                        </div>
+                    </div>
+                    
+                    <button id="save-settings-btn" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Salvar Configurações
+                    </button>
+                    
+                    <div class="d-flex gap-2 mt-2">
+                        <button id="backup-data-btn" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-download"></i>
+                            Backup
+                        </button>
+                        <button id="restore-data-btn" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-upload"></i>
+                            Restaurar
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- MENU INFERIOR -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-screen="register">
+                <i class="fas fa-hand-holding nav-icon"></i>
+                <span class="nav-label">Retirar</span>
             </div>
-          </div>
+            <div class="nav-item" data-screen="records">
+                <i class="fas fa-clipboard-list nav-icon"></i>
+                <span class="nav-label">Histórico</span>
+            </div>
+            <div class="nav-item" data-screen="reports">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-label">Relatórios</span>
+            </div>
+            <div class="nav-item" data-screen="settings">
+                <i class="fas fa-cog nav-icon"></i>
+                <span class="nav-label">Configurações</span>
+            </div>
+        </nav>
+
+        <!-- MODAL DO SCANNER -->
+        <div id="scanner-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-camera"></i>
+                        Escanear Código de Barras
+                    </h3>
+                    <button class="modal-close" id="close-scanner">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-2">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Como escanear</strong>
+                            <p>Posicione o código de barras dentro do quadro</p>
+                        </div>
+                    </div>
+                    
+                    <div class="scanner-container">
+                        <div id="qr-reader"></div>
+                        <div class="scanner-overlay">
+                            <div class="scanner-frame">
+                                <div class="scanner-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-2">
+                        <button id="toggle-camera" class="btn btn-secondary btn-small">
+                            <i class="fas fa-sync-alt"></i>
+                            Trocar Câmera
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- MODAL DE CONFIRMAÇÃO -->
-      <div id="confirmation-modal" class="modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title">
-              <i class="fas fa-check-circle"></i>
-              Confirmação
-            </h3>
-          </div>
-          <div class="modal-body">
-            <div id="confirmation-message"></div>
-            <div class="d-flex gap-2 mt-3">
-              <button
-                id="confirm-cancel"
-                class="btn btn-secondary"
-                style="flex: 1"
-              >
-                Cancelar
-              </button>
-              <button id="confirm-ok" class="btn btn-primary" style="flex: 1">
-                Confirmar
-              </button>
+        <!-- MODAL DE CONFIRMAÇÃO -->
+        <div id="confirmation-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-check-circle"></i>
+                        Confirmação
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div id="confirmation-message"></div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button id="confirm-cancel" class="btn btn-secondary" style="flex: 1;">
+                            Cancelar
+                        </button>
+                        <button id="confirm-ok" class="btn btn-primary" style="flex: 1;">
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
 
-      <!-- FAB PARA ADICIONAR REGISTRO RÁPIDO -->
-      <button id="fab-add" class="fab-button">
-        <i class="fas fa-plus"></i>
-      </button>
+        <!-- MODAL DE FILTRO -->
+        <div id="filter-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-filter"></i>
+                        Filtrar Registros
+                    </h3>
+                    <button class="modal-close" id="close-filter">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="filter-sector">Setor</label>
+                        <select id="filter-sector" class="form-control">
+                            <option value="">Todos os setores</option>
+                            <option value="estoque">Estoque</option>
+                            <option value="loja">Loja</option>
+                            <option value="producao">Produção</option>
+                            <option value="expedicao">Expedição</option>
+                            <option value="manutencao">Manutenção</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="filter-date">Data</label>
+                        <select id="filter-date" class="form-control">
+                            <option value="today">Hoje</option>
+                            <option value="yesterday">Ontem</option>
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mês</option>
+                            <option value="all">Todo período</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="filter-employee">Colaborador</label>
+                        <input type="text" id="filter-employee" class="form-control" placeholder="Filtrar por colaborador">
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button id="apply-filter" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-check"></i>
+                            Aplicar
+                        </button>
+                        <button id="clear-filter" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-times"></i>
+                            Limpar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB PARA ADICIONAR REGISTRO RÁPIDO -->
+        <button id="fab-add" class="fab-button">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
 
-    <script>
-      // DADOS E ESTADO DO SISTEMA
-      const AppState = {
-        records: JSON.parse(localStorage.getItem("production_records")) || [],
-        settings: JSON.parse(localStorage.getItem("app_settings")) || {
-          maxQuantity: 9999,
-          autoSave: "enabled",
-          scanSound: "enabled",
-        },
-        currentScanner: null,
-        currentCameraId: null,
-        cameras: [],
-      };
-
-      // INICIALIZAÇÃO DO APP
-      document.addEventListener("DOMContentLoaded", function () {
-        initApp();
-      });
-
-      function initApp() {
-        // Configurar menu de navegação
-        setupNavigation();
-
-        // Configurar formulário de registro
-        setupRegistrationForm();
-
-        // Configurar scanner
-        setupScanner();
-
-        // Configurar botões e eventos
-        setupButtons();
-
-        // Carregar configurações salvas
-        loadSettings();
-
-        // Atualizar exibição inicial
-        updateRecordsDisplay();
-        updateLastRegistration();
-
-        // Configurar FAB
-        document
-          .getElementById("fab-add")
-          .addEventListener("click", function () {
-            switchScreen("register");
-            document.getElementById("product-name").focus();
-          });
-      }
-
-      // NAVEGAÇÃO ENTRE TELAS
-      function setupNavigation() {
-        const navItems = document.querySelectorAll(".nav-item");
-
-        navItems.forEach((item) => {
-          item.addEventListener("click", function () {
-            const screenId = this.getAttribute("data-screen");
-
-            // Atualizar menu ativo
-            navItems.forEach((nav) => nav.classList.remove("active"));
-            this.classList.add("active");
-
-            // Alternar tela
-            switchScreen(screenId);
-          });
-        });
-      }
-
-      function switchScreen(screenId) {
-        // Esconder todas as telas
-        document.querySelectorAll(".screen").forEach((screen) => {
-          screen.classList.remove("active");
-        });
-
-        // Mostrar tela selecionada
-        document.getElementById(`${screenId}-screen`).classList.add("active");
-
-        // Atualizar título do header
-        const titles = {
-          register: "Registrar Produto",
-          records: "Registros",
-          reports: "Relatórios",
-          settings: "Configurações",
-        };
-
-        document.querySelector(".header-title span").textContent =
-          titles[screenId];
-
-        // Atualizar dados específicos da tela
-        if (screenId === "records") {
-          updateRecordsDisplay();
-        }
-      }
-
-      // FORMULÁRIO DE REGISTRO
-      function setupRegistrationForm() {
-        const form = document.getElementById("register-form");
-
-        form.addEventListener("submit", function (e) {
-          e.preventDefault();
-          registerProduct();
-        });
-
-        // Validação em tempo real
-        const quantityInput = document.getElementById("quantity");
-        quantityInput.addEventListener("change", function () {
-          validateQuantity(this.value);
-        });
-
-        // Botão de scanner
-        document
-          .getElementById("scan-btn")
-          .addEventListener("click", function () {
-            openScanner();
-          });
-      }
-
-      // VALIDAÇÕES
-      function validateQuantity(quantity) {
-        const max = AppState.settings.maxQuantity || 9999;
-        const alertDiv = document.getElementById("form-alert");
-
-        if (quantity <= 0) {
-          showAlert("A quantidade deve ser maior que zero.", "error");
-          return false;
-        }
-
-        if (quantity > max) {
-          showAlert(`A quantidade não pode exceder ${max}.`, "error");
-          return false;
-        }
-
-        return true;
-      }
-
-      function validateBarcode(barcode) {
-        if (!barcode || barcode.trim() === "") {
-          showAlert("O código de barras é obrigatório.", "error");
-          return false;
-        }
-
-        // REMOVER: Verificação que bloqueia duplicados
-        // Verificar se já existe registro hoje (apenas para informação)
-        const today = new Date().toDateString();
-        const existingToday = AppState.records.filter(
-          (record) =>
-            record.barcode === barcode &&
-            new Date(record.timestamp).toDateString() === today,
-        );
-
-        // Apenas informar, não bloquear
-        if (existingToday.length > 0) {
-          const totalHoje = existingToday.reduce(
-            (sum, r) => sum + r.quantity,
-            0,
-          );
-          showAlert(
-            `Este produto já foi retirado ${existingToday.length} vez(es) hoje. Total hoje: ${totalHoje} unidades.`,
-            "info",
-          );
-        }
-
-        return true;
-      }
-
-      function validateForm() {
-        const productName = document
-          .getElementById("product-name")
-          .value.trim();
-        const barcode = document.getElementById("barcode").value.trim();
-        const quantity = document.getElementById("quantity").value;
-        const sector = document.getElementById("origin-sector").value;
-        const employee = document.getElementById("employee").value.trim();
-
-        if (!productName) {
-          showAlert("O nome do produto é obrigatório.", "error");
-          return false;
-        }
-
-        if (!validateBarcode(barcode)) return false;
-
-        if (!validateQuantity(quantity)) return false;
-
-        if (!sector) {
-          showAlert("O setor de origem é obrigatório.", "error");
-          return false;
-        }
-
-        if (!employee) {
-          showAlert("O colaborador responsável é obrigatório.", "error");
-          return false;
-        }
-
-        return true;
-      }
-
-      // REGISTRO DE PRODUTO
-      function registerProduct() {
-        if (!validateForm()) return;
-
-        const productName = document
-          .getElementById("product-name")
-          .value.trim();
-        const barcode = document.getElementById("barcode").value.trim();
-        const quantity = parseInt(document.getElementById("quantity").value);
-        const sector = document.getElementById("origin-sector").value;
-        const employee = document.getElementById("employee").value.trim();
-        const timestamp = new Date().toISOString();
-
-        const record = {
-          id: Date.now(),
-          productName,
-          barcode,
-          quantity,
-          sector,
-          employee,
-          timestamp,
-        };
-
-        // Adicionar ao histórico
-        AppState.records.unshift(record);
-
-        // Limitar a 1000 registros para performance
-        if (AppState.records.length > 1000) {
-          AppState.records = AppState.records.slice(0, 1000);
-        }
-
-        // Salvar no localStorage
-        saveRecords();
-
-        // Feedback visual
-        showAlert("Produto registrado com sucesso!", "success");
-
-        // Limpar formulário
-        document.getElementById("register-form").reset();
-
-        // Atualizar exibições
-        updateLastRegistration();
-        updateRecordsDisplay();
-
-        // Focar no primeiro campo para próximo registro
-        document.getElementById("product-name").focus();
-      }
-
-      // SCANNER DE CÓDIGO DE BARRAS
-      function setupScanner() {
-        // Configurar botão de fechar scanner
-        document
-          .getElementById("close-scanner")
-          .addEventListener("click", closeScanner);
-
-        // Configurar troca de câmera
-        document
-          .getElementById("toggle-camera")
-          .addEventListener("click", toggleCamera);
-      }
-
-      function openScanner() {
-        const modal = document.getElementById("scanner-modal");
-        modal.classList.add("active");
-
-        // Inicializar scanner
-        setTimeout(() => {
-          initScanner();
-        }, 300);
-      }
-
-      function initScanner() {
-        const scannerContainer = document.getElementById("qr-reader");
-
-        // Limpar scanner anterior se existir
-        if (AppState.currentScanner) {
-          AppState.currentScanner.clear();
-        }
-
-        // Configurar scanner
-        AppState.currentScanner = new Html5Qrcode("qr-reader");
-
-        const config = {
-          fps: 10,
-          qrbox: { width: 250, height: 150 },
-          aspectRatio: 1.0,
-        };
-
-        // Iniciar scanner
-        Html5Qrcode.getCameras()
-          .then((cameras) => {
-            AppState.cameras = cameras;
-
-            if (cameras && cameras.length > 0) {
-              // Usar câmera traseira se disponível
-              const backCamera =
-                cameras.find((cam) =>
-                  cam.label.toLowerCase().includes("back"),
-                ) || cameras[0];
-              AppState.currentCameraId = backCamera.id;
-
-              AppState.currentScanner
-                .start(
-                  AppState.currentCameraId,
-                  config,
-                  onScanSuccess,
-                  onScanError,
-                )
-                .catch((err) => {
-                  console.error("Erro ao iniciar scanner:", err);
-                  showAlert("Não foi possível acessar a câmera.", "error");
-                });
-            } else {
-              showAlert("Nenhuma câmera encontrada.", "error");
-            }
-          })
-          .catch((err) => {
-            console.error("Erro ao obter câmeras:", err);
-            showAlert(
-              "Não foi possível acessar as câmeras do dispositivo.",
-              "error",
-            );
-          });
-      }
-
-      function onScanSuccess(decodedText) {
-        // Tocar som se configurado
-        if (AppState.settings.scanSound === "enabled") {
-          playScanSound();
-        }
-
-        // Preencher campo de código de barras
-        document.getElementById("barcode").value = decodedText;
-
-        // Fechar scanner
-        closeScanner();
-
-        // Focar no próximo campo
-        document.getElementById("quantity").focus();
-
-        // Validar código
-        validateBarcode(decodedText);
-      }
-
-      function onScanError(error) {
-        // Ignorar erros de scanner não encontrado (ocorrem frequentemente durante a varredura)
-        if (!error.includes("NotFoundException")) {
-          console.warn("Erro no scanner:", error);
-        }
-      }
-
-      function toggleCamera() {
-        if (AppState.cameras.length < 2) {
-          showAlert("Apenas uma câmera disponível.", "warning");
-          return;
-        }
-
-        if (AppState.currentScanner) {
-          AppState.currentScanner
-            .stop()
-            .then(() => {
-              // Encontrar próxima câmera
-              const currentIndex = AppState.cameras.findIndex(
-                (cam) => cam.id === AppState.currentCameraId,
-              );
-              const nextIndex = (currentIndex + 1) % AppState.cameras.length;
-              AppState.currentCameraId = AppState.cameras[nextIndex].id;
-
-              // Reiniciar com nova câmera
-              const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 150 },
-                aspectRatio: 1.0,
-              };
-
-              AppState.currentScanner.start(
-                AppState.currentCameraId,
-                config,
-                onScanSuccess,
-                onScanError,
-              );
-            })
-            .catch((err) => {
-              console.error("Erro ao alternar câmera:", err);
-            });
-        }
-      }
-
-      function closeScanner() {
-        if (AppState.currentScanner) {
-          AppState.currentScanner
-            .stop()
-            .then(() => {
-              AppState.currentScanner = null;
-            })
-            .catch((err) => {
-              console.error("Erro ao parar scanner:", err);
-            });
-        }
-
-        document.getElementById("scanner-modal").classList.remove("active");
-      }
-
-      function playScanSound() {
-        // Criar som de bip simples
-        const audioContext = new (
-          window.AudioContext || window.webkitAudioContext
-        )();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.frequency.value = 800;
-        oscillator.type = "sine";
-
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.01,
-          audioContext.currentTime + 0.1,
-        );
-
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-      }
-
-      // GERENCIAMENTO DE REGISTROS
-      function updateRecordsDisplay() {
-        const recordsList = document.getElementById("records-list");
-        const emptyState = document.getElementById("empty-records");
-        const totalItems = document.getElementById("total-items");
-
-        // Filtrar registros de hoje
-        const today = new Date().toDateString();
-        const todayRecords = AppState.records.filter(
-          (record) => new Date(record.timestamp).toDateString() === today,
-        );
-
-        // Atualizar total
-        const totalToday = todayRecords.reduce(
-          (sum, record) => sum + record.quantity,
-          0,
-        );
-        totalItems.textContent = totalToday;
-
-        // Limpar lista
-        recordsList.innerHTML = "";
-
-        if (AppState.records.length === 0) {
-          emptyState.style.display = "block";
-          return;
-        }
-
-        emptyState.style.display = "none";
-
-        // Adicionar registros (limitar a 50 para performance)
-        const displayRecords = AppState.records.slice(0, 50);
-
-        displayRecords.forEach((record) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-                    <td>${record.productName}</td>
-                    <td><span class="badge badge-success">${record.quantity}</span></td>
-                    <td>${getSectorName(record.sector)}</td>
-                    <td>${formatDateTime(record.timestamp)}</td>
-                `;
-
-          // Adicionar evento de clique para ver detalhes
-          row.addEventListener("click", function () {
-            showRecordDetails(record);
-          });
-
-          recordsList.appendChild(row);
-        });
-      }
-
-      function updateLastRegistration() {
-        const lastRegDiv = document.getElementById("last-registration");
-
-        if (AppState.records.length > 0) {
-          const lastRecord = AppState.records[0];
-          lastRegDiv.innerHTML = `
-                    <div style="text-align: left;">
-                        <strong>${lastRecord.productName}</strong><br>
-                        <small>Código: ${lastRecord.barcode}</small><br>
-                        <small>Quantidade: ${lastRecord.quantity} | Setor: ${getSectorName(lastRecord.sector)}</small><br>
-                        <small>${formatDateTime(lastRecord.timestamp)}</small>
-                    </div>
-                `;
-        } else {
-          lastRegDiv.textContent = "Nenhum registro recente";
-        }
-      }
-
-      function showRecordDetails(record) {
-        const message = `
-                <div class="alert alert-info">
-                    <strong>Detalhes do Registro</strong><br><br>
-                    <strong>Produto:</strong> ${record.productName}<br>
-                    <strong>Código:</strong> ${record.barcode}<br>
-                    <strong>Quantidade:</strong> ${record.quantity}<br>
-                    <strong>Setor de Origem:</strong> ${getSectorName(record.sector)}<br>
-                    <strong>Colaborador:</strong> ${record.employee}<br>
-                    <strong>Data/Hora:</strong> ${formatDateTime(record.timestamp)}
-                </div>
-            `;
-
-        showConfirmation("Detalhes do Registro", message, false);
-      }
-
-      // RELATÓRIOS
-      function generateReport() {
-        const period = document.getElementById("report-period").value;
-        const groupBy = document.getElementById("group-by").value;
-        let startDate, endDate;
-
-        // Definir período
-        const today = new Date();
-
-        switch (period) {
-          case "today":
-            startDate = new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-            );
-            endDate = new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              23,
-              59,
-              59,
-            );
-            break;
-
-          case "yesterday":
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-            startDate = new Date(
-              yesterday.getFullYear(),
-              yesterday.getMonth(),
-              yesterday.getDate(),
-            );
-            endDate = new Date(
-              yesterday.getFullYear(),
-              yesterday.getMonth(),
-              yesterday.getDate(),
-              23,
-              59,
-              59,
-            );
-            break;
-
-          case "week":
-            const dayOfWeek = today.getDay();
-            const diff =
-              today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-            startDate = new Date(today.getFullYear(), today.getMonth(), diff);
-            endDate = new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              23,
-              59,
-              59,
-            );
-            break;
-
-          case "month":
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            endDate = new Date(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate(),
-              23,
-              59,
-              59,
-            );
-            break;
-
-          case "custom":
-            const startInput = document.getElementById("start-date").value;
-            const endInput = document.getElementById("end-date").value;
-
-            if (!startInput || !endInput) {
-              showAlert(
-                "Selecione ambas as datas para período personalizado.",
-                "error",
-              );
-              return;
-            }
-
-            startDate = new Date(startInput);
-            endDate = new Date(endInput);
-            endDate.setHours(23, 59, 59);
-            break;
-        }
-
-        // Filtrar registros pelo período
-        const filteredRecords = AppState.records.filter((record) => {
-          const recordDate = new Date(record.timestamp);
-          return recordDate >= startDate && recordDate <= endDate;
-        });
-
-        if (filteredRecords.length === 0) {
-          document.getElementById("report-content").innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-chart-bar"></i>
-                        <p>Nenhum registro no período selecionado</p>
-                    </div>
-                `;
-          return;
-        }
-
-        // Gerar resumo agrupado
-        const summary = {};
-        let totalQuantity = 0;
-
-        filteredRecords.forEach((record) => {
-          const key =
-            record[
-              groupBy === "product"
-                ? "productName"
-                : groupBy === "sector"
-                  ? "sector"
-                  : "employee"
-            ];
-
-          if (!summary[key]) {
-            summary[key] = {
-              name: key,
-              quantity: 0,
-              barcodes: new Set(),
-              registros: 0, // Contador de registros individuais
-            };
-          }
-
-          summary[key].quantity += record.quantity;
-          summary[key].barcodes.add(record.barcode);
-          summary[key].registros += 1;
-          totalQuantity += record.quantity;
-        });
-        // Adicionar uma função para consultar histórico do produto
-        function showProductHistory(barcode) {
-          const productRecords = AppState.records.filter(
-            (record) => record.barcode === barcode,
-          );
-          const today = new Date().toDateString();
-
-          const hoje = productRecords.filter(
-            (r) => new Date(r.timestamp).toDateString() === today,
-          );
-
-          const totalHoje = hoje.reduce((sum, r) => sum + r.quantity, 0);
-          const totalGeral = productRecords.reduce(
-            (sum, r) => sum + r.quantity,
-            0,
-          );
-
-          return {
-            registrosHoje: hoje.length,
-            totalHoje: totalHoje,
-            registrosTotal: productRecords.length,
-            totalGeral: totalGeral,
-          };
-        }
-
-        // Podemos adicionar um botão para consultar histórico após escanear
-        // No evento de sucesso do scanner, após preencher o código:
-        function onScanSuccess(decodedText) {
-          // ... código anterior ...
-
-          // Mostrar histórico do produto (opcional)
-          const history = showProductHistory(decodedText);
-          if (history.registrosHoje > 0) {
-            setTimeout(() => {
-              showAlert(
-                `Histórico: ${history.registrosHoje} retirada(s) hoje (${history.totalHoje} unidades). ` +
-                  `Total geral: ${history.registrosTotal} retiradas (${history.totalGeral} unidades).`,
-                "info",
-              );
-            }, 500);
-          }
-        }
-        // Gerar conteúdo do relatório
-        let reportHTML = `
-                <div style="background: white; padding: 20px; border-radius: 12px;">
-                    <h3 style="margin-bottom: 20px; color: #2d5be3;">Relatório de Produção</h3>
-                    <p><strong>Período:</strong> ${period === "custom" ? `${formatDate(startDate)} a ${formatDate(endDate)}` : period}<br>
-                    <strong>Total de itens:</strong> ${totalQuantity}<br>
-                    <strong>Total de registros:</strong> ${filteredRecords.length}</p>
-                    
-                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Resumo por ${groupBy === "product" ? "Produto" : groupBy === "sector" ? "Setor" : "Colaborador"}</h4>
-            `;
-
-        // Adicionar resumos individuais
-        Object.values(summary).forEach((item) => {
-          reportHTML += `
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <strong>${groupBy === "product" ? "Produto" : groupBy === "sector" ? "Setor" : "Colaborador"}:</strong> ${item.name}<br>
-                        <strong>Total Retirado:</strong> ${item.quantity} unidades<br>
-                        <strong>Códigos de Barras:</strong> ${Array.from(item.barcodes).join(", ")}
-                    </div>
-                `;
-        });
-
-        reportHTML += `</div>`;
-
-        document.getElementById("report-content").innerHTML = reportHTML;
-
-        // Armazenar relatório atual para exportação
-        AppState.currentReport = {
-          period,
-          startDate,
-          endDate,
-          filteredRecords,
-          summary,
-          totalQuantity,
-          groupBy,
-        };
-      }
-
-      function exportToPDF() {
-        if (!AppState.currentReport) {
-          showAlert("Gere um relatório primeiro para exportar.", "warning");
-          return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Configurar documento
-        doc.setFontSize(18);
-        doc.text("Relatório de Produção", 20, 20);
-
-        doc.setFontSize(12);
-        doc.setTextColor(100);
-
-        // Informações do relatório
-        const periodText =
-          AppState.currentReport.period === "custom"
-            ? `${formatDate(AppState.currentReport.startDate)} a ${formatDate(AppState.currentReport.endDate)}`
-            : AppState.currentReport.period;
-
-        doc.text(`Período: ${periodText}`, 20, 35);
-        doc.text(
-          `Total de itens: ${AppState.currentReport.totalQuantity}`,
-          20,
-          42,
-        );
-        doc.text(
-          `Total de registros: ${AppState.currentReport.filteredRecords.length}`,
-          20,
-          49,
-        );
-
-        // Tabela de registros
-        const headers = [
-          ["Produto", "Código", "Qtd", "Setor", "Colaborador", "Data"],
-        ];
-        const data = AppState.currentReport.filteredRecords.map((record) => [
-          record.productName,
-          record.barcode,
-          record.quantity.toString(),
-          getSectorName(record.sector),
-          record.employee,
-          formatDateTime(record.timestamp),
-        ]);
-
-        doc.autoTable({
-          head: headers,
-          body: data,
-          startY: 60,
-          styles: { fontSize: 9 },
-          headStyles: { fillColor: [45, 91, 227] },
-        });
-
-        // Resumos
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(14);
-        doc.setTextColor(0);
-        doc.text(
-          `Resumos por ${AppState.currentReport.groupBy === "product" ? "Produto" : AppState.currentReport.groupBy === "sector" ? "Setor" : "Colaborador"}`,
-          20,
-          finalY,
-        );
-
-        doc.setFontSize(11);
-        let yPos = finalY + 10;
-
-        Object.values(AppState.currentReport.summary).forEach((item) => {
-          if (yPos > 270) {
-            doc.addPage();
-            yPos = 20;
-          }
-
-          doc.setFontSize(10);
-          doc.setTextColor(0);
-          doc.text(
-            `${AppState.currentReport.groupBy === "product" ? "Produto" : AppState.currentReport.groupBy === "sector" ? "Setor" : "Colaborador"}: ${item.name}`,
-            25,
-            yPos,
-          );
-
-          doc.setTextColor(100);
-          doc.text(`Total Retirado: ${item.quantity} unidades`, 25, yPos + 6);
-          doc.text(
-            `Códigos: ${Array.from(item.barcodes).join(", ")}`,
-            25,
-            yPos + 12,
-          );
-
-          yPos += 25;
-        });
-
-        // Salvar PDF
-        const fileName = `relatorio_producao_${new Date().toISOString().slice(0, 10)}.pdf`;
-        doc.save(fileName);
-
-        showAlert("PDF gerado com sucesso!", "success");
-      }
-
-      // CONFIGURAÇÕES
-      function loadSettings() {
-        document.getElementById("max-quantity").value =
-          AppState.settings.maxQuantity;
-        document.getElementById("auto-save").value = AppState.settings.autoSave;
-        document.getElementById("scan-sound").value =
-          AppState.settings.scanSound;
-
-        // Configurar evento para período personalizado
-        document
-          .getElementById("report-period")
-          .addEventListener("change", function () {
-            document.getElementById("custom-period").style.display =
-              this.value === "custom" ? "block" : "none";
-          });
-      }
-
-      function saveSettings() {
-        AppState.settings.maxQuantity =
-          parseInt(document.getElementById("max-quantity").value) || 9999;
-        AppState.settings.autoSave = document.getElementById("auto-save").value;
-        AppState.settings.scanSound =
-          document.getElementById("scan-sound").value;
-
-        localStorage.setItem("app_settings", JSON.stringify(AppState.settings));
-        showAlert("Configurações salvas com sucesso!", "success");
-      }
-
-      // FUNÇÕES UTILITÁRIAS
-      function saveRecords() {
-        localStorage.setItem(
-          "production_records",
-          JSON.stringify(AppState.records),
-        );
-      }
-
-      function showAlert(message, type) {
-        const alertDiv = document.getElementById("form-alert");
-
-        alertDiv.innerHTML = `
-                <i class="fas fa-${type === "success" ? "check-circle" : type === "warning" ? "exclamation-triangle" : "exclamation-circle"}"></i>
-                <div>${message}</div>
-            `;
-
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.style.display = "flex";
-
-        // Auto-esconder após 5 segundos
-        setTimeout(() => {
-          alertDiv.style.display = "none";
-        }, 5000);
-      }
-
-      function showConfirmation(title, message, showCancel = true) {
-        const modal = document.getElementById("confirmation-modal");
-        const messageDiv = document.getElementById("confirmation-message");
-
-        messageDiv.innerHTML = message;
-        modal.classList.add("active");
-
-        // Configurar botões
-        document.getElementById("confirm-ok").onclick = function () {
-          modal.classList.remove("active");
-        };
-
-        document.getElementById("confirm-cancel").onclick = function () {
-          modal.classList.remove("active");
-        };
-
-        if (!showCancel) {
-          document.getElementById("confirm-cancel").style.display = "none";
-        }
-      }
-
-      function getSectorName(sectorCode) {
-        const sectors = {
-          estoque: "Estoque",
-          loja: "Loja",
-          producao: "Produção",
-          expedicao: "Expedição",
-          outro: "Outro",
-        };
-
-        return sectors[sectorCode] || sectorCode;
-      }
-
-      function formatDateTime(timestamp) {
-        const date = new Date(timestamp);
-        return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")} ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
-      }
-
-      function formatDate(date) {
-        return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`;
-      }
-
-      function isToday(date) {
-        const today = new Date();
-        return (
-          date.getDate() === today.getDate() &&
-          date.getMonth() === today.getMonth() &&
-          date.getFullYear() === today.getFullYear()
-        );
-      }
-
-      // CONFIGURAÇÃO DE BOTÕES
-      function setupButtons() {
-        // Botão para gerar relatório
-        document
-          .getElementById("generate-report-btn")
-          .addEventListener("click", generateReport);
-
-        // Botão para exportar PDF
-        document
-          .getElementById("export-pdf-btn")
-          .addEventListener("click", exportToPDF);
-
-        // Botão para compartilhar relatório
-        document
-          .getElementById("share-report-btn")
-          .addEventListener("click", function () {
-            if (!AppState.currentReport) {
-              showAlert(
-                "Gere um relatório primeiro para compartilhar.",
-                "warning",
-              );
-              return;
-            }
-
-            if (navigator.share) {
-              const reportText = `Relatório de Produção\nPeríodo: ${AppState.currentReport.period}\nTotal de itens: ${AppState.currentReport.totalQuantity}\nTotal de registros: ${AppState.currentReport.filteredRecords.length}`;
-
-              navigator.share({
-                title: "Relatório de Produção",
-                text: reportText,
-                url: window.location.href,
-              });
-            } else {
-              showAlert(
-                "Compartilhamento não suportado neste dispositivo.",
-                "warning",
-              );
-            }
-          });
-
-        // Botão para salvar configurações
-        document
-          .getElementById("save-settings-btn")
-          .addEventListener("click", saveSettings);
-
-        // Botão para backup de dados
-        document
-          .getElementById("backup-data-btn")
-          .addEventListener("click", function () {
-            const dataStr = JSON.stringify(AppState.records, null, 2);
-            const dataUri =
-              "data:application/json;charset=utf-8," +
-              encodeURIComponent(dataStr);
-
-            const exportFileDefaultName = `backup_producao_${new Date().toISOString().slice(0, 10)}.json`;
-
-            const linkElement = document.createElement("a");
-            linkElement.setAttribute("href", dataUri);
-            linkElement.setAttribute("download", exportFileDefaultName);
-            linkElement.click();
-
-            showAlert("Backup realizado com sucesso!", "success");
-          });
-
-        // Botão para limpar registros
-        document
-          .getElementById("clear-records-btn")
-          .addEventListener("click", function () {
-            showConfirmation(
-              "Confirmar limpeza",
-              '<div class="alert alert-warning"><strong>Atenção!</strong><br>Todos os registros serão apagados permanentemente. Esta ação não pode ser desfeita.</div>',
-              true,
-            );
-
-            document.getElementById("confirm-ok").onclick = function () {
-              AppState.records = [];
-              saveRecords();
-              updateRecordsDisplay();
-              updateLastRegistration();
-              document
-                .getElementById("confirmation-modal")
-                .classList.remove("active");
-              showAlert("Todos os registros foram removidos.", "success");
-            };
-          });
-      }
-    </script>
-  </body>
+    <script src="scanner.js"></script>
+    <script src="reports.js"></script>
+    <script src="app.js"></script>
+</body>
 </html>
