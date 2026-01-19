@@ -1,39 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Retirada de Produtos • APP</title>
+    <title>BaixaPro - Sistema de Registro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/@zxing/browser@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <!-- QuaggaJS para leitura de código de barras -->
     <script src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -42,238 +19,241 @@
         }
         
         body {
-            font-family: var(--font-sans);
-            background: var(--gray-50);
-            color: var(--gray-800);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
             line-height: 1.5;
-            overscroll-behavior: none;
-            padding-bottom: env(safe-area-inset-bottom);
+            max-width: 100%;
+            overflow-x: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 70px); /* Espaço para o menu inferior */
         }
         
-        /* App Header */
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        /* Header estilo app */
         .app-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 16px 20px;
             position: sticky;
             top: 0;
             z-index: 100;
-            background: white;
-            padding: 16px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: max(16px, env(safe-area-inset-top));
         }
         
         .app-title {
-            font-size: 1.5rem;
+            font-size: 20px;
             font-weight: 700;
-            color: var(--gray-900);
+        }
+        
+        .app-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .header-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        
+        .header-btn:active {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Conteúdo das abas */
+        .tab-content {
+            display: none;
+            padding: 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Menu inferior */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #8e8e93;
+            font-size: 12px;
+            gap: 4px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 100px;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        
+        .nav-item.active {
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.1);
+        }
+        
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+        
+        /* Seção de formulário */
+        .form-section {
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .app-title i {
-            color: var(--primary);
+        .section-title i {
+            color: #2563eb;
         }
         
-        /* Tabs Navigation */
-        .tabs {
-            display: flex;
-            background: white;
-            border-bottom: 1px solid var(--gray-200);
-            position: sticky;
-            top: 73px;
-            z-index: 90;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 16px;
-            text-align: center;
-            font-weight: 600;
-            color: var(--gray-500);
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        
-        .tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        
-        /* App Container */
-        .app-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding-bottom: 80px;
-        }
-        
-        /* Card Design */
-        .card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin: 16px;
-            box-shadow: var(--shadow);
-        }
-        
-        .card-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--gray-900);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        /* Form Elements */
-        .form-group {
+        .input-group {
             margin-bottom: 20px;
         }
         
-        .form-label {
+        .input-label {
             display: block;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 8px;
-            color: var(--gray-700);
+            font-size: 15px;
         }
         
-        .form-input, .form-select {
+        .required::after {
+            content: " *";
+            color: #ef4444;
+        }
+        
+        .input-field {
             width: 100%;
-            padding: 14px;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius-sm);
+            padding: 16px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
             background: white;
+            -webkit-appearance: none;
         }
         
-        .form-input:focus, .form-select:focus {
+        .input-field:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
-        .input-with-icon {
-            position: relative;
+        .input-field.error {
+            border-color: #ef4444;
         }
         
-        .input-icon {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-        }
-        
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 16px 24px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            width: 100%;
-            -webkit-appearance: none;
-            user-select: none;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:active {
-            background: var(--primary-dark);
-            transform: translateY(1px);
-        }
-        
-        .btn-secondary {
-            background: var(--gray-200);
-            color: var(--gray-800);
-        }
-        
-        .btn-secondary:active {
-            background: var(--gray-300);
-            transform: translateY(1px);
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-success:active {
-            background: #0da271;
-            transform: translateY(1px);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:active {
-            background: #dc2626;
-            transform: translateY(1px);
-        }
-        
-        .btn-outline {
-            background: white;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-        
-        .btn-outline:active {
-            background: var(--gray-50);
-        }
-        
-        .btn-icon {
-            padding: 12px;
-            width: auto;
-            border-radius: 50%;
-            aspect-ratio: 1/1;
-        }
-        
-        .btn-small {
-            padding: 10px 16px;
+        .error-message {
+            color: #ef4444;
             font-size: 14px;
-        }
-        
-        /* Scanner Section */
-        .scanner-section {
-            position: relative;
-            margin: 16px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
+            margin-top: 6px;
             display: none;
         }
         
-        .scanner-section.active {
-            display: block;
-        }
-        
+        /* Scanner - CORRIGIDO */
         .scanner-container {
             position: relative;
-            width: 100%;
-            height: 300px;
-            background: black;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
         }
         
-        #scanner-view {
+        #scanner-viewport {
+            width: 100%;
+            height: 300px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        #interactive.viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: none;
+        }
+        
+        #interactive.viewport canvas, #interactive.viewport video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        #scanner-placeholder {
+            color: white;
+            text-align: center;
+            padding: 20px;
+            z-index: 2;
         }
         
         .scanner-overlay {
@@ -282,1409 +262,1993 @@
             left: 0;
             width: 100%;
             height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .scanner-line {
+            position: absolute;
+            width: 80%;
+            height: 3px;
+            background: #2563eb;
+            top: 50%;
+            left: 10%;
+            animation: scan 2s infinite linear;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.7);
+        }
+        
+        .scanner-corners {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            width: 80%;
+            height: 120px;
+            transform: translateY(-50%);
+            border: 2px solid #2563eb;
+            border-radius: 8px;
+        }
+        
+        @keyframes scan {
+            0%, 100% { top: 20%; }
+            50% { top: 80%; }
+        }
+        
+        .camera-controls {
+            display: none;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .scanner-btn {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, 0.5);
-        }
-        
-        .scanner-frame {
-            width: 250px;
-            height: 150px;
-            border: 2px solid white;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .scanner-frame::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border: 2px solid var(--primary);
-            border-radius: 14px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* Reader Selector */
-        .reader-selector {
-            display: flex;
             gap: 10px;
-            margin-bottom: 16px;
-        }
-        
-        .reader-option {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--radius-sm);
-            text-align: center;
+            width: 100%;
+            padding: 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
             font-weight: 600;
-            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
             transition: all 0.2s;
         }
         
-        .reader-option.active {
-            border-color: var(--primary);
-            background: rgba(37, 99, 235, 0.05);
+        .scanner-btn:active {
+            background: #1e40af;
+            transform: scale(0.98);
         }
         
-        /* Records List */
-        .records-list {
+        .scanner-btn.scanner-active {
+            background: #10b981;
+        }
+        
+        .scanner-btn.scanner-active:active {
+            background: #0da271;
+        }
+        
+        .capture-btn {
+            flex: 1;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 160px;
+        }
+        
+        .stop-btn {
+            padding: 14px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        /* Botões de ação */
+        .action-buttons {
+            display: flex;
             gap: 12px;
+            margin-top: 30px;
         }
         
-        .record-card {
+        .btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:active {
+            background: #1e40af;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:active {
+            background: #e5e7eb;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:active {
+            background: #dc2626;
+        }
+        
+        /* Lista de registros - MELHORADA */
+        .registros-container {
+            padding: 0;
+        }
+        
+        .registros-header {
+            padding: 20px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .filtros-container {
+            padding: 0 20px 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filtro-btn {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #4b5563;
+            transition: all 0.2s;
+        }
+        
+        .filtro-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .registros-list {
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        
+        .registro-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e5e7;
             background: white;
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            box-shadow: var(--shadow-sm);
-            border-left: 4px solid var(--primary);
+            transition: background 0.2s;
+            position: relative;
         }
         
-        .record-card-header {
+        .registro-item:active {
+            background: #f9fafb;
+        }
+        
+        .registro-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
+            align-items: flex-start;
         }
         
-        .record-product {
-            font-weight: 600;
-            color: var(--gray-900);
+        .registro-produto {
+            font-weight: 700;
+            font-size: 16px;
+            flex: 1;
         }
         
-        .record-barcode {
-            font-family: monospace;
-            color: var(--gray-600);
-            font-size: 14px;
-            background: var(--gray-100);
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        
-        .record-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .registro-actions {
+            display: flex;
             gap: 8px;
-            margin-top: 12px;
-            font-size: 14px;
         }
         
-        .record-detail {
+        .registro-action-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: var(--gray-600);
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--gray-500);
+        .registro-action-btn:active {
+            background: #f3f4f6;
         }
         
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: var(--gray-300);
+        .registro-action-btn.delete {
+            color: #ef4444;
         }
         
-        /* Filter Section */
-        .filter-section {
+        .registro-data {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .registro-details {
             display: flex;
-            gap: 10px;
-            margin: 16px;
-            overflow-x: auto;
-            padding-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 14px;
+            color: #4b5563;
         }
         
-        .filter-btn {
-            padding: 10px 16px;
-            white-space: nowrap;
-            background: white;
-            border: 1px solid var(--gray-300);
-            border-radius: 20px;
-            font-weight: 500;
-            cursor: pointer;
+        .registro-detail {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
-        .filter-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        /* Modal */
-        .modal {
+        /* Modal de confirmação */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            padding: 16px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
+            padding: 20px;
+            display: none;
         }
         
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .modal-content {
+        .modal {
             background: white;
-            border-radius: var(--radius);
-            padding: 24px;
+            border-radius: 16px;
             width: 100%;
             max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-md);
-            transform: translateY(20px);
-            transition: transform 0.3s;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalAppear 0.3s;
         }
         
-        .modal.active .modal-content {
-            transform: translateY(0);
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
         
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            padding: 24px 24px 0;
         }
         
         .modal-title {
-            font-size: 1.25rem;
+            font-size: 20px;
             font-weight: 700;
-            color: var(--gray-900);
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: var(--gray-500);
-            cursor: pointer;
-        }
-        
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        .toast {
-            padding: 16px;
-            border-radius: var(--radius-sm);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow-md);
-            animation: slideIn 0.3s;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .toast-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .toast-error {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .toast-warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        /* Bottom Action Bar */
-        .bottom-action-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            padding: 16px;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            gap: 12px;
-            z-index: 99;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-        }
-        
-        /* Utility Classes */
-        .hidden {
-            display: none !important;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .mt-4 {
-            margin-top: 16px;
-        }
-        
-        .mb-4 {
-            margin-bottom: 16px;
-        }
-        
-        .mb-2 {
             margin-bottom: 8px;
         }
         
-        .d-flex {
+        .modal-body {
+            padding: 20px 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .modal-actions {
             display: flex;
+            border-top: 1px solid #e5e5e7;
         }
         
-        .flex-column {
-            flex-direction: column;
+        .modal-btn {
+            flex: 1;
+            padding: 18px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
         }
         
-        .align-center {
-            align-items: center;
+        .modal-btn:active {
+            background-color: #f9fafb;
         }
         
-        .justify-between {
-            justify-content: space-between;
+        .modal-btn-primary {
+            color: #2563eb;
         }
         
-        .gap-2 {
-            gap: 8px;
+        .modal-btn-danger {
+            color: #ef4444;
         }
         
-        .gap-4 {
-            gap: 16px;
+        /* Resumo */
+        .resumo-container {
+            padding: 20px;
         }
         
-        /* Loading Spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+        .resumo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .resumo-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #4b5563;
         }
         
-        /* Responsive Adjustments */
+        .resumo-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+        
+        .resumo-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            flex: 1;
+            min-width: 120px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        /* Para desktop */
         @media (min-width: 768px) {
-            body {
-                background: var(--gray-100);
+            .app-container {
+                margin: 20px auto;
+                min-height: calc(100vh - 40px);
+                border-radius: 20px;
+                overflow: hidden;
             }
             
-            .app-container {
-                padding-top: 20px;
+            .bottom-nav {
+                max-width: 500px;
+                border-radius: 20px 20px 0 0;
+                margin: 0 auto;
+                left: 50%;
+                transform: translateX(-50%);
             }
+        }
+        
+        /* Feedback visual */
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            animation: toastSlide 0.3s ease;
+        }
+        
+        @keyframes toastSlide {
+            from { bottom: 50px; opacity: 0; }
+            to { bottom: 90px; opacity: 1; }
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.warning {
+            background: #f59e0b;
+        }
+        
+        /* Indicador de leitura */
+        .scan-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px;
+            z-index: 2;
+            display: none;
+        }
+        
+        /* Datalist styling */
+        .suggestions-list {
+            position: absolute;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: calc(100% - 32px);
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .suggestion-item:hover {
+            background: #f3f4f6;
+        }
+        
+        /* Configurações */
+        .config-container {
+            padding: 20px;
+        }
+        
+        .config-section {
+            margin-bottom: 30px;
+        }
+        
+        .config-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #374151;
+        }
+        
+        .config-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        
+        .config-option:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
 <body>
-    <!-- App Header -->
-    <header class="app-header">
-        <div class="app-title">
-            <i class="fas fa-boxes"></i>
-            <span>Retirada de Produtos</span>
-        </div>
-        <div>
-            <button id="history-btn" class="btn btn-icon">
-                <i class="fas fa-history"></i>
-            </button>
-        </div>
-    </header>
-    
-    <!-- Tabs Navigation -->
-    <div class="tabs">
-        <div class="tab active" data-tab="register">
-            <i class="fas fa-plus-circle"></i> Novo Registro
-        </div>
-        <div class="tab" data-tab="records">
-            <i class="fas fa-list"></i> Registros
-        </div>
-        <div class="tab" data-tab="report">
-            <i class="fas fa-chart-bar"></i> Relatório
-        </div>
-    </div>
-    
-    <!-- Main App Container -->
-    <main class="app-container">
-        <!-- Register Tab -->
-        <section id="register-tab" class="tab-content">
-            <!-- Scanner Section -->
-            <div class="scanner-section" id="scanner-section">
-                <div class="scanner-container">
-                    <video id="scanner-view"></video>
-                    <div class="scanner-overlay">
-                        <div class="scanner-frame"></div>
-                        <p style="color: white; font-weight: 600;">Posicione o código de barras dentro do quadro</p>
-                        <button id="close-scanner" class="btn btn-outline mt-4" style="color: white; border-color: white;">
-                            <i class="fas fa-times"></i> Fechar Scanner
-                        </button>
-                    </div>
+    <div class="app-container">
+        <!-- Header do app -->
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <div class="app-title">BaixaPro</div>
+                    <div class="app-subtitle">Sistema de baixa para produção</div>
                 </div>
-            </div>
-            
-            <!-- Reader Selector -->
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-barcode"></i>
-                    <span>Leitor de Código de Barras</span>
-                </div>
-                <div class="reader-selector">
-                    <div class="reader-option active" data-reader="zxing">
-                        <i class="fas fa-camera"></i> ZXing (Padrão)
-                    </div>
-                    <div class="reader-option" data-reader="quagga">
-                        <i class="fas fa-camera-alt"></i> Quagga (Alternativo)
-                    </div>
-                </div>
-                <button id="start-scanner" class="btn btn-primary">
-                    <i class="fas fa-camera"></i> Ativar Scanner
-                </button>
-            </div>
-            
-            <!-- Registration Form -->
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-clipboard-check"></i>
-                    <span>Dados da Retirada</span>
-                </div>
-                
-                <form id="registration-form">
-                    <div class="form-group">
-                        <label class="form-label">Código de Barras</label>
-                        <div class="input-with-icon">
-                            <input type="text" id="barcode" class="form-input" placeholder="Escaneie o código de barras" readonly required>
-                            <span class="input-icon">
-                                <i class="fas fa-barcode"></i>
-                            </span>
-                        </div>
-                        <button type="button" id="clear-barcode" class="btn btn-outline btn-small mt-2">
-                            <i class="fas fa-redo"></i> Limpar e Re-escanear
-                        </button>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Produto</label>
-                        <input type="text" id="product" class="form-input" placeholder="Digite o nome do produto" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Quantidade</label>
-                        <input type="number" id="quantity" class="form-input" placeholder="Digite a quantidade" min="1" max="999" required>
-                        <div class="d-flex justify-between mt-2">
-                            <button type="button" class="btn btn-secondary btn-small" id="decrease-qty">
-                                <i class="fas fa-minus"></i> Menos
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-small" id="increase-qty">
-                                <i class="fas fa-plus"></i> Mais
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Setor de Origem</label>
-                        <select id="sector" class="form-select" required>
-                            <option value="">Selecione o setor</option>
-                            <option value="Estoque Principal">Estoque Principal</option>
-                            <option value="Estoque Secundário">Estoque Secundário</option>
-                            <option value="Depósito">Depósito</option>
-                            <option value="Câmara Fria">Câmara Fria</option>
-                            <option value="Almoxarifado">Almoxarifado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Colaborador</label>
-                        <input type="text" id="employee" class="form-input" placeholder="Digite o nome do colaborador" required>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check-circle"></i> Confirmar Retirada
+                <div class="header-actions">
+                    <button class="header-btn" id="btnExportar">
+                        <i class="fas fa-file-export"></i>
                     </button>
-                </form>
-            </div>
-        </section>
-        
-        <!-- Records Tab -->
-        <section id="records-tab" class="tab-content hidden">
-            <!-- Filters -->
-            <div class="filter-section">
-                <button class="filter-btn active" data-filter="today">Hoje</button>
-                <button class="filter-btn" data-filter="week">Esta Semana</button>
-                <button class="filter-btn" data-filter="month">Este Mês</button>
-                <button class="filter-btn" data-filter="all">Todos</button>
-            </div>
-            
-            <!-- Records List -->
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-history"></i>
-                    <span>Registros de Retirada</span>
-                </div>
-                
-                <div id="records-list" class="records-list">
-                    <!-- Records will be dynamically inserted here -->
-                </div>
-                
-                <div id="empty-records" class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>Nenhum registro encontrado</h3>
-                    <p>Os registros de retirada aparecerão aqui</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Report Tab -->
-        <section id="report-tab" class="tab-content hidden">
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-file-pdf"></i>
-                    <span>Relatório PDF</span>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Período do Relatório</label>
-                    <div class="d-flex gap-2">
-                        <input type="date" id="report-start" class="form-input">
-                        <input type="date" id="report-end" class="form-input">
-                    </div>
-                </div>
-                
-                <div class="d-flex flex-column gap-4">
-                    <button id="generate-report" class="btn btn-primary">
-                        <i class="fas fa-file-export"></i> Gerar Relatório PDF
+                    <button class="header-btn" id="btnConfig">
+                        <i class="fas fa-cog"></i>
                     </button>
-                    
-                    <div class="text-center" style="color: var(--gray-500); font-size: 14px;">
-                        O relatório incluirá:<br>
-                        1. Registros detalhados<br>
-                        2. Resumo agrupado por produto
-                    </div>
                 </div>
             </div>
-            
-            <div class="card">
-                <div class="card-title">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Sobre o Sistema</span>
+        </header>
+        
+        <!-- Conteúdo: Registrar -->
+        <section id="registrar" class="tab-content active">
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-box-open"></i>
+                    <span>Novo Registro de Produto</span>
                 </div>
-                <p style="margin-bottom: 12px;">Este sistema garante:</p>
-                <ul style="padding-left: 20px; margin-bottom: 16px;">
-                    <li>Validação rigorosa de dados</li>
-                    <li>Controle anti-erro humano</li>
-                    <li>Leitura precisa de códigos de barras</li>
-                    <li>Relatórios profissionais</li>
-                    <li>Experiência mobile-first</li>
-                </ul>
-                <div style="background: var(--gray-100); padding: 12px; border-radius: var(--radius-sm); font-size: 14px;">
-                    <i class="fas fa-mobile-alt"></i> Otimizado para uso com uma mão
-                </div>
-            </div>
-        </section>
-    </main>
-    
-    <!-- Bottom Action Bar -->
-    <div class="bottom-action-bar">
-        <button id="quick-scan" class="btn btn-primary">
-            <i class="fas fa-barcode"></i> Escanear Rápido
-        </button>
-        <button id="new-without-scan" class="btn btn-outline">
-            <i class="fas fa-plus"></i> Nova Retirada
-        </button>
-    </div>
-    
-    <!-- Confirmation Modal -->
-    <div id="confirmation-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Confirmar Retirada</h3>
-                <button class="modal-close" id="close-confirm-modal">&times;</button>
-            </div>
-            
-            <div id="confirmation-details">
-                <!-- Confirmation details will be inserted here -->
-            </div>
-            
-            <div class="d-flex gap-2 mt-4">
-                <button id="cancel-confirmation" class="btn btn-secondary">Cancelar</button>
-                <button id="confirm-registration" class="btn btn-success">Confirmar e Salvar</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toast Container -->
-    <div class="toast-container"></div>
-    
-    <script>
-        // Main Application State
-        const AppState = {
-            currentTab: 'register',
-            activeReader: 'zxing',
-            scannerActive: false,
-            currentScanner: null,
-            records: JSON.parse(localStorage.getItem('withdrawal_records') || '[]'),
-            todayRecords: new Set(),
-            employeeCache: JSON.parse(localStorage.getItem('employee_cache') || '[]'),
-            sectorCache: JSON.parse(localStorage.getItem('sector_cache') || '[]'),
-            productCache: JSON.parse(localStorage.getItem('product_cache') || '[]'),
-            currentFilter: 'today'
-        };
-        
-        // DOM Elements
-        const elements = {
-            // Tabs
-            tabs: document.querySelectorAll('.tab'),
-            tabContents: {
-                register: document.getElementById('register-tab'),
-                records: document.getElementById('records-tab'),
-                report: document.getElementById('report-tab')
-            },
-            
-            // Scanner
-            scannerSection: document.getElementById('scanner-section'),
-            scannerView: document.getElementById('scanner-view'),
-            startScannerBtn: document.getElementById('start-scanner'),
-            closeScannerBtn: document.getElementById('close-scanner'),
-            readerOptions: document.querySelectorAll('.reader-option'),
-            
-            // Form
-            registrationForm: document.getElementById('registration-form'),
-            barcodeInput: document.getElementById('barcode'),
-            productInput: document.getElementById('product'),
-            quantityInput: document.getElementById('quantity'),
-            sectorSelect: document.getElementById('sector'),
-            employeeInput: document.getElementById('employee'),
-            clearBarcodeBtn: document.getElementById('clear-barcode'),
-            decreaseQtyBtn: document.getElementById('decrease-qty'),
-            increaseQtyBtn: document.getElementById('increase-qty'),
-            
-            // Records
-            recordsList: document.getElementById('records-list'),
-            emptyRecords: document.getElementById('empty-records'),
-            filterBtns: document.querySelectorAll('.filter-btn'),
-            
-            // Report
-            generateReportBtn: document.getElementById('generate-report'),
-            reportStartInput: document.getElementById('report-start'),
-            reportEndInput: document.getElementById('report-end'),
-            
-            // Modals
-            confirmationModal: document.getElementById('confirmation-modal'),
-            confirmationDetails: document.getElementById('confirmation-details'),
-            closeConfirmModalBtn: document.getElementById('close-confirm-modal'),
-            cancelConfirmationBtn: document.getElementById('cancel-confirmation'),
-            confirmRegistrationBtn: document.getElementById('confirm-registration'),
-            
-            // Quick Actions
-            quickScanBtn: document.getElementById('quick-scan'),
-            newWithoutScanBtn: document.getElementById('new-without-scan'),
-            historyBtn: document.getElementById('history-btn')
-        };
-        
-        // Initialize date inputs for report
-        function initDateInputs() {
-            const today = new Date().toISOString().split('T')[0];
-            elements.reportStartInput.value = today;
-            elements.reportEndInput.value = today;
-        }
-        
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toastContainer = document.querySelector('.toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            
-            const icon = type === 'success' ? 'check-circle' : 
-                        type === 'error' ? 'exclamation-circle' : 'exclamation-triangle';
-            
-            toast.innerHTML = `
-                <i class="fas fa-${icon}"></i>
-                <span>${message}</span>
-            `;
-            
-            toastContainer.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-        
-        // Barcode Validation
-        function validateBarcode(barcode) {
-            // Check if empty
-            if (!barcode || barcode.trim() === '') {
-                return { valid: false, error: 'Código de barras não pode estar vazio' };
-            }
-            
-            // Check if contains only numbers
-            if (!/^\d+$/.test(barcode)) {
-                return { valid: false, error: 'Código deve conter apenas números' };
-            }
-            
-            // Check length for EAN/UPC standards
-            const length = barcode.length;
-            if (![8, 12, 13, 14].includes(length)) {
-                return { valid: false, error: 'Tamanho inválido para código EAN/UPC' };
-            }
-            
-            // Check for duplicate today
-            const today = new Date().toDateString();
-            const isDuplicate = AppState.records.some(record => 
-                record.barcode === barcode && 
-                new Date(record.timestamp).toDateString() === today
-            );
-            
-            if (isDuplicate) {
-                return { valid: false, error: 'Este código já foi registrado hoje' };
-            }
-            
-            // Validate check digit for EAN-13 and EAN-8
-            if (length === 13 || length === 8) {
-                if (!validateCheckDigit(barcode)) {
-                    return { valid: false, error: 'Dígito verificador inválido' };
-                }
-            }
-            
-            return { valid: true };
-        }
-        
-        // Validate check digit using EAN algorithm
-        function validateCheckDigit(barcode) {
-            const digits = barcode.split('').map(Number);
-            const checkDigit = digits.pop();
-            
-            let sum = 0;
-            for (let i = 0; i < digits.length; i++) {
-                sum += digits[i] * (i % 2 === 0 ? 1 : 3);
-            }
-            
-            const calculatedCheckDigit = (10 - (sum % 10)) % 10;
-            return calculatedCheckDigit === checkDigit;
-        }
-        
-        // Initialize ZXing Scanner
-        async function initZXingScanner() {
-            try {
-                const codeReader = new ZXing.BrowserMultiFormatReader();
                 
-                const videoInputDevices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
-                
-                const selectedDeviceId = videoInputDevices.length > 1 ? 
-                    videoInputDevices[1].deviceId : // Prefer rear camera
-                    videoInputDevices[0].deviceId;
-                
-                await codeReader.decodeFromVideoDevice(
-                    selectedDeviceId,
-                    elements.scannerView,
-                    (result, error) => {
-                        if (result) {
-                            handleBarcodeScan(result.text);
-                        }
+                <!-- Leitor de código de barras CORRIGIDO -->
+                <div class="scanner-container" id="scannerContainer">
+                    <div id="scanner-viewport">
+                        <!-- Visualização da câmera (QuaggaJS usa esta div) -->
+                        <div id="interactive" class="viewport"></div>
                         
-                        if (error && !(error instanceof ZXing.NotFoundException)) {
-                            console.error('ZXing error:', error);
-                        }
-                    }
-                );
+                        <!-- Placeholder quando câmera não está ativa -->
+                        <div id="scanner-placeholder">
+                            <i class="fas fa-barcode" style="font-size: 48px; margin-bottom: 16px; opacity: 0.7;"></i>
+                            <p>Clique no botão abaixo para ativar o leitor</p>
+                        </div>
+                        
+                        <!-- Overlay do scanner -->
+                        <div class="scanner-overlay">
+                            <div class="scanner-corners"></div>
+                            <div class="scanner-line"></div>
+                        </div>
+                        
+                        <!-- Indicador de leitura -->
+                        <div class="scan-indicator" id="scanIndicator">
+                            <i class="fas fa-search"></i> Procurando código de barras...
+                        </div>
+                    </div>
+                    
+                    <!-- Controles da câmera -->
+                    <div class="camera-controls" id="cameraControls">
+                        <button class="capture-btn" id="captureBtn">
+                            <i class="fas fa-camera"></i> Capturar Manual
+                        </button>
+                        <button class="stop-btn" id="stopBtn">
+                            <i class="fas fa-stop"></i> Parar
+                        </button>
+                    </div>
+                    
+                    <button class="scanner-btn" id="btnToggleScanner">
+                        <i class="fas fa-camera"></i>
+                        Ativar Leitor de Código de Barras
+                    </button>
+                </div>
                 
-                AppState.currentScanner = codeReader;
-                return codeReader;
-            } catch (error) {
-                console.error('Failed to initialize ZXing:', error);
-                showToast('Erro ao iniciar scanner ZXing', 'error');
-                return null;
-            }
-        }
+                <!-- Formulário -->
+                <div class="input-group">
+                    <label class="input-label required" for="produto">Produto</label>
+                    <input type="text" id="produto" class="input-field" placeholder="Digite o nome do produto" list="produto-suggestions">
+                    <div class="suggestions-list" id="produto-suggestions"></div>
+                    <div class="error-message" id="produtoError">O nome do produto é obrigatório</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="codigo">Código de Barras</label>
+                    <input type="text" id="codigo" class="input-field" placeholder="Digite ou escaneie o código">
+                    <div class="error-message" id="codigoError">O código de barras é obrigatório</div>
+                    <div class="error-message" id="codigoDuplicadoError" style="color: #f59e0b;">Este código já foi registrado hoje</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="quantidade">Quantidade</label>
+                    <input type="number" id="quantidade" class="input-field" placeholder="Digite a quantidade" min="1" value="1">
+                    <div class="error-message" id="quantidadeError">A quantidade deve ser entre 1 e 999</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="setor">Setor de Origem</label>
+                    <input type="text" id="setor" class="input-field" placeholder="Digite o setor de origem" list="setor-suggestions">
+                    <div class="suggestions-list" id="setor-suggestions"></div>
+                    <div class="error-message" id="setorError">O setor de origem é obrigatório</div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label required" for="colaborador">Colaborador Responsável</label>
+                    <input type="text" id="colaborador" class="input-field" placeholder="Digite o nome do colaborador" list="colaborador-suggestions">
+                    <div class="suggestions-list" id="colaborador-suggestions"></div>
+                    <div class="error-message" id="colaboradorError">O colaborador responsável é obrigatório</div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="btnLimpar">
+                        <i class="fas fa-eraser"></i> Limpar
+                    </button>
+                    <button class="btn btn-primary" id="btnSalvar">
+                        <i class="fas fa-check"></i> Salvar Registro
+                    </button>
+                </div>
+            </div>
+        </section>
         
-        // Initialize Quagga Scanner
-        function initQuaggaScanner() {
-            return new Promise((resolve, reject) => {
-                Quagga.init({
-                    inputStream: {
-                        name: "Live",
-                        type: "LiveStream",
-                        target: elements.scannerView,
-                        constraints: {
-                            facingMode: "environment",
-                            width: { min: 640 },
-                            height: { min: 480 }
-                        }
-                    },
-                    decoder: {
-                        readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"]
-                    },
-                    locator: {
-                        patchSize: "medium",
-                        halfSample: true
-                    }
-                }, (err) => {
-                    if (err) {
-                        reject(err);
-                        return;
+        <!-- Conteúdo: Registros -->
+        <section id="registros" class="tab-content">
+            <div class="registros-container">
+                <div class="registros-header">
+                    <div class="section-title">
+                        <i class="fas fa-history"></i>
+                        <span>Registros</span>
+                    </div>
+                    <div>
+                        <button class="registro-action-btn" id="btnFiltrar">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="filtros-container" id="filtrosContainer" style="display: none;">
+                    <button class="filtro-btn active" data-filtro="todos">Todos</button>
+                    <button class="filtro-btn" data-filtro="hoje">Hoje</button>
+                    <button class="filtro-btn" data-filtro="semana">Esta Semana</button>
+                    <button class="filtro-btn" data-filtro="mes">Este Mês</button>
+                </div>
+                
+                <div class="registros-list" id="listaRegistros">
+                    <!-- Registros serão inseridos aqui via JavaScript -->
+                </div>
+                
+                <div style="padding: 40px 20px; text-align: center; color: #6b7280;" id="semRegistros">
+                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                    <p>Nenhum registro encontrado</p>
+                    <button class="btn btn-secondary" style="margin-top: 16px;" id="btnNovoRegistro">
+                        <i class="fas fa-plus"></i> Novo Registro
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Conteúdo: Resumo -->
+        <section id="resumo" class="tab-content">
+            <div class="resumo-container">
+                <div class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Resumo e Estatísticas</span>
+                </div>
+                
+                <div class="resumo-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalHoje">0</div>
+                        <div class="stat-label">Hoje</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalSemana">0</div>
+                        <div class="stat-label">Esta Semana</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalMes">0</div>
+                        <div class="stat-label">Este Mês</div>
+                    </div>
+                </div>
+                
+                <div class="resumo-card">
+                    <div class="resumo-title">Produto Mais Retirado</div>
+                    <div class="resumo-value" id="produtoMaisRetirado">-</div>
+                </div>
+                
+                <div class="resumo-card">
+                    <div class="resumo-title">Setor com Mais Retiradas</div>
+                    <div class="resumo-value" id="setorMaisRetirado">-</div>
+                </div>
+                
+                <div class="resumo-card">
+                    <div class="resumo-title">Colaborador com Mais Registros</div>
+                    <div class="resumo-value" id="colaboradorMaisAtivo">-</div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-primary" id="btnExportarPDF" style="width: 100%;">
+                        <i class="fas fa-file-pdf"></i> Gerar Relatório em PDF
+                    </button>
+                    <button class="btn btn-secondary" id="btnCompartilhar" style="width: 100%; margin-top: 12px;">
+                        <i class="fas fa-share-alt"></i> Compartilhar Relatório
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Conteúdo: Configurações -->
+        <section id="configuracoes" class="tab-content">
+            <div class="config-container">
+                <div class="section-title">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </div>
+                
+                <div class="config-section">
+                    <div class="config-title">Dados do Sistema</div>
+                    
+                    <div class="config-option">
+                        <span>Total de Registros</span>
+                        <span id="totalRegistrosConfig">0</span>
+                    </div>
+                    
+                    <div class="config-option">
+                        <span>Dados no Dispositivo</span>
+                        <span id="tamanhoDados">0 KB</span>
+                    </div>
+                    
+                    <div class="config-option">
+                        <span>Versão do Sistema</span>
+                        <span>2.0</span>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="config-title">Gerenciamento de Dados</div>
+                    
+                    <button class="btn btn-secondary" id="btnExportarBackup" style="width: 100%; margin-bottom: 12px;">
+                        <i class="fas fa-download"></i> Exportar Backup
+                    </button>
+                    
+                    <button class="btn btn-secondary" id="btnImportarBackup" style="width: 100%; margin-bottom: 12px;">
+                        <i class="fas fa-upload"></i> Importar Backup
+                    </button>
+                    
+                    <button class="btn btn-danger" id="btnLimparDados" style="width: 100%;">
+                        <i class="fas fa-trash"></i> Limpar Todos os Dados
+                    </button>
+                </div>
+                
+                <div class="config-section">
+                    <div class="config-title">Sugestões Automáticas</div>
+                    
+                    <div class="config-option">
+                        <span>Salvar sugestões de preenchimento</span>
+                        <input type="checkbox" id="sugestoesAtivas" checked>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Menu inferior -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="registrar">
+            <i class="fas fa-plus-circle"></i>
+            <span>Registrar</span>
+        </button>
+        <button class="nav-item" data-tab="registros">
+            <i class="fas fa-list"></i>
+            <span>Registros</span>
+        </button>
+        <button class="nav-item" data-tab="resumo">
+            <i class="fas fa-chart-pie"></i>
+            <span>Resumo</span>
+        </button>
+        <button class="nav-item" data-tab="configuracoes">
+            <i class="fas fa-cog"></i>
+            <span>Configurações</span>
+        </button>
+    </nav>
+    
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Confirmar Registro</div>
+                <div style="color: #6b7280; font-size: 14px;">Revise os dados antes de confirmar</div>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Produto:</div>
+                    <div id="confirmProduto">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Código:</div>
+                    <div id="confirmCodigo">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Quantidade:</div>
+                    <div id="confirmQuantidade">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Setor de Origem:</div>
+                    <div id="confirmSetor">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Colaborador:</div>
+                    <div id="confirmColaborador">-</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="btnCancelar">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" id="btnConfirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmação de exclusão -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Confirmar Exclusão</div>
+                <div style="color: #6b7280; font-size: 14px;">Esta ação não pode ser desfeita</div>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 48px; display: block; text-align: center; margin-bottom: 16px;"></i>
+                    <p>Tem certeza que deseja excluir este registro?</p>
+                    <div id="deleteRegistroInfo" style="background: #fef2f2; padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 14px;"></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="btnCancelarDelete">Cancelar</button>
+                <button class="modal-btn modal-btn-danger" id="btnConfirmarDelete">Excluir</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de limpeza de dados -->
+    <div class="modal-overlay" id="clearDataModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Limpar Todos os Dados</div>
+                <div style="color: #6b7280; font-size: 14px;">Esta ação é irreversível</div>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 48px; display: block; text-align: center; margin-bottom: 16px;"></i>
+                    <p><strong>Atenção:</strong> Todos os registros serão permanentemente excluídos.</p>
+                    <p style="margin-top: 8px;">Você tem certeza que deseja continuar?</p>
+                    <div style="background: #fef2f2; padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 14px;">
+                        <p><i class="fas fa-info-circle"></i> Total de registros: <span id="clearDataCount">0</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="btnCancelarClear">Cancelar</button>
+                <button class="modal-btn modal-btn-danger" id="btnConfirmarClear">Limpar Tudo</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast de feedback -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check"></i>
+        <span id="toastMessage">Registro salvo com sucesso!</span>
+    </div>
+
+    <!-- Input oculto para importação de backup -->
+    <input type="file" id="importFileInput" accept=".json" style="display: none;">
+
+    <script>
+        // Estado da aplicação
+        const estado = {
+            scannerAtivo: false,
+            quaggaInicializado: false,
+            registros: JSON.parse(localStorage.getItem('registrosProdutos')) || [],
+            codigosRegistradosHoje: new Set(),
+            scanTimeout: null,
+            filtroAtivo: 'todos',
+            sugestoes: JSON.parse(localStorage.getItem('sugestoesBaixaPro')) || {
+                produtos: [],
+                setores: [],
+                colaboradores: []
+            },
+            registroParaDeletar: null
+        };
+        
+        // Configuração do QuaggaJS - CORRIGIDA
+        const quaggaConfig = {
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector("#interactive"),
+                constraints: {
+                    facingMode: "environment",
+                    width: { min: 640, ideal: 1280, max: 1920 },
+                    height: { min: 480, ideal: 720, max: 1080 }
+                },
+                area: {
+                    top: "25%",
+                    right: "10%",
+                    left: "10%",
+                    bottom: "25%"
+                }
+            },
+            decoder: {
+                readers: [
+                    "code_128_reader",
+                    "ean_reader",
+                    "ean_8_reader",
+                    "code_39_reader",
+                    "upc_reader",
+                    "upc_e_reader",
+                    "codabar_reader",
+                    "i2of5_reader"
+                ],
+                multiple: false
+            },
+            locator: {
+                patchSize: "medium",
+                halfSample: true
+            },
+            locate: true,
+            frequency: 10
+        };
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar lista de códigos registrados hoje
+            atualizarCodigosRegistradosHoje();
+            
+            // Configurar navegação por abas
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Parar scanner se estiver ativo
+                    if (estado.scannerAtivo) {
+                        stopScanner();
                     }
                     
-                    Quagga.start();
+                    // Ativar aba clicada
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
                     
-                    Quagga.onDetected((data) => {
-                        if (data.codeResult) {
-                            handleBarcodeScan(data.codeResult.code);
-                        }
+                    // Mostrar conteúdo da aba
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
                     });
+                    document.getElementById(tabId).classList.add('active');
                     
-                    AppState.currentScanner = Quagga;
-                    resolve(Quagga);
+                    // Atualizar dados conforme a aba
+                    if (tabId === 'registros') {
+                        carregarRegistros();
+                    } else if (tabId === 'resumo') {
+                        atualizarResumo();
+                    } else if (tabId === 'configuracoes') {
+                        atualizarConfiguracoes();
+                    }
+                });
+            });
+            
+            // Configurar botões
+            document.getElementById('btnSalvar').addEventListener('click', validarFormulario);
+            document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
+            document.getElementById('btnToggleScanner').addEventListener('click', toggleScanner);
+            document.getElementById('btnExportarPDF').addEventListener('click', exportarPDF);
+            document.getElementById('btnCompartilhar').addEventListener('click', compartilharRelatorio);
+            document.getElementById('btnCancelar').addEventListener('click', fecharModal);
+            document.getElementById('btnConfirmar').addEventListener('click', salvarRegistro);
+            document.getElementById('captureBtn').addEventListener('click', capturarManualmente);
+            document.getElementById('stopBtn').addEventListener('click', stopScanner);
+            document.getElementById('btnFiltrar').addEventListener('click', toggleFiltros);
+            document.getElementById('btnNovoRegistro').addEventListener('click', () => {
+                document.querySelector('.nav-item[data-tab="registrar"]').click();
+            });
+            document.getElementById('btnExportarBackup').addEventListener('click', exportarBackup);
+            document.getElementById('btnImportarBackup').addEventListener('click', () => {
+                document.getElementById('importFileInput').click();
+            });
+            document.getElementById('btnLimparDados').addEventListener('click', mostrarModalLimpeza);
+            document.getElementById('btnCancelarDelete').addEventListener('click', fecharDeleteModal);
+            document.getElementById('btnConfirmarDelete').addEventListener('click', confirmarExclusao);
+            document.getElementById('btnCancelarClear').addEventListener('click', fecharClearModal);
+            document.getElementById('btnConfirmarClear').addEventListener('click', confirmarLimpeza);
+            document.getElementById('btnExportar').addEventListener('click', () => {
+                document.querySelector('.nav-item[data-tab="resumo"]').click();
+            });
+            document.getElementById('btnConfig').addEventListener('click', () => {
+                document.querySelector('.nav-item[data-tab="configuracoes"]').click();
+            });
+            
+            // Configurar validação em tempo real
+            document.getElementById('codigo').addEventListener('input', validarCodigoUnico);
+            document.getElementById('quantidade').addEventListener('input', validarQuantidade);
+            
+            // Configurar sugestões automáticas
+            configurarSugestoes();
+            
+            // Configurar filtros
+            document.querySelectorAll('.filtro-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    estado.filtroAtivo = this.getAttribute('data-filtro');
+                    carregarRegistros();
+                });
+            });
+            
+            // Configurar importação de backup
+            document.getElementById('importFileInput').addEventListener('change', importarBackup);
+            
+            // Carregar registros iniciais
+            carregarRegistros();
+            atualizarResumo();
+            atualizarConfiguracoes();
+            
+            // Adicionar listener para quando a página perder foco
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && estado.scannerAtivo) {
+                    stopScanner();
+                }
+            });
+        });
+        
+        // Configurar sugestões automáticas
+        function configurarSugestoes() {
+            const campos = ['produto', 'setor', 'colaborador'];
+            
+            campos.forEach(campo => {
+                const input = document.getElementById(campo);
+                const suggestionsList = document.getElementById(`${campo}-suggestions`);
+                
+                // Mostrar sugestões ao focar
+                input.addEventListener('focus', function() {
+                    atualizarSugestoes(campo);
+                    suggestionsList.style.display = 'block';
+                });
+                
+                // Ocultar sugestões ao perder o foco
+                input.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        suggestionsList.style.display = 'none';
+                    }, 200);
+                });
+                
+                // Filtrar sugestões ao digitar
+                input.addEventListener('input', function() {
+                    atualizarSugestoes(campo);
+                    suggestionsList.style.display = 'block';
                 });
             });
         }
         
-        // Handle barcode scan
-        function handleBarcodeScan(barcode) {
-            const validation = validateBarcode(barcode);
+        // Atualizar lista de sugestões
+        function atualizarSugestoes(campo) {
+            const input = document.getElementById(campo);
+            const suggestionsList = document.getElementById(`${campo}-suggestions`);
+            const valor = input.value.toLowerCase();
             
-            if (validation.valid) {
-                elements.barcodeInput.value = barcode;
-                showToast('Código escaneado com sucesso!', 'success');
-                
-                // Auto-populate product name if in cache
-                const cachedProduct = AppState.productCache.find(item => item.barcode === barcode);
-                if (cachedProduct) {
-                    elements.productInput.value = cachedProduct.name;
-                }
-                
-                stopScanner();
-            } else {
-                showToast(validation.error, 'error');
-            }
-        }
-        
-        // Start scanner based on selected reader
-        async function startScanner() {
-            if (AppState.scannerActive) return;
+            let sugestoes = estado.sugestoes[campo + 's'] || [];
             
-            try {
-                elements.scannerSection.classList.add('active');
-                AppState.scannerActive = true;
-                
-                if (AppState.activeReader === 'zxing') {
-                    await initZXingScanner();
-                } else {
-                    await initQuaggaScanner();
-                }
-                
-                showToast(`Scanner ${AppState.activeReader === 'zxing' ? 'ZXing' : 'Quagga'} ativado`, 'success');
-            } catch (error) {
-                console.error('Scanner initialization failed:', error);
-                showToast('Falha ao iniciar scanner', 'error');
-                stopScanner();
-            }
-        }
-        
-        // Stop scanner
-        function stopScanner() {
-            if (!AppState.scannerActive) return;
+            // Filtrar sugestões baseado no que foi digitado
+            const sugestoesFiltradas = sugestoes.filter(s => 
+                s.toLowerCase().includes(valor)
+            ).slice(0, 5); // Limitar a 5 sugestões
             
-            if (AppState.currentScanner) {
-                if (AppState.activeReader === 'zxing' && AppState.currentScanner.reset) {
-                    AppState.currentScanner.reset();
-                } else if (AppState.activeReader === 'quagga' && AppState.currentScanner.stop) {
-                    Quagga.stop();
-                }
-                
-                AppState.currentScanner = null;
-            }
+            // Gerar HTML das sugestões
+            suggestionsList.innerHTML = sugestoesFiltradas.map(s => 
+                `<div class="suggestion-item" data-value="${s}">${s}</div>`
+            ).join('');
             
-            elements.scannerSection.classList.remove('active');
-            AppState.scannerActive = false;
-            
-            // Stop all video streams
-            if (elements.scannerView.srcObject) {
-                const tracks = elements.scannerView.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                elements.scannerView.srcObject = null;
-            }
-        }
-        
-        // Switch reader type
-        function switchReader(readerType) {
-            if (AppState.activeReader === readerType) return;
-            
-            if (AppState.scannerActive) {
-                stopScanner();
-                setTimeout(() => {
-                    AppState.activeReader = readerType;
-                    startScanner();
-                }, 500);
-            } else {
-                AppState.activeReader = readerType;
-            }
-            
-            // Update UI
-            elements.readerOptions.forEach(option => {
-                option.classList.toggle('active', option.dataset.reader === readerType);
+            // Adicionar eventos de clique às sugestões
+            suggestionsList.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    input.value = this.getAttribute('data-value');
+                    suggestionsList.style.display = 'none';
+                    input.focus();
+                });
             });
         }
         
-        // Update today's records set
-        function updateTodayRecords() {
-            const today = new Date().toDateString();
-            AppState.todayRecords.clear();
+        // Adicionar sugestão
+        function adicionarSugestao(campo, valor) {
+            if (!document.getElementById('sugestoesAtivas').checked) return;
             
-            AppState.records.forEach(record => {
-                if (new Date(record.timestamp).toDateString() === today) {
-                    AppState.todayRecords.add(record.barcode);
+            const lista = estado.sugestoes[campo + 's'];
+            const valorTrim = valor.trim();
+            
+            if (valorTrim && !lista.includes(valorTrim)) {
+                lista.push(valorTrim);
+                // Manter apenas as últimas 20 sugestões
+                if (lista.length > 20) {
+                    estado.sugestoes[campo + 's'] = lista.slice(-20);
+                }
+                salvarSugestoes();
+            }
+        }
+        
+        // Salvar sugestões no localStorage
+        function salvarSugestoes() {
+            localStorage.setItem('sugestoesBaixaPro', JSON.stringify(estado.sugestoes));
+        }
+        
+        // Atualizar lista de códigos registrados hoje
+        function atualizarCodigosRegistradosHoje() {
+            const hoje = new Date().toDateString();
+            estado.codigosRegistradosHoje.clear();
+            
+            estado.registros.forEach(registro => {
+                const dataRegistro = new Date(registro.dataHora).toDateString();
+                if (dataRegistro === hoje) {
+                    estado.codigosRegistradosHoje.add(registro.codigo);
                 }
             });
         }
         
-        // Save record to localStorage
-        function saveRecord(record) {
-            AppState.records.unshift(record);
-            localStorage.setItem('withdrawal_records', JSON.stringify(AppState.records));
+        // Carregar registros na lista - MELHORADA
+        function carregarRegistros() {
+            const listaRegistros = document.getElementById('listaRegistros');
+            const semRegistros = document.getElementById('semRegistros');
             
-            // Update caches
-            updateCaches(record);
-            updateTodayRecords();
-        }
-        
-        // Update autocomplete caches
-        function updateCaches(record) {
-            // Employee cache
-            if (!AppState.employeeCache.includes(record.employee)) {
-                AppState.employeeCache.push(record.employee);
-                localStorage.setItem('employee_cache', JSON.stringify(AppState.employeeCache));
-            }
+            // Filtrar registros conforme filtro ativo
+            let registrosFiltrados = filtrarRegistros(estado.registros, estado.filtroAtivo);
             
-            // Sector cache
-            if (!AppState.sectorCache.includes(record.sector)) {
-                AppState.sectorCache.push(record.sector);
-                localStorage.setItem('sector_cache', JSON.stringify(AppState.sectorCache));
-            }
-            
-            // Product cache
-            const productExists = AppState.productCache.some(item => 
-                item.barcode === record.barcode && item.name === record.product
+            // Ordenar registros por data (mais recente primeiro)
+            const registrosOrdenados = registrosFiltrados.sort((a, b) => 
+                new Date(b.dataHora) - new Date(a.dataHora)
             );
             
-            if (!productExists) {
-                AppState.productCache.push({
-                    barcode: record.barcode,
-                    name: record.product
-                });
-                localStorage.setItem('product_cache', JSON.stringify(AppState.productCache));
-            }
-        }
-        
-        // Filter records based on selected filter
-        function filterRecords(filter) {
-            const now = new Date();
-            let filteredRecords = [...AppState.records];
-            
-            switch(filter) {
-                case 'today':
-                    const today = now.toDateString();
-                    filteredRecords = filteredRecords.filter(record => 
-                        new Date(record.timestamp).toDateString() === today
-                    );
-                    break;
-                    
-                case 'week':
-                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    filteredRecords = filteredRecords.filter(record => 
-                        new Date(record.timestamp) >= weekAgo
-                    );
-                    break;
-                    
-                case 'month':
-                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                    filteredRecords = filteredRecords.filter(record => 
-                        new Date(record.timestamp) >= monthAgo
-                    );
-                    break;
-                    
-                case 'all':
-                    // All records, no filter
-                    break;
-            }
-            
-            return filteredRecords;
-        }
-        
-        // Render records list
-        function renderRecords() {
-            const filteredRecords = filterRecords(AppState.currentFilter);
-            
-            if (filteredRecords.length === 0) {
-                elements.recordsList.innerHTML = '';
-                elements.emptyRecords.classList.remove('hidden');
+            if (registrosOrdenados.length === 0) {
+                semRegistros.style.display = 'block';
+                listaRegistros.innerHTML = '';
                 return;
             }
             
-            elements.emptyRecords.classList.add('hidden');
-            elements.recordsList.innerHTML = '';
+            semRegistros.style.display = 'none';
             
-            filteredRecords.forEach(record => {
-                const recordDate = new Date(record.timestamp);
-                const dateStr = recordDate.toLocaleDateString('pt-BR');
-                const timeStr = recordDate.toLocaleTimeString('pt-BR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
+            let html = '';
+            registrosOrdenados.forEach((registro, index) => {
+                const data = new Date(registro.dataHora);
+                const dataFormatada = data.toLocaleDateString('pt-BR');
+                const horaFormatada = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 
-                const recordElement = document.createElement('div');
-                recordElement.className = 'record-card';
-                recordElement.innerHTML = `
-                    <div class="record-card-header">
-                        <div class="record-product">${record.product}</div>
-                        <div class="record-barcode">${record.barcode}</div>
-                    </div>
-                    <div>Quantidade: <strong>${record.quantity}</strong></div>
-                    <div class="record-details">
-                        <div class="record-detail">
-                            <i class="fas fa-user"></i>
-                            <span>${record.employee}</span>
+                html += `
+                    <div class="registro-item" data-id="${registro.id}">
+                        <div class="registro-header">
+                            <div class="registro-produto">${registro.produto}</div>
+                            <div class="registro-actions">
+                                <button class="registro-action-btn delete" data-id="${registro.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="record-detail">
-                            <i class="fas fa-warehouse"></i>
-                            <span>${record.sector}</span>
-                        </div>
-                        <div class="record-detail">
-                            <i class="fas fa-calendar"></i>
-                            <span>${dateStr}</span>
-                        </div>
-                        <div class="record-detail">
-                            <i class="fas fa-clock"></i>
-                            <span>${timeStr}</span>
+                        <div class="registro-data">${dataFormatada} ${horaFormatada}</div>
+                        <div class="registro-details">
+                            <div class="registro-detail">
+                                <i class="fas fa-barcode"></i>
+                                <span>${registro.codigo}</span>
+                            </div>
+                            <div class="registro-detail">
+                                <i class="fas fa-box"></i>
+                                <span>${registro.quantidade} un.</span>
+                            </div>
+                            <div class="registro-detail">
+                                <i class="fas fa-warehouse"></i>
+                                <span>${registro.setor}</span>
+                            </div>
+                            <div class="registro-detail">
+                                <i class="fas fa-user"></i>
+                                <span>${registro.colaborador}</span>
+                            </div>
                         </div>
                     </div>
                 `;
-                
-                elements.recordsList.appendChild(recordElement);
+            });
+            
+            listaRegistros.innerHTML = html;
+            
+            // Adicionar evento de clique para exclusão
+            document.querySelectorAll('.registro-action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    mostrarModalExclusao(id);
+                });
+            });
+            
+            // Adicionar evento de clique para detalhes
+            document.querySelectorAll('.registro-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    mostrarDetalhesRegistro(id);
+                });
             });
         }
         
-        // Generate PDF Report
-        async function generatePDFReport() {
-            const startDate = elements.reportStartInput.value;
-            const endDate = elements.reportEndInput.value;
+        // Filtrar registros por período
+        function filtrarRegistros(registros, filtro) {
+            const agora = new Date();
+            const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+            const inicioSemana = new Date(hoje);
+            inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+            const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
             
-            if (!startDate || !endDate) {
-                showToast('Selecione o período do relatório', 'error');
-                return;
-            }
-            
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            end.setHours(23, 59, 59, 999);
-            
-            const filteredRecords = AppState.records.filter(record => {
-                const recordDate = new Date(record.timestamp);
-                return recordDate >= start && recordDate <= end;
-            });
-            
-            if (filteredRecords.length === 0) {
-                showToast('Nenhum registro encontrado para o período selecionado', 'warning');
-                return;
-            }
-            
-            // Group records by product for summary
-            const productSummary = {};
-            filteredRecords.forEach(record => {
-                const key = `${record.barcode}-${record.product}`;
-                if (!productSummary[key]) {
-                    productSummary[key] = {
-                        product: record.product,
-                        barcode: record.barcode,
-                        total: 0
-                    };
+            return registros.filter(registro => {
+                const dataRegistro = new Date(registro.dataHora);
+                
+                switch(filtro) {
+                    case 'hoje':
+                        return dataRegistro >= hoje;
+                    case 'semana':
+                        return dataRegistro >= inicioSemana;
+                    case 'mes':
+                        return dataRegistro >= inicioMes;
+                    default:
+                        return true; // 'todos'
                 }
-                productSummary[key].total += parseInt(record.quantity);
             });
+        }
+        
+        // Toggle filtros
+        function toggleFiltros() {
+            const filtrosContainer = document.getElementById('filtrosContainer');
+            filtrosContainer.style.display = filtrosContainer.style.display === 'none' ? 'flex' : 'none';
+        }
+        
+        // Atualizar resumo - MELHORADA
+        function atualizarResumo() {
+            const agora = new Date();
+            const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+            const inicioSemana = new Date(hoje);
+            inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+            const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
             
-            const summaryArray = Object.values(productSummary);
+            // Calcular totais por período
+            const totalHoje = estado.registros
+                .filter(r => new Date(r.dataHora) >= hoje)
+                .reduce((total, r) => total + parseInt(r.quantidade), 0);
+            
+            const totalSemana = estado.registros
+                .filter(r => new Date(r.dataHora) >= inicioSemana)
+                .reduce((total, r) => total + parseInt(r.quantidade), 0);
+            
+            const totalMes = estado.registros
+                .filter(r => new Date(r.dataHora) >= inicioMes)
+                .reduce((total, r) => total + parseInt(r.quantidade), 0);
+            
+            // Atualizar totais
+            document.getElementById('totalHoje').textContent = totalHoje;
+            document.getElementById('totalSemana').textContent = totalSemana;
+            document.getElementById('totalMes').textContent = totalMes;
+            
+            // Produto mais retirado (últimos 30 dias)
+            const ultimos30Dias = new Date();
+            ultimos30Dias.setDate(ultimos30Dias.getDate() - 30);
+            
+            const registrosRecentes = estado.registros.filter(r => 
+                new Date(r.dataHora) >= ultimos30Dias
+            );
+            
+            if (registrosRecentes.length > 0) {
+                // Produto mais retirado
+                const produtosContagem = {};
+                registrosRecentes.forEach(registro => {
+                    produtosContagem[registro.produto] = (produtosContagem[registro.produto] || 0) + parseInt(registro.quantidade);
+                });
+                
+                const produtoMaisRetirado = Object.keys(produtosContagem).reduce((a, b) => 
+                    produtosContagem[a] > produtosContagem[b] ? a : b, '-'
+                );
+                document.getElementById('produtoMaisRetirado').textContent = produtoMaisRetirado;
+                
+                // Setor com mais retiradas
+                const setoresContagem = {};
+                registrosRecentes.forEach(registro => {
+                    setoresContagem[registro.setor] = (setoresContagem[registro.setor] || 0) + parseInt(registro.quantidade);
+                });
+                
+                const setorMaisRetirado = Object.keys(setoresContagem).reduce((a, b) => 
+                    setoresContagem[a] > setoresContagem[b] ? a : b, '-'
+                );
+                document.getElementById('setorMaisRetirado').textContent = setorMaisRetirado;
+                
+                // Colaborador mais ativo
+                const colaboradoresContagem = {};
+                registrosRecentes.forEach(registro => {
+                    colaboradoresContagem[registro.colaborador] = (colaboradoresContagem[registro.colaborador] || 0) + parseInt(registro.quantidade);
+                });
+                
+                const colaboradorMaisAtivo = Object.keys(colaboradoresContagem).reduce((a, b) => 
+                    colaboradoresContagem[a] > colaboradoresContagem[b] ? a : b, '-'
+                );
+                document.getElementById('colaboradorMaisAtivo').textContent = colaboradorMaisAtivo;
+            }
+        }
+        
+        // Atualizar configurações
+        function atualizarConfiguracoes() {
+            document.getElementById('totalRegistrosConfig').textContent = estado.registros.length;
+            
+            // Calcular tamanho dos dados
+            const dadosString = JSON.stringify(estado.registros);
+            const tamanhoBytes = new Blob([dadosString]).size;
+            const tamanhoKB = (tamanhoBytes / 1024).toFixed(2);
+            document.getElementById('tamanhoDados').textContent = `${tamanhoKB} KB`;
+        }
+        
+        // Toggle scanner (com QuaggaJS) - CORRIGIDA
+        async function toggleScanner() {
+            if (estado.scannerAtivo) {
+                stopScanner();
+                return;
+            }
+            
+            const btn = document.getElementById('btnToggleScanner');
+            const placeholder = document.getElementById('scanner-placeholder');
+            const interactiveView = document.getElementById('interactive');
+            const cameraControls = document.getElementById('cameraControls');
+            const scanIndicator = document.getElementById('scanIndicator');
+            
+            try {
+                // Mostrar indicador de carregamento
+                mostrarToast('Iniciando leitor de código de barras...', false);
+                
+                // Verificar se o Quagga já foi inicializado
+                if (!estado.quaggaInicializado) {
+                    await new Promise((resolve, reject) => {
+                        Quagga.init(quaggaConfig, function(err) {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            estado.quaggaInicializado = true;
+                            resolve();
+                        });
+                    });
+                }
+                
+                // Iniciar scanner
+                Quagga.start();
+                
+                // Mostrar elementos da câmera
+                placeholder.style.display = 'none';
+                interactiveView.style.display = 'block';
+                cameraControls.style.display = 'flex';
+                scanIndicator.style.display = 'block';
+                
+                // Atualizar estado
+                estado.scannerAtivo = true;
+                btn.innerHTML = '<i class="fas fa-camera"></i> Leitor Ativo';
+                btn.classList.add('scanner-active');
+                
+                // Configurar detecção de códigos
+                Quagga.onDetected(function(result) {
+                    if (!estado.scannerAtivo) return;
+                    
+                    const code = result.codeResult.code;
+                    console.log("Código detectado:", code);
+                    
+                    // Preencher campo do código
+                    document.getElementById('codigo').value = code;
+                    
+                    // Validar código
+                    validarCodigoUnico();
+                    
+                    // Parar scanner após ler
+                    stopScanner();
+                    
+                    // Feedback
+                    mostrarToast(`Código lido: ${code}`, false);
+                    
+                    // Focar no próximo campo
+                    setTimeout(() => {
+                        document.getElementById('quantidade').focus();
+                    }, 500);
+                });
+                
+                // Adicionar timeout para scanner automático
+                clearTimeout(estado.scanTimeout);
+                estado.scanTimeout = setTimeout(() => {
+                    if (estado.scannerAtivo) {
+                        mostrarToast('Aponte a câmera para o código de barras', false, 'warning');
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Erro no scanner:', error);
+                mostrarToast('Erro ao acessar a câmera. Use digitação manual.', true);
+                document.getElementById('codigo').focus();
+                stopScanner();
+            }
+        }
+        
+        // Parar scanner
+        function stopScanner() {
+            if (!estado.scannerAtivo && !estado.quaggaInicializado) return;
+            
+            try {
+                // Parar Quagga
+                if (estado.quaggaInicializado) {
+                    Quagga.stop();
+                    Quagga.offDetected();
+                }
+                
+                // Restaurar elementos
+                document.getElementById('scanner-placeholder').style.display = 'block';
+                document.getElementById('interactive').style.display = 'none';
+                document.getElementById('cameraControls').style.display = 'none';
+                document.getElementById('scanIndicator').style.display = 'none';
+                
+                // Atualizar estado
+                estado.scannerAtivo = false;
+                const btn = document.getElementById('btnToggleScanner');
+                btn.innerHTML = '<i class="fas fa-camera"></i> Ativar Leitor de Código de Barras';
+                btn.classList.remove('scanner-active');
+                
+                // Limpar timeout
+                clearTimeout(estado.scanTimeout);
+                
+            } catch (error) {
+                console.error("Erro ao parar scanner:", error);
+            }
+        }
+        
+        // Capturar manualmente (fallback)
+        function capturarManualmente() {
+            if (!estado.scannerAtivo) return;
+            
+            mostrarToast('Modo de captura manual ativado. Aponte para o código e clique novamente.', false, 'warning');
+            
+            // Em produção real, você implementaria captura de imagem
+            // Aqui simularemos com um código aleatório
+            setTimeout(() => {
+                if (estado.scannerAtivo) {
+                    // Gerar código EAN-13 aleatório para simulação
+                    const codigoSimulado = '789' + Math.floor(100000000 + Math.random() * 900000000);
+                    document.getElementById('codigo').value = codigoSimulado;
+                    
+                    // Validar código
+                    validarCodigoUnico();
+                    
+                    // Parar scanner
+                    stopScanner();
+                    
+                    // Feedback
+                    mostrarToast(`Código simulado: ${codigoSimulado}`, false);
+                    
+                    // Focar no próximo campo
+                    document.getElementById('quantidade').focus();
+                }
+            }, 2000);
+        }
+        
+        // Validar formulário
+        function validarFormulario() {
+            let valido = true;
+            
+            // Obter valores
+            const produto = document.getElementById('produto').value.trim();
+            const codigo = document.getElementById('codigo').value.trim();
+            const quantidade = document.getElementById('quantidade').value;
+            const setor = document.getElementById('setor').value.trim();
+            const colaborador = document.getElementById('colaborador').value.trim();
+            
+            // Validar produto
+            if (produto === '') {
+                mostrarErro('produtoError');
+                valido = false;
+            } else {
+                esconderErro('produtoError');
+            }
+            
+            // Validar código
+            if (codigo === '') {
+                mostrarErro('codigoError');
+                valido = false;
+            } else {
+                esconderErro('codigoError');
+            }
+            
+            // Validar quantidade
+            const qtdNum = parseInt(quantidade);
+            if (isNaN(qtdNum) || qtdNum < 1 || qtdNum > 999) {
+                mostrarErro('quantidadeError');
+                valido = false;
+            } else {
+                esconderErro('quantidadeError');
+            }
+            
+            // Validar setor
+            if (setor === '') {
+                mostrarErro('setorError');
+                valido = false;
+            } else {
+                esconderErro('setorError');
+            }
+            
+            // Validar colaborador
+            if (colaborador === '') {
+                mostrarErro('colaboradorError');
+                valido = false;
+            } else {
+                esconderErro('colaboradorError');
+            }
+            
+            // Validar código único
+            if (!validarCodigoUnico()) {
+                valido = false;
+            }
+            
+            // Se válido, mostrar modal de confirmação
+            if (valido) {
+                mostrarModalConfirmacao(produto, codigo, quantidade, setor, colaborador);
+            }
+            
+            return valido;
+        }
+        
+        // Validar código único
+        function validarCodigoUnico() {
+            const codigo = document.getElementById('codigo').value.trim();
+            const hoje = new Date().toDateString();
+            
+            // Verificar se código já foi registrado hoje
+            if (codigo !== '' && estado.codigosRegistradosHoje.has(codigo)) {
+                mostrarErro('codigoDuplicadoError');
+                return false;
+            } else {
+                esconderErro('codigoDuplicadoError');
+                return true;
+            }
+        }
+        
+        // Validar quantidade
+        function validarQuantidade() {
+            const quantidade = document.getElementById('quantidade').value;
+            const qtdNum = parseInt(quantidade);
+            
+            if (isNaN(qtdNum) || qtdNum < 1 || qtdNum > 999) {
+                mostrarErro('quantidadeError');
+                return false;
+            } else {
+                esconderErro('quantidadeError');
+                return true;
+            }
+        }
+        
+        // Mostrar modal de confirmação
+        function mostrarModalConfirmacao(produto, codigo, quantidade, setor, colaborador) {
+            document.getElementById('confirmProduto').textContent = produto;
+            document.getElementById('confirmCodigo').textContent = codigo;
+            document.getElementById('confirmQuantidade').textContent = `${quantidade} unidade(s)`;
+            document.getElementById('confirmSetor').textContent = setor;
+            document.getElementById('confirmColaborador').textContent = colaborador;
+            
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+        
+        // Fechar modal
+        function fecharModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+        
+        // Salvar registro
+        function salvarRegistro() {
+            // Obter valores do formulário
+            const produto = document.getElementById('produto').value.trim();
+            const codigo = document.getElementById('codigo').value.trim();
+            const quantidade = document.getElementById('quantidade').value;
+            const setor = document.getElementById('setor').value.trim();
+            const colaborador = document.getElementById('colaborador').value.trim();
+            const dataHora = new Date().toISOString();
+            const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            
+            // Criar objeto de registro
+            const registro = {
+                id,
+                produto,
+                codigo,
+                quantidade: parseInt(quantidade),
+                setor,
+                colaborador,
+                dataHora
+            };
+            
+            // Adicionar sugestões
+            adicionarSugestao('produto', produto);
+            adicionarSugestao('setor', setor);
+            adicionarSugestao('colaborador', colaborador);
+            
+            // Adicionar ao estado
+            estado.registros.push(registro);
+            estado.codigosRegistradosHoje.add(codigo);
+            
+            // Salvar no localStorage
+            localStorage.setItem('registrosProdutos', JSON.stringify(estado.registros));
+            
+            // Fechar modal
+            fecharModal();
+            
+            // Limpar formulário
+            limparFormulario();
+            
+            // Mostrar feedback
+            mostrarToast('Registro salvo com sucesso!', false);
+            
+            // Atualizar listas
+            carregarRegistros();
+            atualizarResumo();
+            atualizarConfiguracoes();
+            
+            // Mudar para aba de registros
+            document.querySelector('.nav-item[data-tab="registros"]').click();
+        }
+        
+        // Limpar formulário
+        function limparFormulario() {
+            document.getElementById('produto').value = '';
+            document.getElementById('codigo').value = '';
+            document.getElementById('quantidade').value = '1';
+            document.getElementById('setor').value = '';
+            document.getElementById('colaborador').value = '';
+            
+            // Limpar erros
+            esconderErro('produtoError');
+            esconderErro('codigoError');
+            esconderErro('quantidadeError');
+            esconderErro('setorError');
+            esconderErro('colaboradorError');
+            esconderErro('codigoDuplicadoError');
+            
+            // Focar no primeiro campo
+            document.getElementById('produto').focus();
+        }
+        
+        // Mostrar modal de exclusão
+        function mostrarModalExclusao(id) {
+            estado.registroParaDeletar = id;
+            
+            const registro = estado.registros.find(r => r.id === id);
+            if (!registro) return;
+            
+            const data = new Date(registro.dataHora);
+            const dataFormatada = data.toLocaleDateString('pt-BR');
+            const horaFormatada = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('deleteRegistroInfo').innerHTML = `
+                <strong>${registro.produto}</strong><br>
+                Código: ${registro.codigo}<br>
+                Quantidade: ${registro.quantidade} un.<br>
+                Data: ${dataFormatada} ${horaFormatada}
+            `;
+            
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+        
+        // Fechar modal de exclusão
+        function fecharDeleteModal() {
+            estado.registroParaDeletar = null;
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+        
+        // Confirmar exclusão
+        function confirmarExclusao() {
+            if (!estado.registroParaDeletar) return;
+            
+            // Encontrar índice do registro
+            const index = estado.registros.findIndex(r => r.id === estado.registroParaDeletar);
+            
+            if (index !== -1) {
+                // Remover do estado
+                estado.registros.splice(index, 1);
+                
+                // Salvar no localStorage
+                localStorage.setItem('registrosProdutos', JSON.stringify(estado.registros));
+                
+                // Atualizar códigos registrados hoje
+                atualizarCodigosRegistradosHoje();
+                
+                // Atualizar UI
+                carregarRegistros();
+                atualizarResumo();
+                atualizarConfiguracoes();
+                
+                // Feedback
+                mostrarToast('Registro excluído com sucesso!', false);
+            }
+            
+            fecharDeleteModal();
+        }
+        
+        // Mostrar modal de limpeza
+        function mostrarModalLimpeza() {
+            document.getElementById('clearDataCount').textContent = estado.registros.length;
+            document.getElementById('clearDataModal').style.display = 'flex';
+        }
+        
+        // Fechar modal de limpeza
+        function fecharClearModal() {
+            document.getElementById('clearDataModal').style.display = 'none';
+        }
+        
+        // Confirmar limpeza de dados
+        function confirmarLimpeza() {
+            // Limpar todos os dados
+            estado.registros = [];
+            estado.codigosRegistradosHoje.clear();
+            estado.sugestoes = {
+                produtos: [],
+                setores: [],
+                colaboradores: []
+            };
+            
+            // Limpar localStorage
+            localStorage.removeItem('registrosProdutos');
+            localStorage.removeItem('sugestoesBaixaPro');
+            
+            // Atualizar UI
+            carregarRegistros();
+            atualizarResumo();
+            atualizarConfiguracoes();
+            
+            // Feedback
+            mostrarToast('Todos os dados foram limpos!', false);
+            
+            fecharClearModal();
+        }
+        
+        // Mostrar detalhes do registro
+        function mostrarDetalhesRegistro(id) {
+            const registro = estado.registros.find(r => r.id === id);
+            if (!registro) return;
+            
+            const data = new Date(registro.dataHora);
+            const dataFormatada = data.toLocaleDateString('pt-BR');
+            const horaFormatada = data.toLocaleTimeString('pt-BR');
+            
+            alert(`📋 Detalhes do Registro\n\n` +
+                  `🏷️ Produto: ${registro.produto}\n` +
+                  `📊 Código: ${registro.codigo}\n` +
+                  `📦 Quantidade: ${registro.quantidade} un.\n` +
+                  `🏭 Setor: ${registro.setor}\n` +
+                  `👤 Colaborador: ${registro.colaborador}\n` +
+                  `📅 Data/Hora: ${dataFormatada} ${horaFormatada}\n` +
+                  `🆔 ID: ${registro.id}`);
+        }
+        
+        // Exportar PDF - CORRIGIDA E MELHORADA
+        function exportarPDF() {
+            mostrarToast('Gerando relatório em PDF...', false);
             
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
-                // Title
+                // Configurações do documento
+                const pageWidth = doc.internal.pageSize.width;
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                
+                // Cabeçalho
                 doc.setFontSize(20);
-                doc.text('RELATÓRIO DE RETIRADA DE PRODUTOS', 105, 20, { align: 'center' });
+                doc.setTextColor(37, 99, 235);
+                doc.text("BaixaPro - Relatório de Produção", pageWidth / 2, 15, { align: 'center' });
                 
-                // Period
-                doc.setFontSize(11);
-                doc.text(`Período: ${startDate} até ${endDate}`, 105, 30, { align: 'center' });
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Gerado em: ${hoje}`, pageWidth / 2, 23, { align: 'center' });
                 
-                // Detailed Records Table
-                doc.setFontSize(14);
-                doc.text('1. REGISTROS DETALHADOS', 14, 45);
+                // Linha separadora
+                doc.setDrawColor(37, 99, 235);
+                doc.setLineWidth(0.5);
+                doc.line(15, 28, pageWidth - 15, 28);
                 
-                const tableData = filteredRecords.map(record => {
-                    const date = new Date(record.timestamp);
+                // Resumo
+                doc.setFontSize(16);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Resumo", 15, 38);
+                
+                doc.setFontSize(12);
+                doc.text(`Total de Registros: ${estado.registros.length}`, 15, 48);
+                
+                // Tabela de registros
+                const registrosParaExportar = estado.registros.slice().reverse(); // Mais recentes primeiro
+                
+                const headers = [["Produto", "Código", "Quantidade", "Setor", "Colaborador", "Data"]];
+                const data = registrosParaExportar.map(registro => {
+                    const data = new Date(registro.dataHora);
                     return [
-                        record.product,
-                        record.barcode,
-                        record.quantity,
-                        record.sector,
-                        record.employee,
-                        date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                        registro.produto,
+                        registro.codigo,
+                        registro.quantidade.toString(),
+                        registro.setor,
+                        registro.colaborador,
+                        data.toLocaleDateString('pt-BR')
                     ];
                 });
                 
                 doc.autoTable({
-                    startY: 50,
-                    head: [['Produto', 'Código', 'Qtd', 'Setor', 'Colaborador', 'Data/Hora']],
-                    body: tableData,
+                    head: headers,
+                    body: data,
+                    startY: 55,
                     theme: 'grid',
-                    headStyles: { fillColor: [37, 99, 235] },
-                    margin: { left: 14, right: 14 }
+                    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [240, 240, 240] },
+                    margin: { left: 15, right: 15 }
                 });
                 
-                // Product Summary Table
-                const finalY = doc.lastAutoTable.finalY + 15;
-                doc.setFontSize(14);
-                doc.text('2. RESUMO AGRUPADO POR PRODUTO', 14, finalY);
+                // Rodapé
+                const finalY = doc.lastAutoTable.finalY + 10;
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text("Sistema BaixaPro - Relatório gerado automaticamente", pageWidth / 2, finalY, { align: 'center' });
                 
-                const summaryData = summaryArray.map(item => [
-                    item.product,
-                    item.barcode,
-                    item.total.toString()
-                ]);
+                // Salvar PDF
+                const nomeArquivo = `baixapro_relatorio_${new Date().toISOString().slice(0,10)}.pdf`;
+                doc.save(nomeArquivo);
                 
-                doc.autoTable({
-                    startY: finalY + 5,
-                    head: [['Produto', 'Código de Barras', 'Total Retirado']],
-                    body: summaryData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [16, 185, 129] },
-                    margin: { left: 14, right: 14 }
-                });
-                
-                // Footer
-                const pageCount = doc.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(10);
-                    doc.text(
-                        `Página ${i} de ${pageCount} • Gerado em ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`,
-                        105,
-                        doc.internal.pageSize.height - 10,
-                        { align: 'center' }
-                    );
-                }
-                
-                // Try to use Web Share API, fallback to download
-                if (navigator.share) {
-                    const pdfBlob = doc.output('blob');
-                    const pdfFile = new File([pdfBlob], `relatorio_retiradas_${startDate}_${endDate}.pdf`, { 
-                        type: 'application/pdf' 
-                    });
-                    
-                    try {
-                        await navigator.share({
-                            files: [pdfFile],
-                            title: 'Relatório de Retirada de Produtos',
-                            text: `Relatório de ${startDate} até ${endDate}`
-                        });
-                        showToast('Relatório compartilhado com sucesso!', 'success');
-                    } catch (shareError) {
-                        // User cancelled share or share failed
-                        doc.save(`relatorio_retiradas_${startDate}_${endDate}.pdf`);
-                        showToast('Relatório gerado e baixado!', 'success');
-                    }
-                } else {
-                    doc.save(`relatorio_retiradas_${startDate}_${endDate}.pdf`);
-                    showToast('Relatório gerado e baixado!', 'success');
-                }
+                mostrarToast('PDF gerado com sucesso!', false);
                 
             } catch (error) {
-                console.error('PDF generation error:', error);
-                showToast('Erro ao gerar relatório PDF', 'error');
+                console.error('Erro ao gerar PDF:', error);
+                mostrarToast('Erro ao gerar PDF. Tente novamente.', true);
             }
         }
         
-        // Show confirmation modal
-        function showConfirmationModal(formData) {
-            elements.confirmationDetails.innerHTML = `
-                <p><strong>Produto:</strong> ${formData.product}</p>
-                <p><strong>Código:</strong> ${formData.barcode}</p>
-                <p><strong>Quantidade:</strong> ${formData.quantity}</p>
-                <p><strong>Setor:</strong> ${formData.sector}</p>
-                <p><strong>Colaborador:</strong> ${formData.employee}</p>
-                <p><strong>Data/Hora:</strong> ${new Date().toLocaleString('pt-BR')}</p>
-                
-                <div style="background: var(--gray-100); padding: 12px; border-radius: var(--radius-sm); margin-top: 16px;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <strong> Verifique os dados antes de confirmar.</strong>
-                </div>
-            `;
-            
-            elements.confirmationModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Handle form submission
-        function handleFormSubmit(event) {
-            event.preventDefault();
-            
-            // Get form values
-            const formData = {
-                barcode: elements.barcodeInput.value.trim(),
-                product: elements.productInput.value.trim(),
-                quantity: parseInt(elements.quantityInput.value),
-                sector: elements.sectorSelect.value,
-                employee: elements.employeeInput.value.trim(),
-                timestamp: new Date().toISOString()
+        // Exportar backup
+        function exportarBackup() {
+            const data = {
+                registros: estado.registros,
+                sugestoes: estado.sugestoes,
+                dataExportacao: new Date().toISOString(),
+                versao: '2.0'
             };
             
-            // Validate form
-            if (!formData.barcode) {
-                showToast('Escaneie o código de barras primeiro', 'error');
-                return;
-            }
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
             
-            if (!formData.product) {
-                showToast('Informe o nome do produto', 'error');
-                return;
-            }
+            const exportFileDefaultName = `backup_baixapro_${new Date().toISOString().slice(0,10)}.json`;
             
-            if (!formData.quantity || formData.quantity <= 0) {
-                showToast('Quantidade deve ser maior que zero', 'error');
-                return;
-            }
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
             
-            if (formData.quantity > 999) {
-                showToast('Quantidade máxima é 999', 'error');
-                return;
-            }
-            
-            if (!formData.sector) {
-                showToast('Selecione o setor de origem', 'error');
-                return;
-            }
-            
-            if (!formData.employee) {
-                showToast('Informe o nome do colaborador', 'error');
-                return;
-            }
-            
-            // Validate barcode
-            const barcodeValidation = validateBarcode(formData.barcode);
-            if (!barcodeValidation.valid) {
-                showToast(barcodeValidation.error, 'error');
-                return;
-            }
-            
-            // Show confirmation modal
-            showConfirmationModal(formData);
-            
-            // Store form data for confirmation
-            window.pendingRegistration = formData;
+            mostrarToast('Backup exportado com sucesso!', false);
         }
         
-        // Confirm and save registration
-        function confirmRegistration() {
-            if (!window.pendingRegistration) return;
+        // Importar backup
+        function importarBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            saveRecord(window.pendingRegistration);
-            
-            // Reset form
-            elements.registrationForm.reset();
-            
-            // Close modal
-            elements.confirmationModal.classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // Show success message
-            showToast('Retirada registrada com sucesso!', 'success');
-            
-            // Switch to records tab
-            switchTab('records');
-            
-            // Clear pending registration
-            window.pendingRegistration = null;
-        }
-        
-        // Switch between tabs
-        function switchTab(tabName) {
-            if (AppState.currentTab === tabName) return;
-            
-            // Update active tab
-            elements.tabs.forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.tab === tabName);
-            });
-            
-            // Show active content
-            Object.keys(elements.tabContents).forEach(key => {
-                elements.tabContents[key].classList.toggle('hidden', key !== tabName);
-            });
-            
-            AppState.currentTab = tabName;
-            
-            // Stop scanner if switching away from register tab
-            if (tabName !== 'register' && AppState.scannerActive) {
-                stopScanner();
-            }
-            
-            // Render records if switching to records tab
-            if (tabName === 'records') {
-                renderRecords();
-            }
-        }
-        
-        // Event Listeners
-        function initEventListeners() {
-            // Tab switching
-            elements.tabs.forEach(tab => {
-                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-            });
-            
-            // Scanner controls
-            elements.startScannerBtn.addEventListener('click', startScanner);
-            elements.closeScannerBtn.addEventListener('click', stopScanner);
-            
-            // Reader switching
-            elements.readerOptions.forEach(option => {
-                option.addEventListener('click', () => switchReader(option.dataset.reader));
-            });
-            
-            // Form controls
-            elements.registrationForm.addEventListener('submit', handleFormSubmit);
-            elements.clearBarcodeBtn.addEventListener('click', () => {
-                elements.barcodeInput.value = '';
-                elements.barcodeInput.focus();
-            });
-            
-            elements.decreaseQtyBtn.addEventListener('click', () => {
-                const current = parseInt(elements.quantityInput.value) || 1;
-                if (current > 1) {
-                    elements.quantityInput.value = current - 1;
-                }
-            });
-            
-            elements.increaseQtyBtn.addEventListener('click', () => {
-                const current = parseInt(elements.quantityInput.value) || 0;
-                if (current < 999) {
-                    elements.quantityInput.value = current + 1;
-                }
-            });
-            
-            // Modal controls
-            elements.closeConfirmModalBtn.addEventListener('click', () => {
-                elements.confirmationModal.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-            
-            elements.cancelConfirmationBtn.addEventListener('click', () => {
-                elements.confirmationModal.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-            
-            elements.confirmRegistrationBtn.addEventListener('click', confirmRegistration);
-            
-            // Filter buttons
-            elements.filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    elements.filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
                     
-                    AppState.currentFilter = btn.dataset.filter;
-                    renderRecords();
-                });
-            });
-            
-            // Report generation
-            elements.generateReportBtn.addEventListener('click', generatePDFReport);
-            
-            // Quick actions
-            elements.quickScanBtn.addEventListener('click', () => {
-                switchTab('register');
-                setTimeout(() => startScanner(), 100);
-            });
-            
-            elements.newWithoutScanBtn.addEventListener('click', () => {
-                switchTab('register');
-                elements.barcodeInput.focus();
-            });
-            
-            elements.historyBtn.addEventListener('click', () => switchTab('records'));
-            
-            // Close scanner when clicking outside on mobile
-            document.addEventListener('click', (event) => {
-                if (AppState.scannerActive && 
-                    !elements.scannerSection.contains(event.target) &&
-                    event.target !== elements.startScannerBtn) {
-                    stopScanner();
+                    // Validar estrutura do backup
+                    if (!data.registros || !Array.isArray(data.registros)) {
+                        throw new Error('Formato de backup inválido');
+                    }
+                    
+                    // Confirmar importação
+                    if (confirm(`Deseja importar ${data.registros.length} registros?\nEsta ação irá substituir os dados atuais.`)) {
+                        estado.registros = data.registros;
+                        estado.sugestoes = data.sugestoes || {
+                            produtos: [],
+                            setores: [],
+                            colaboradores: []
+                        };
+                        
+                        // Salvar no localStorage
+                        localStorage.setItem('registrosProdutos', JSON.stringify(estado.registros));
+                        localStorage.setItem('sugestoesBaixaPro', JSON.stringify(estado.sugestoes));
+                        
+                        // Atualizar UI
+                        atualizarCodigosRegistradosHoje();
+                        carregarRegistros();
+                        atualizarResumo();
+                        atualizarConfiguracoes();
+                        
+                        mostrarToast(`Backup importado com sucesso! ${data.registros.length} registros restaurados.`, false);
+                    }
+                } catch (error) {
+                    console.error('Erro ao importar backup:', error);
+                    mostrarToast('Erro ao importar backup. Arquivo inválido.', true);
                 }
-            });
+                
+                // Limpar input
+                event.target.value = '';
+            };
             
-            // Handle back button on mobile
-            window.addEventListener('popstate', () => {
-                if (AppState.scannerActive) {
-                    stopScanner();
-                }
-            });
+            reader.readAsText(file);
         }
         
-        // Initialize application
-        function initApp() {
-            initDateInputs();
-            initEventListeners();
-            updateTodayRecords();
-            renderRecords();
+        // Compartilhar relatório
+        function compartilharRelatorio() {
+            if (navigator.share) {
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                const totalItens = estado.registros.reduce((total, registro) => total + parseInt(registro.quantidade), 0);
+                
+                navigator.share({
+                    title: `BaixaPro - Relatório ${hoje}`,
+                    text: `Relatório de baixa de produtos:\nTotal de registros: ${estado.registros.length}\nTotal de itens: ${totalItens}\nGerado em ${hoje}`,
+                    url: window.location.href
+                })
+                .then(() => mostrarToast('Relatório compartilhado!', false))
+                .catch(error => {
+                    if (error.name !== 'AbortError') {
+                        mostrarToast('Erro ao compartilhar', true);
+                    }
+                });
+            } else {
+                // Fallback para copiar para área de transferência
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                const totalItens = estado.registros.reduce((total, registro) => total + parseInt(registro.quantidade), 0);
+                const texto = `BaixaPro - Relatório ${hoje}\n\nTotal de registros: ${estado.registros.length}\nTotal de itens: ${totalItens}\nGerado em ${hoje}`;
+                
+                navigator.clipboard.writeText(texto)
+                    .then(() => mostrarToast('Relatório copiado para área de transferência!', false))
+                    .catch(() => mostrarToast('Copie manualmente os dados do resumo', true));
+            }
+        }
+        
+        // Funções auxiliares
+        function mostrarErro(id) {
+            document.getElementById(id).style.display = 'block';
+            const fieldId = id.replace('Error', '');
+            if (document.getElementById(fieldId)) {
+                document.getElementById(fieldId).classList.add('error');
+            }
+        }
+        
+        function esconderErro(id) {
+            document.getElementById(id).style.display = 'none';
+            const fieldId = id.replace('Error', '');
+            if (document.getElementById(fieldId)) {
+                document.getElementById(fieldId).classList.remove('error');
+            }
+        }
+        
+        function mostrarToast(mensagem, isError, type = '') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = mensagem;
             
-            // Load cached data into form
-            if (AppState.employeeCache.length > 0) {
-                elements.employeeInput.value = AppState.employeeCache[0];
+            // Resetar classes
+            toast.className = 'toast';
+            
+            if (isError) {
+                toast.classList.add('error');
+                toast.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                toast.classList.add('warning');
+                toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+            } else {
+                toast.querySelector('i').className = 'fas fa-check';
             }
             
-            // Set default quantity
-            elements.quantityInput.value = '1';
+            toast.style.display = 'flex';
             
-            // Show welcome message
             setTimeout(() => {
-                showToast('Sistema pronto para uso!', 'success');
-            }, 1000);
+                toast.style.display = 'none';
+            }, 3000);
         }
         
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initApp);
+        // Limpar scanner quando a página for fechada
+        window.addEventListener('beforeunload', stopScanner);
+        window.addEventListener('pagehide', stopScanner);
+        
+        // Prevenir zoom em dispositivos móveis
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
