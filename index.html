@@ -55,6 +55,21 @@
                             <input type="number" id="quantity" class="form-control" placeholder="0" min="1" max="9999" required>
                             <div class="text-muted" style="font-size: 14px; margin-top: 5px;">Mínimo: 1 | Máximo: <span id="max-quantity-display">9999</span></div>
                         </div>
+
+                        <!-- No formulário de registro, adicione após o campo de quantidade: -->
+                        <div class="form-group">
+                            <label class="form-label" for="unit">Unidade de Medida *</label>
+                            <select id="unit" class="form-control" required>
+                                <option value="UN">Unidade (UN)</option>
+                                <option value="KG">Quilograma (KG)</option>
+                                <option value="ML">Mililitro (ML)</option>
+                                <option value="L">Litro (L)</option>
+                                <option value="M">Metro (M)</option>
+                                <option value="CX">Caixa (CX)</option>
+                                <option value="PC">Peça (PC)</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
                         
                         <div class="form-group">
                             <label class="form-label" for="origin-sector">Setor de Origem *</label>

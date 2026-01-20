@@ -1,12 +1,11 @@
-// RELATÓRIOS
-// FUNÇÃO generateReport - Atualizada para exibir códigos de barras conforme formato solicitado
-// reports.js - FUNÇÃO generateReport ATUALIZADA
+// reports.js - FUNÇÕES COMPLETAS COM SUPORTE A UNIDADES
+
+// FUNÇÃO generateReport ATUALIZADA
 function generateReport() {
     const period = document.getElementById('report-period').value;
     const groupBy = document.getElementById('group-by').value;
     let startDate, endDate;
     
-    // Definir período
     const today = new Date();
     
     switch(period) {
@@ -67,170 +66,114 @@ function generateReport() {
         return;
     }
     
-    // Calcular estatísticas
-    let totalQuantity = 0;
-    const uniqueProducts = new Set();
-    const uniqueEmployees = new Set();
-    const uniqueSectors = new Set();
-    const uniqueBarcodes = new Set();
-    
+    // Agrupar por produto, código E unidade
+    const productsMap = {};
     filteredRecords.forEach(record => {
-        totalQuantity += record.quantity;
-        uniqueProducts.add(record.productName);
-        uniqueEmployees.add(record.employee);
-        uniqueSectors.add(record.sector);
-        uniqueBarcodes.add(record.barcode);
+        const key = `${record.productName}_${record.barcode}_${record.unit}`;
+        if (!productsMap[key]) {
+            productsMap[key] = {
+                productName: record.productName,
+                barcode: record.barcode,
+                unit: record.unit,
+                records: [],
+                totalQuantity: 0
+            };
+        }
+        productsMap[key].records.push(record);
+        productsMap[key].totalQuantity += record.quantity;
     });
     
-    // Calcular média
-    const avgPerRecord = totalQuantity / filteredRecords.length;
+    // Ordenar produtos por nome
+    const sortedProducts = Object.values(productsMap).sort((a, b) => 
+        a.productName.localeCompare(b.productName)
+    );
     
-    // Gerar conteúdo do resumo COM TODOS OS CÓDIGOS
+    // Gerar conteúdo do resumo simplificado
     let summaryHTML = `
         <div class="report-section">
             <div class="report-header">
-                <div class="report-title">Resumo do Período</div>
+                <div class="report-title">Relatório de Retiradas</div>
                 <div class="report-date">${period === 'custom' ? `${formatDate(startDate)} a ${formatDate(endDate)}` : getPeriodName(period)}</div>
             </div>
             
-            <div class="report-grid">
-                <div class="report-card">
-                    <div class="report-card-title">Total Retirado</div>
-                    <div class="report-card-value">${totalQuantity}</div>
-                    <div class="report-card-detail">unidades</div>
+            <div style="text-align: center; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                <div style="font-size: 16px; color: #2c3e50;">
+                    <strong>Total de registros:</strong> ${filteredRecords.length}
                 </div>
-                
-                <div class="report-card">
-                    <div class="report-card-title">Registros</div>
-                    <div class="report-card-value">${filteredRecords.length}</div>
-                    <div class="report-card-detail">com códigos</div>
-                </div>
-                
-                <div class="report-card">
-                    <div class="report-card-title">Códigos Únicos</div>
-                    <div class="report-card-value">${uniqueBarcodes.size}</div>
-                    <div class="report-card-detail">diferentes</div>
-                </div>
-                
-                <div class="report-card">
-                    <div class="report-card-title">Média por Código</div>
-                    <div class="report-card-value">${(totalQuantity / uniqueBarcodes.size).toFixed(1)}</div>
-                    <div class="report-card-detail">unidades/código</div>
+                <div style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
+                    <strong>Produtos distintos:</strong> ${sortedProducts.length}
                 </div>
             </div>
             
-            <!-- LISTA DE TODOS OS CÓDIGOS COM QUANTIDADE -->
-            <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px;">
-                <strong style="color: #2c3e50; display: block; margin-bottom: 10px;">
-                    <i class="fas fa-barcode"></i> Todos os Códigos Registrados (${uniqueBarcodes.size})
+            <!-- LISTA DE PRODUTOS COM UNIDADES -->
+            <div style="margin-top: 20px;">
+                <strong style="color: #2c3e50; display: block; margin-bottom: 15px; font-size: 18px;">
+                    <i class="fas fa-boxes"></i> Produtos Retirados
                 </strong>
-                <div style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; padding: 10px; background: white; border-radius: 8px;">
-                    ${Array.from(uniqueBarcodes).map(barcode => {
-                        const recordsForBarcode = filteredRecords.filter(r => r.barcode === barcode);
-                        const totalForBarcode = recordsForBarcode.reduce((sum, r) => sum + r.quantity, 0);
-                        const productName = recordsForBarcode[0]?.productName || 'Produto';
-                        
-                        return `
-                            <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
-                                <div style="font-family: 'Courier New', monospace; font-weight: bold; color: #0d47a1;">
-                                    ${barcode}
-                                </div>
-                                <div style="font-size: 10px; color: #1976d2;">
-                                    ${productName.substring(0, 15)}${productName.length > 15 ? '...' : ''}
-                                </div>
-                                <div style="font-size: 11px; color: #2c3e50; font-weight: bold;">
-                                    ${totalForBarcode} un
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        </div>
     `;
     
-    // Gerar conteúdo detalhado com TODOS os registros e seus códigos
-    let detailedHTML = `
-        <div class="report-section">
-            <div class="report-header">
-                <div class="report-title">Detalhamento Completo das Retiradas</div>
-                <div class="report-date">${filteredRecords.length} registros com códigos</div>
-            </div>
-    `;
-    
-    // Agrupar por produto para organização
-    const productsMap = {};
-    filteredRecords.forEach(record => {
-        if (!productsMap[record.productName]) {
-            productsMap[record.productName] = [];
-        }
-        productsMap[record.productName].push(record);
-    });
-    
-    // Ordenar produtos por quantidade total
-    const sortedProducts = Object.entries(productsMap).map(([productName, records]) => {
-        const totalQty = records.reduce((sum, r) => sum + r.quantity, 0);
-        return { productName, records, totalQty };
-    }).sort((a, b) => b.totalQty - a.totalQty);
-    
-    // Mostrar cada produto com TODOS os registros e códigos
+    // Mostrar cada produto com seu código e unidade
     sortedProducts.forEach((productData, index) => {
-        detailedHTML += `
-            <div style="margin-bottom: 24px; background: white; border-radius: 12px; padding: 20px; border: 1px solid #e8eaed; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #3498db;">
+        summaryHTML += `
+            <div style="margin-bottom: ${index < sortedProducts.length - 1 ? '25px' : '0'}; padding-bottom: ${index < sortedProducts.length - 1 ? '25px' : '0'}; border-bottom: ${index < sortedProducts.length - 1 ? '2px solid #e8eaed' : 'none'};">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <strong style="color: #2c3e50; font-size: 18px; display: block; margin-bottom: 8px;">
+                        <div style="font-weight: bold; color: #2c3e50; font-size: 17px;">
                             ${index + 1}. ${productData.productName}
-                        </strong>
-                        <div style="color: #7f8c8d; font-size: 14px;">
-                            Total: <strong>${productData.totalQty} unidades</strong> • 
-                            Registros: ${productData.records.length} • 
-                            Códigos: ${new Set(productData.records.map(r => r.barcode)).size}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span style="font-family: 'Courier New', monospace; font-size: 14px; color: #3498db; background: #f0f8ff; padding: 4px 8px; border-radius: 4px; font-weight: bold;">
+                                ${productData.barcode}
+                            </span>
+                            <span style="margin-left: 10px; font-size: 14px; color: #7f8c8d;">
+                                <i class="fas fa-balance-scale"></i> ${getUnitName(productData.unit)}
+                            </span>
                         </div>
                     </div>
-                    <span class="badge ${productData.totalQty > 100 ? 'badge-warning' : 'badge-success'}" style="font-size: 16px; padding: 8px 16px;">
-                        ${productData.totalQty}
-                    </span>
+                    <div style="text-align: right;">
+                        <div style="font-size: 22px; font-weight: bold; color: #2c3e50;">
+                            ${formatQuantityValue(productData.totalQuantity, productData.unit)}
+                        </div>
+                        <div style="font-size: 13px; color: #7f8c8d;">
+                            ${getUnitLabel(productData.unit)}
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- LISTA DE TODAS AS RETIRADAS COM SEUS CÓDIGOS -->
-                <div style="margin-top: 12px;">
-                    <div style="font-size: 14px; color: #5d6d7e; margin-bottom: 8px; font-weight: 600;">
-                        <i class="fas fa-list"></i> Todas as retiradas deste produto:
+                <!-- Detalhamento das retiradas deste produto/código -->
+                <div style="margin-top: 15px; padding-left: 15px; border-left: 3px solid #3498db;">
+                    <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 10px;">
+                        <i class="fas fa-list"></i> ${productData.records.length} retirada(s) registrada(s):
                     </div>
-                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e8eaed; border-radius: 8px; padding: 10px;">
-                        ${productData.records.map(record => `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px solid #f8f9fa; font-size: 14px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="min-width: 150px;">
-                                        <div style="font-family: 'Courier New', monospace; font-weight: bold; color: #0d47a1; font-size: 13px; background: #f0f8ff; padding: 4px 8px; border-radius: 4px;">
-                                            ${record.barcode}
-                                        </div>
-                                    </div>
-                                    <div style="color: #7f8c8d;">
-                                        <i class="fas fa-user"></i> ${record.employee}
-                                    </div>
-                                    <div style="color: #7f8c8d;">
-                                        <i class="fas fa-building"></i> ${getSectorName(record.sector)}
-                                    </div>
+                    ${productData.records.map(record => `
+                        <div style="font-size: 13px; color: #5d6d7e; margin-bottom: 8px; padding: 8px; background: white; border-radius: 6px; border: 1px solid #f1f3f5;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <strong>${record.employee}</strong> - ${getSectorName(record.sector)}
                                 </div>
-                                <div style="text-align: right;">
-                                    <div style="font-weight: bold; color: #2c3e50;">${record.quantity} un</div>
-                                    <div style="font-size: 12px; color: #7f8c8d;">${formatTime(record.timestamp)}</div>
+                                <div style="font-weight: bold; color: #2c3e50;">
+                                    ${formatQuantityDisplay(record.quantity, record.unit)}
                                 </div>
                             </div>
-                        `).join('')}
-                    </div>
+                            <div style="font-size: 12px; color: #7f8c8d; margin-top: 4px;">
+                                <i class="fas fa-clock"></i> ${formatTime(record.timestamp)}
+                                ${record.notes ? `<br><span style="color: #95a5a6; font-size: 11px; margin-top: 3px; display: block;">↳ ${record.notes}</span>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
         `;
     });
     
-    detailedHTML += `</div>`;
+    summaryHTML += `
+            </div>
+        </div>
+    `;
     
     // Atualizar interface
     document.getElementById('report-summary').innerHTML = summaryHTML;
-    document.getElementById('report-content').innerHTML = detailedHTML;
+    document.getElementById('report-content').innerHTML = '';
     
     // Armazenar relatório atual para exportação
     AppState.currentReport = {
@@ -238,35 +181,194 @@ function generateReport() {
         startDate,
         endDate,
         filteredRecords,
-        totalQuantity,
-        avgPerRecord,
-        uniqueProducts: uniqueProducts.size,
-        uniqueEmployees: uniqueEmployees.size,
-        uniqueSectors: uniqueSectors.size,
-        uniqueBarcodes: uniqueBarcodes.size,
-        uniqueBarcodesList: Array.from(uniqueBarcodes),
-        productsMap: productsMap,
-        barcodeFrequency: {}
+        sortedProducts
     };
-    
-    // Calcular frequência de códigos
-    const allBarcodeFrequency = {};
-    filteredRecords.forEach(record => {
-        allBarcodeFrequency[record.barcode] = (allBarcodeFrequency[record.barcode] || 0) + 1;
-    });
-    AppState.currentReport.barcodeFrequency = allBarcodeFrequency;
-    
-    // Rolar para o topo do relatório
-    document.getElementById('report-content').scrollIntoView({ behavior: 'smooth' });
 }
-// reports.js - FUNÇÃO exportToImage ATUALIZADA - FORMATO FRAME1
+
+// FUNÇÃO exportToPDF ATUALIZADA COM UNIDADES
+function exportToPDF() {
+    if (!AppState.currentReport || AppState.currentReport.filteredRecords.length === 0) {
+        showAlert('Gere um relatório primeiro para exportar.', 'warning');
+        return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    let yPos = margin;
+    
+    // ========== CABEÇALHO ==========
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('STOCKTRACK', pageWidth / 2, 18, null, null, 'center');
+    
+    doc.setFontSize(12);
+    doc.text('RELATÓRIO DE RETIRADAS', pageWidth / 2, 25, null, null, 'center');
+    
+    const today = new Date();
+    const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getFullYear().toString().slice(2)}`;
+    doc.setFontSize(10);
+    doc.text(`DATA: ${formattedDate}`, pageWidth / 2, 32, null, null, 'center');
+    
+    yPos = 45;
+    
+    // ========== INFORMAÇÕES DO RELATÓRIO ==========
+    const periodText = AppState.currentReport.period === 'custom' 
+        ? `${formatDate(AppState.currentReport.startDate)} a ${formatDate(AppState.currentReport.endDate)}`
+        : getPeriodName(AppState.currentReport.period);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Período: ${periodText}`, margin, yPos);
+    doc.text(`Registros: ${AppState.currentReport.filteredRecords.length}`, pageWidth - margin, yPos, null, null, 'right');
+    
+    yPos += 8;
+    doc.text(`Produtos: ${AppState.currentReport.sortedProducts.length}`, pageWidth - margin, yPos, null, null, 'right');
+    
+    yPos += 15;
+    
+    // Linha divisória
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    
+    yPos += 20;
+    
+    // ========== LISTA DE PRODUTOS ==========
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('PRODUTOS RETIRADOS', margin, yPos);
+    yPos += 10;
+    
+    // Mostrar cada produto
+    AppState.currentReport.sortedProducts.forEach((productData, index) => {
+        // Verificar se precisa de nova página
+        if (yPos > pageHeight - 60) {
+            doc.addPage();
+            yPos = margin;
+        }
+        
+        // Título do produto
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${index + 1}. ${productData.productName}`, margin, yPos);
+        
+        // Código de barras
+        doc.setFontSize(10);
+        doc.setFont('courier', 'bold');
+        doc.setTextColor(52, 152, 219);
+        doc.text(productData.barcode, margin, yPos + 7);
+        
+        // Unidade
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(getUnitName(productData.unit), margin + 100, yPos + 7);
+        
+        // Quantidade total
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text(formatQuantityValue(productData.totalQuantity, productData.unit), pageWidth - margin - 30, yPos + 4, null, null, 'right');
+        
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(getUnitLabel(productData.unit), pageWidth - margin - 30, yPos + 9, null, null, 'right');
+        
+        yPos += 15;
+        
+        // Detalhamento das retiradas
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80, 80, 80);
+        
+        productData.records.forEach((record, recordIndex) => {
+            if (yPos > pageHeight - 30) {
+                doc.addPage();
+                yPos = margin;
+            }
+            
+            const line = `• ${record.employee} - ${getSectorName(record.sector)} - ${formatQuantityDisplay(record.quantity, record.unit)} - ${formatTime(record.timestamp)}`;
+            doc.text(line, margin + 5, yPos);
+            yPos += 5;
+            
+            // Observações se existirem
+            if (record.notes) {
+                if (yPos > pageHeight - 20) {
+                    doc.addPage();
+                    yPos = margin;
+                }
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text(`↳ ${record.notes}`, margin + 10, yPos);
+                doc.setFontSize(9);
+                doc.setTextColor(80, 80, 80);
+                yPos += 5;
+            }
+        });
+        
+        // Espaço entre produtos
+        yPos += 10;
+        
+        // Linha divisória entre produtos (exceto o último)
+        if (index < AppState.currentReport.sortedProducts.length - 1) {
+            doc.setDrawColor(230, 230, 230);
+            doc.setLineWidth(0.2);
+            doc.line(margin, yPos - 5, pageWidth - margin, yPos - 5);
+            yPos += 5;
+        }
+    });
+    
+    // ========== RESUMO FINAL ==========
+    if (yPos > pageHeight - 40) {
+        doc.addPage();
+        yPos = margin;
+    }
+    
+    yPos += 10;
+    
+    // Linha divisória
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    
+    yPos += 15;
+    
+    // Contagem de produtos únicos
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Total de produtos distintos: ${AppState.currentReport.sortedProducts.length}`, margin, yPos);
+    
+    // Rodapé
+    const finalY = pageHeight - 15;
+    
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('StockTrack — Sistema de Controle de Retiradas', margin, finalY);
+    doc.text('Idealizado por Flávio Monteiro • Implementação técnica com apoio de IA', margin, finalY + 5);
+    doc.text(`Página ${doc.internal.getNumberOfPages()}`, pageWidth - margin, finalY, null, null, 'right');
+    
+    // Salvar PDF
+    const fileName = `relatorio_stocktrack_${new Date().toISOString().slice(0,10)}.pdf`;
+    doc.save(fileName);
+    
+    showAlert('PDF gerado com sucesso!', 'success');
+}
+
+// FUNÇÃO exportToImage ATUALIZADA COM UNIDADES
 function exportToImage() {
     if (!AppState.currentReport || AppState.currentReport.filteredRecords.length === 0) {
         showAlert('Gere um relatório primeiro para exportar.', 'warning');
         return;
     }
     
-    // Criar container no formato Frame1
+    // Criar container
     const container = document.createElement('div');
     container.className = 'export-frame1-container';
     container.style.width = '800px';
@@ -276,9 +378,6 @@ function exportToImage() {
     container.style.color = '#2c3e50';
     container.style.lineHeight = '1.4';
     
-    // Cálculos
-    const avgPerRecord = AppState.currentReport.totalQuantity / AppState.currentReport.filteredRecords.length;
-    const avgPercentage = (avgPerRecord / AppState.currentReport.totalQuantity * 100).toFixed(1);
     const today = new Date();
     const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getFullYear().toString().slice(2)}`;
     
@@ -301,268 +400,161 @@ function exportToImage() {
     
     container.appendChild(header);
     
-    // ========== RESUMO PRINCIPAL ==========
-    const summarySection = document.createElement('div');
-    summarySection.style.marginBottom = '30px';
-    summarySection.style.border = '2px solid #2c3e50';
-    summarySection.style.borderRadius = '5px';
-    summarySection.style.overflow = 'hidden';
+    // ========== INFORMAÇÕES DO RELATÓRIO ==========
+    const periodText = AppState.currentReport.period === 'custom' 
+        ? `${formatDate(AppState.currentReport.startDate)} a ${formatDate(AppState.currentReport.endDate)}`
+        : getPeriodName(AppState.currentReport.period);
     
-    summarySection.innerHTML = `
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th style="border: 2px solid #2c3e50; padding: 15px; text-align: center; font-size: 16px; font-weight: bold; width: 50%;">
-                        TOTAL DE RETIRADAS
-                    </th>
-                    <th style="border: 2px solid #2c3e50; padding: 15px; text-align: center; font-size: 16px; font-weight: bold; width: 50%;">
-                        TOTAL DE REGISTROS
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="border: 2px solid #2c3e50; padding: 25px; text-align: center; font-size: 36px; font-weight: bold;">
-                        ${AppState.currentReport.totalQuantity}
-                    </td>
-                    <td style="border: 2px solid #2c3e50; padding: 25px; text-align: center; font-size: 36px; font-weight: bold;">
-                        ${AppState.currentReport.filteredRecords.length}
-                    </td>
-                </tr>
-                <tr>
-                    <td style="border: 2px solid #2c3e50; padding: 10px; text-align: center; font-size: 12px; color: #7f8c8d; text-transform: uppercase;">
-                        UN/KG/ML
-                    </td>
-                    <td style="border: 2px solid #2c3e50; padding: 10px; text-align: center; font-size: 12px; color: #7f8c8d; text-transform: uppercase;">
-                        OCORRÊNCIAS
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    `;
+    const infoSection = document.createElement('div');
+    infoSection.style.textAlign = 'center';
+    infoSection.style.marginBottom = '30px';
+    infoSection.style.padding = '15px';
+    infoSection.style.backgroundColor = '#f8f9fa';
+    infoSection.style.borderRadius = '8px';
+    infoSection.style.fontSize = '14px';
     
-    container.appendChild(summarySection);
-    
-    // ========== MÉDIA POR REGISTRO ==========
-    const averageSection = document.createElement('div');
-    averageSection.style.textAlign = 'center';
-    averageSection.style.marginBottom = '30px';
-    averageSection.style.padding = '20px';
-    averageSection.style.backgroundColor = '#f8f9fa';
-    averageSection.style.borderRadius = '10px';
-    
-    averageSection.innerHTML = `
-        <div style="font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">
-            MÉDIA POR REGISTRO
+    infoSection.innerHTML = `
+        <div style="margin-bottom: 8px;">
+            <strong>Período:</strong> ${periodText}
         </div>
-        <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">
-            ${avgPercentage}%
-        </div>
-        <div style="font-size: 16px; font-weight: bold; color: #2c3e50;">
-            ${avgPerRecord.toFixed(1)} UNIDADES/MOVIMENTO
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 8px;">
+            <div>
+                <strong>Registros:</strong> ${AppState.currentReport.filteredRecords.length}
+            </div>
+            <div>
+                <strong>Produtos:</strong> ${AppState.currentReport.sortedProducts.length}
+            </div>
         </div>
     `;
     
-    container.appendChild(averageSection);
+    container.appendChild(infoSection);
     
     // Linha divisória
     const divider = document.createElement('hr');
     divider.style.border = 'none';
     divider.style.height = '2px';
     divider.style.backgroundColor = '#e8eaed';
-    divider.style.margin = '40px 0';
+    divider.style.margin = '30px 0';
     container.appendChild(divider);
     
-    // ========== DETALHAMENTO POR PRODUTO ==========
+    // ========== LISTA DE PRODUTOS ==========
     const productsTitle = document.createElement('div');
     productsTitle.style.fontSize = '20px';
     productsTitle.style.fontWeight = 'bold';
     productsTitle.style.color = '#2c3e50';
     productsTitle.style.textAlign = 'center';
     productsTitle.style.marginBottom = '30px';
-    productsTitle.textContent = 'Detalhamento por Produto';
+    productsTitle.textContent = 'PRODUTOS RETIRADOS';
     container.appendChild(productsTitle);
     
-    // Agrupar por produto
-    const productsSummary = {};
-    AppState.currentReport.filteredRecords.forEach(record => {
-        if (!productsSummary[record.productName]) {
-            productsSummary[record.productName] = {
-                productName: record.productName,
-                barcodes: new Set(),
-                records: [],
-                totalQuantity: 0
-            };
-        }
-        productsSummary[record.productName].barcodes.add(record.barcode);
-        productsSummary[record.productName].records.push(record);
-        productsSummary[record.productName].totalQuantity += record.quantity;
-    });
-    
-    // Ordenar produtos por quantidade
-    const sortedProducts = Object.values(productsSummary).sort((a, b) => b.totalQuantity - a.totalQuantity);
-    
     // Mostrar cada produto
-    sortedProducts.forEach((productData) => {
+    AppState.currentReport.sortedProducts.forEach((productData, productIndex) => {
         const productContainer = document.createElement('div');
         productContainer.style.marginBottom = '40px';
         
-        // Para cada código de barras do produto
-        Array.from(productData.barcodes).forEach((barcode) => {
-            const recordsForBarcode = productData.records.filter(r => r.barcode === barcode);
-            const totalForBarcode = recordsForBarcode.reduce((sum, r) => sum + r.quantity, 0);
+        // Tabela do produto
+        const productTable = document.createElement('table');
+        productTable.style.width = '100%';
+        productTable.style.borderCollapse = 'collapse';
+        productTable.style.border = '2px solid #2c3e50';
+        productTable.style.marginBottom = '15px';
+        
+        productTable.innerHTML = `
+            <tr>
+                <td style="border-right: 2px solid #2c3e50; padding: 15px; width: 70%; vertical-align: top;">
+                    <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">
+                        ${productIndex + 1}. ${productData.productName}
+                    </div>
+                    <div style="font-size: 14px; color: #3498db; font-weight: bold; font-family: 'Courier New', monospace; margin-bottom: 5px;">
+                        Código de Barras: ${productData.barcode}
+                    </div>
+                    <div style="font-size: 13px; color: #7f8c8d;">
+                        <i class="fas fa-balance-scale"></i> ${getUnitName(productData.unit)}
+                    </div>
+                </td>
+                <td style="padding: 15px; width: 30%; text-align: center; vertical-align: middle;">
+                    <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">
+                        ${formatQuantityValue(productData.totalQuantity, productData.unit)}
+                    </div>
+                    <div style="font-size: 12px; color: #7f8c8d; text-transform: uppercase;">
+                        ${getUnitLabel(productData.unit)}
+                    </div>
+                </td>
+            </tr>
+        `;
+        
+        productContainer.appendChild(productTable);
+        
+        // Detalhamento das retiradas
+        const detailsContainer = document.createElement('div');
+        detailsContainer.style.marginLeft = '20px';
+        detailsContainer.style.marginBottom = '20px';
+        
+        productData.records.forEach(record => {
+            const detailItem = document.createElement('div');
+            detailItem.style.fontSize = '13px';
+            detailItem.style.color = '#5d6d7e';
+            detailItem.style.marginBottom = '8px';
+            detailItem.style.paddingLeft = '15px';
+            detailItem.style.borderLeft = '3px solid #3498db';
             
-            const productTable = document.createElement('table');
-            productTable.style.width = '100%';
-            productTable.style.borderCollapse = 'collapse';
-            productTable.style.marginBottom = '15px';
-            productTable.style.border = '2px solid #2c3e50';
-            
-            productTable.innerHTML = `
-                <tr>
-                    <td style="border-right: 2px solid #2c3e50; padding: 15px; width: 70%; vertical-align: top;">
-                        <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">
-                            ${productData.productName}
-                        </div>
-                        <div style="font-size: 14px; color: #3498db; font-weight: bold; font-family: 'Courier New', monospace; margin-bottom: 5px;">
-                            Código de Barras: ${barcode}
-                        </div>
-                        <div style="font-size: 12px; color: #7f8c8d;">
-                            ${recordsForBarcode.length} retirada(s) com este código
-                        </div>
-                    </td>
-                    <td style="padding: 15px; width: 30%; text-align: center; vertical-align: middle;">
-                        <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">
-                            ${totalForBarcode}
-                        </div>
-                        <div style="font-size: 12px; color: #7f8c8d; text-transform: uppercase;">
-                            Unidade
-                        </div>
-                    </td>
-                </tr>
+            let detailHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                    <div>
+                        <span style="font-weight: bold;">${record.employee}</span> - 
+                        <span>${getSectorName(record.sector)}</span>
+                    </div>
+                    <div style="font-weight: bold; color: #2c3e50;">
+                        ${formatQuantityDisplay(record.quantity, record.unit)}
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: #7f8c8d;">
+                    <i class="fas fa-clock"></i> ${formatTime(record.timestamp)}
             `;
             
-            productContainer.appendChild(productTable);
-            
-            // Detalhamento das retiradas
-            if (recordsForBarcode.length > 0) {
-                const detailsContainer = document.createElement('div');
-                detailsContainer.style.marginLeft = '20px';
-                detailsContainer.style.marginBottom = '20px';
-                
-                recordsForBarcode.slice(0, 3).forEach(record => {
-                    const detailItem = document.createElement('div');
-                    detailItem.style.fontSize = '12px';
-                    detailItem.style.color = '#5d6d7e';
-                    detailItem.style.marginBottom = '5px';
-                    detailItem.style.paddingLeft = '15px';
-                    detailItem.style.borderLeft = '3px solid #3498db';
-                    detailItem.innerHTML = `
-                        <span style="font-weight: bold;">${record.employee}</span> - 
-                        <span style="color: #3498db;">${record.barcode}</span> - 
-                        <span>${record.quantity} un - ${formatTime(record.timestamp)}</span>
-                    `;
-                    detailsContainer.appendChild(detailItem);
-                });
-                
-                if (recordsForBarcode.length > 3) {
-                    const moreItem = document.createElement('div');
-                    moreItem.style.fontSize = '11px';
-                    moreItem.style.color = '#95a5a6';
-                    moreItem.style.fontStyle = 'italic';
-                    moreItem.textContent = `... + ${recordsForBarcode.length - 3} retirada(s)`;
-                    detailsContainer.appendChild(moreItem);
-                }
-                
-                productContainer.appendChild(detailsContainer);
+            if (record.notes) {
+                detailHTML += `<br><span style="color: #95a5a6; font-size: 10px; margin-top: 2px; display: block;">↳ ${record.notes}</span>`;
             }
+            
+            detailHTML += `</div>`;
+            
+            detailItem.innerHTML = detailHTML;
+            detailsContainer.appendChild(detailItem);
         });
         
-        // Resumo do produto (se tiver múltiplos códigos)
-        if (productData.barcodes.size > 1) {
-            const productSummary = document.createElement('div');
-            productSummary.style.textAlign = 'center';
-            productSummary.style.marginTop = '10px';
-            productSummary.style.padding = '10px';
-            productSummary.style.backgroundColor = '#f8f9fa';
-            productSummary.style.borderRadius = '6px';
-            productSummary.style.fontSize = '12px';
-            productSummary.style.color = '#7f8c8d';
-            productSummary.innerHTML = `
-                <strong>Total do produto:</strong> ${productData.totalQuantity} unidades • 
-                <strong>Códigos:</strong> ${productData.barcodes.size} • 
-                <strong>Registros:</strong> ${productData.records.length}
-            `;
-            productContainer.appendChild(productSummary);
+        productContainer.appendChild(detailsContainer);
+        
+        // Espaço entre produtos
+        if (productIndex < AppState.currentReport.sortedProducts.length - 1) {
+            const productDivider = document.createElement('div');
+            productDivider.style.height = '1px';
+            productDivider.style.backgroundColor = '#e8eaed';
+            productDivider.style.margin = '20px 0';
+            productContainer.appendChild(productDivider);
         }
         
         container.appendChild(productContainer);
     });
     
-    // ========== RESUMO DE CÓDIGOS ==========
-    if (AppState.currentReport.uniqueBarcodesList.length > 0) {
-        const codesDivider = document.createElement('hr');
-        codesDivider.style.border = 'none';
-        codesDivider.style.height = '1px';
-        codesDivider.style.backgroundColor = '#e8eaed';
-        codesDivider.style.margin = '50px 0 30px';
-        container.appendChild(codesDivider);
-        
-        const codesSection = document.createElement('div');
-        codesSection.style.textAlign = 'center';
-        
-        codesSection.innerHTML = `
-            <div style="font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 15px;">
-                RESUMO DE CÓDIGOS
-            </div>
-            <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 20px;">
-                Total de <strong>${AppState.currentReport.uniqueBarcodes}</strong> códigos únicos registrados
-            </div>
-        `;
-        
-        // Mostrar alguns códigos como exemplo
-        const sampleCodes = AppState.currentReport.uniqueBarcodesList.slice(0, 6);
-        const codesGrid = document.createElement('div');
-        codesGrid.style.display = 'flex';
-        codesGrid.style.flexWrap = 'wrap';
-        codesGrid.style.justifyContent = 'center';
-        codesGrid.style.gap = '10px';
-        codesGrid.style.marginBottom = '20px';
-        
-        sampleCodes.forEach(barcode => {
-            const count = AppState.currentReport.barcodeFrequency[barcode] || 0;
-            const codeBox = document.createElement('div');
-            codeBox.style.border = '1px solid #3498db';
-            codeBox.style.borderRadius = '6px';
-            codeBox.style.padding = '8px 12px';
-            codeBox.style.minWidth = '180px';
-            codeBox.style.textAlign = 'left';
-            
-            codeBox.innerHTML = `
-                <div style="font-family: 'Courier New', monospace; font-weight: bold; color: #0d47a1; font-size: 13px; margin-bottom: 3px;">
-                    ${barcode}
-                </div>
-                <div style="font-size: 11px; color: #7f8c8d;">
-                    ${count} registro${count > 1 ? 's' : ''}
-                </div>
-            `;
-            
-            codesGrid.appendChild(codeBox);
-        });
-        
-        codesSection.appendChild(codesGrid);
-        
-        if (AppState.currentReport.uniqueBarcodesList.length > 6) {
-            const moreCodes = document.createElement('div');
-            moreCodes.style.fontSize = '12px';
-            moreCodes.style.color = '#95a5a6';
-            moreCodes.style.fontStyle = 'italic';
-            moreCodes.textContent = `... + ${AppState.currentReport.uniqueBarcodesList.length - 6} código(s) adicional(is)`;
-            codesSection.appendChild(moreCodes);
-        }
-        
-        container.appendChild(codesSection);
-    }
+    // ========== RESUMO FINAL ==========
+    const summarySection = document.createElement('div');
+    summarySection.style.textAlign = 'center';
+    summarySection.style.marginTop = '30px';
+    summarySection.style.padding = '15px';
+    summarySection.style.backgroundColor = '#f8f9fa';
+    summarySection.style.borderRadius = '8px';
+    summarySection.style.fontSize = '14px';
+    
+    summarySection.innerHTML = `
+        <div style="margin-bottom: 8px;">
+            <strong>Total de produtos distintos:</strong> ${AppState.currentReport.sortedProducts.length}
+        </div>
+        <div>
+            <strong>Total de registros:</strong> ${AppState.currentReport.filteredRecords.length}
+        </div>
+    `;
+    
+    container.appendChild(summarySection);
     
     // ========== RODAPÉ ==========
     const footer = document.createElement('div');
@@ -620,125 +612,75 @@ function exportToImage() {
     });
 }
 
-// FUNÇÕES AUXILIARES PARA RELATÓRIOS
-function getPeriodName(period) {
-    const periods = {
-        'today': 'Hoje',
-        'yesterday': 'Ontem',
-        'week': 'Esta Semana',
-        'month': 'Este Mês',
-        'custom': 'Personalizado'
-    };
-    return periods[period] || period;
-}
-
-function getGroupByName(groupBy) {
-    const groups = {
-        'product': 'Produto',
-        'sector': 'Setor',
-        'employee': 'Colaborador',
-        'hour': 'Hora do Dia'
-    };
-    return groups[groupBy] || groupBy;
-}
-
-function downloadTextFile(text) {
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    
-    link.href = url;
-    link.download = `relatorio_retiradas_${new Date().toISOString().slice(0,10)}.txt`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-    showAlert('Relatório exportado como texto! Inclui todos os códigos.', 'success');
-}
-// FUNÇÃO shareReport - Atualizada para incluir códigos
+// FUNÇÃO shareReport ATUALIZADA
 function shareReport() {
     if (!AppState.currentReport || AppState.currentReport.filteredRecords.length === 0) {
         showAlert('Gere um relatório primeiro para compartilhar.', 'warning');
         return;
     }
     
-    // Texto do relatório para compartilhamento COM CÓDIGOS
     const periodText = AppState.currentReport.period === 'custom' 
         ? `${formatDate(AppState.currentReport.startDate)} a ${formatDate(AppState.currentReport.endDate)}`
         : getPeriodName(AppState.currentReport.period);
     
-    // Obter top 5 códigos mais utilizados
-    const topBarcodes = Object.entries(AppState.currentReport.barcodeFrequency)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([barcode, count], index) => {
-            const totalUnits = AppState.currentReport.filteredRecords
-                .filter(r => r.barcode === barcode)
-                .reduce((sum, r) => sum + r.quantity, 0);
-            return `${index + 1}. ${barcode}: ${count} registro${count > 1 ? 's' : ''} (${totalUnits} unidades)`;
-        })
-        .join('\n');
-    
-    const reportText = `📊 RELATÓRIO DE RETIRADAS - ${AppState.settings.companyName}
+    // Criar texto simplificado com produtos, quantidades, códigos e unidades
+    let reportText = `📋 RELATÓRIO DE RETIRADAS - ${AppState.settings.companyName}
 
 📅 PERÍODO: ${periodText}
+📊 REGISTROS: ${AppState.currentReport.filteredRecords.length}
+📦 PRODUTOS DISTINTOS: ${AppState.currentReport.sortedProducts.length}
 
-📈 RESUMO ESTATÍSTICO:
-• Total Retirado: ${AppState.currentReport.totalQuantity} unidades
-• Registros: ${AppState.currentReport.filteredRecords.length} ocorrências
-• Códigos Únicos: ${AppState.currentReport.uniqueBarcodes} códigos diferentes
-• Produtos Únicos: ${AppState.currentReport.uniqueProducts} itens
-• Colaboradores: ${AppState.currentReport.uniqueEmployees} pessoas
-• Setores: ${AppState.currentReport.uniqueSectors} áreas
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🏆 TOP 5 CÓDIGOS MAIS UTILIZADOS:
-${topBarcodes}
+📋 LISTA DE PRODUTOS:
 
-📦 PRINCIPAIS ITENS (com códigos):
-${Object.entries(AppState.currentReport.summary)
-    .sort((a, b) => b[1].quantity - a[1].quantity)
-    .slice(0, 3)
-    .map(([key, data], index) => {
-        const topCode = Array.from(data.barcodes)[0] || 'N/A';
-        return `${index + 1}. ${key}: ${data.quantity} unidades (${data.barcodes.size} códigos, ex: ${topCode})`;
-    }).join('\n')}
+`;
+    
+    // Adicionar cada produto
+    AppState.currentReport.sortedProducts.forEach((productData, index) => {
+        reportText += `
+${index + 1}. ${productData.productName}
+   Código: ${productData.barcode}
+   Unidade: ${getUnitName(productData.unit)}
+   Total: ${formatQuantityValue(productData.totalQuantity, productData.unit)} ${getUnitLabel(productData.unit)}
+   
+   Retiradas:
+`;
+        
+        productData.records.forEach(record => {
+            const noteText = record.notes ? ` (${record.notes})` : '';
+            reportText += `   • ${record.employee} - ${getSectorName(record.sector)} - ${formatQuantityDisplay(record.quantity, record.unit)} - ${formatTime(record.timestamp)}${noteText}\n`;
+        });
+        
+        reportText += '\n';
+    });
+    
+    reportText += `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🕒 Gerado em: ${formatDateTime(new Date().toISOString())}
-🔗 Sistema StockTrack - Controle de Retiradas com Códigos de Barras`;
+📅 Gerado em: ${formatDateTime(new Date().toISOString())}
 
-    // Tentar usar API de compartilhamento do navegador
+StockTrack — Sistema de Controle de Retiradas
+Idealizado por Flávio Monteiro • Implementação técnica com apoio de IA`;
+    
+    // Tentar usar API de compartilhamento
     if (navigator.share) {
         navigator.share({
-            title: `Relatório de Retiradas com Códigos - ${AppState.settings.companyName}`,
+            title: `Relatório de Retiradas - ${AppState.settings.companyName}`,
             text: reportText,
             url: window.location.href
         }).then(() => {
             showAlert('Relatório compartilhado com sucesso!', 'success');
         }).catch(error => {
             console.log('Compartilhamento cancelado:', error);
-            // Fallback para download
             downloadTextFile(reportText);
         });
     } else {
-        // Fallback para download de arquivo de texto
         downloadTextFile(reportText);
     }
 }
 
-// Função auxiliar para download de texto
-function downloadTextFile(text) {
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    
-    link.href = url;
-    link.download = `relatorio_codigos_retiradas_${new Date().toISOString().slice(0,10)}.txt`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-    showAlert('Relatório exportado como texto! Inclui todos os códigos.', 'success');
-}
-
-// FUNÇÕES AUXILIARES PARA RELATÓRIOS (mantidas iguais)
+// FUNÇÕES AUXILIARES
 function getPeriodName(period) {
     const periods = {
         'today': 'Hoje',
@@ -759,350 +701,6 @@ function getGroupByName(groupBy) {
     };
     return groups[groupBy] || groupBy;
 }
-
-// reports.js - FUNÇÃO exportToPDF ATUALIZADA - FORMATO FRAME1
-function exportToPDF() {
-    if (!AppState.currentReport || AppState.currentReport.filteredRecords.length === 0) {
-        showAlert('Gere um relatório primeiro para exportar.', 'warning');
-        return;
-    }
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 15;
-    let yPos = margin;
-    
-    // ========== CABEÇALHO ==========
-    // Fundo azul
-    doc.setFillColor(41, 128, 185); // Azul similar ao Frame1
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    
-    // Título
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('STOCKTRACK', margin, 25);
-    
-    doc.setFontSize(14);
-    doc.text('RELATÓRIO DE RETIRADAS', margin, 35);
-    
-    // Data
-    const today = new Date();
-    const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getFullYear().toString().slice(2)}`;
-    doc.setFontSize(12);
-    doc.text(`DATA: ${formattedDate}`, pageWidth - margin - 40, 35, null, null, 'right');
-    
-    yPos = 50;
-    
-    // ========== RESUMO PRINCIPAL ==========
-    // Tabela de resumo
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    
-    // Linha horizontal superior
-    doc.line(margin, yPos, pageWidth - margin, yPos);
-    
-    // Colunas
-    const tableY = yPos + 10;
-    const cellHeight = 15;
-    
-    // Cabeçalho da tabela
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    
-    doc.text('TOTAL DE RETIRADAS', margin + (pageWidth - 2 * margin) * 0.25, tableY);
-    doc.text('TOTAL DE REGISTROS', margin + (pageWidth - 2 * margin) * 0.75, tableY);
-    
-    // Valores
-    doc.setFontSize(24);
-    doc.text(AppState.currentReport.totalQuantity.toString(), margin + (pageWidth - 2 * margin) * 0.25, tableY + 20);
-    doc.text(AppState.currentReport.filteredRecords.length.toString(), margin + (pageWidth - 2 * margin) * 0.75, tableY + 20);
-    
-    // Rótulos
-    doc.setFontSize(10);
-    doc.text('UN/KG/ML', margin + (pageWidth - 2 * margin) * 0.25, tableY + 27);
-    doc.text('OCORRÊNCIAS', margin + (pageWidth - 2 * margin) * 0.75, tableY + 27);
-    
-    // Linha horizontal inferior
-    doc.line(margin, tableY + 35, pageWidth - margin, tableY + 35);
-    
-    yPos = tableY + 45;
-    
-    // ========== MÉDIA POR REGISTRO ==========
-    const avgPerRecord = AppState.currentReport.totalQuantity / AppState.currentReport.filteredRecords.length;
-    const avgPercentage = (avgPerRecord / AppState.currentReport.totalQuantity * 100).toFixed(1);
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MÉDIA POR REGISTRO', pageWidth / 2, yPos, null, null, 'center');
-    yPos += 7;
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${avgPercentage}%`, pageWidth / 2, yPos, null, null, 'center');
-    yPos += 5;
-    
-    doc.text(`${avgPerRecord.toFixed(1)} UNIDADES/MOVIMENTO`, pageWidth / 2, yPos, null, null, 'center');
-    
-    yPos += 20;
-    
-    // Linha divisória
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.3);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
-    
-    yPos += 20;
-    
-    // ========== DETALHAMENTO POR PRODUTO ==========
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Detalhamento por Produto', margin, yPos);
-    yPos += 10;
-    
-    // Agrupar por produto
-    const productsSummary = {};
-    AppState.currentReport.filteredRecords.forEach(record => {
-        if (!productsSummary[record.productName]) {
-            productsSummary[record.productName] = {
-                productName: record.productName,
-                barcodes: new Set(),
-                records: [],
-                totalQuantity: 0
-            };
-        }
-        productsSummary[record.productName].barcodes.add(record.barcode);
-        productsSummary[record.productName].records.push(record);
-        productsSummary[record.productName].totalQuantity += record.quantity;
-    });
-    
-    // Ordenar produtos por quantidade
-    const sortedProducts = Object.values(productsSummary).sort((a, b) => b.totalQuantity - a.totalQuantity);
-    
-    // Mostrar cada produto
-    sortedProducts.forEach((productData, productIndex) => {
-        // Verificar se precisa de nova página
-        if (yPos > pageHeight - 60) {
-            doc.addPage();
-            yPos = margin;
-        }
-        
-        // Para cada código de barras do produto
-        Array.from(productData.barcodes).forEach((barcode, barcodeIndex) => {
-            if (yPos > pageHeight - 40 && (barcodeIndex > 0 || productIndex > 0)) {
-                doc.addPage();
-                yPos = margin;
-            }
-            
-            // Filtrar registros para este código específico
-            const recordsForBarcode = productData.records.filter(r => r.barcode === barcode);
-            const totalForBarcode = recordsForBarcode.reduce((sum, r) => sum + r.quantity, 0);
-            
-            // Tabela de produto
-            doc.setDrawColor(0, 0, 0);
-            doc.setLineWidth(0.5);
-            
-            // Linha superior
-            doc.line(margin, yPos, pageWidth - margin, yPos);
-            
-            // Coluna esquerda (produto)
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            
-            // Nome do produto
-            doc.text(productData.productName, margin + 10, yPos + 10);
-            
-            // Código de barras (destacado)
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(52, 152, 219); // Azul
-            doc.text(`Código de Barras: ${barcode}`, margin + 10, yPos + 17);
-            
-            // Detalhes deste código
-            doc.setTextColor(100, 100, 100);
-            doc.setFontSize(9);
-            doc.text(`${recordsForBarcode.length} retirada(s) com este código`, margin + 10, yPos + 22);
-            
-            // Coluna direita (quantidade)
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text(totalForBarcode.toString(), pageWidth - margin - 30, yPos + 15);
-            
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Unidade', pageWidth - margin - 30, yPos + 22);
-            
-            // Linha inferior
-            doc.line(margin, yPos + 30, pageWidth - margin, yPos + 30);
-            
-            // Detalhamento das retiradas com este código
-            doc.setTextColor(80, 80, 80);
-            doc.setFontSize(9);
-            
-            recordsForBarcode.slice(0, 2).forEach((record, index) => {
-                doc.text(
-                    `${record.employee} - ${record.barcode} - ${record.quantity} un - ${formatTime(record.timestamp)}`,
-                    margin + 20,
-                    yPos + 38 + (index * 5)
-                );
-            });
-            
-            if (recordsForBarcode.length > 2) {
-                doc.setTextColor(150, 150, 150);
-                doc.text(`... + ${recordsForBarcode.length - 2} retirada(s)`, margin + 20, yPos + 48);
-            }
-            
-            yPos += 55 + (Math.min(recordsForBarcode.length, 2) * 5);
-            
-            // Espaço entre códigos do mesmo produto
-            if (barcodeIndex < productData.barcodes.size - 1) {
-                yPos += 10;
-            }
-        });
-        
-        // Resumo do produto (se tiver múltiplos códigos)
-        if (productData.barcodes.size > 1) {
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text(
-                `Total do produto: ${productData.totalQuantity} unidades • Códigos: ${productData.barcodes.size} • Registros: ${productData.records.length}`,
-                margin,
-                yPos
-            );
-            yPos += 15;
-        }
-        
-        // Espaço entre produtos
-        if (productIndex < sortedProducts.length - 1) {
-            yPos += 10;
-        }
-    });
-    
-    // ========== RESUMO FINAL ==========
-    if (yPos > pageHeight - 50) {
-        doc.addPage();
-        yPos = margin;
-    }
-    
-    yPos += 10;
-    
-    // Linha divisória
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.3);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
-    
-    yPos += 15;
-    
-    // Resumo de códigos
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 0, 0);
-    doc.text('Resumo de Códigos de Barras', margin, yPos);
-    yPos += 8;
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Total de ${AppState.currentReport.uniqueBarcodes} códigos únicos registrados`, margin, yPos);
-    yPos += 15;
-    
-    // Mostrar alguns códigos como exemplo
-    const sampleBarcodes = AppState.currentReport.uniqueBarcodesList.slice(0, 6);
-    const codesPerRow = 2;
-    const codeBoxWidth = (pageWidth - 2 * margin - 20) / codesPerRow;
-    
-    sampleBarcodes.forEach((barcode, index) => {
-        const row = Math.floor(index / codesPerRow);
-        const col = index % codesPerRow;
-        const xPos = margin + 10 + (col * (codeBoxWidth + 10));
-        const yBoxPos = yPos + (row * 25);
-        
-        // Caixa do código
-        doc.setDrawColor(52, 152, 219);
-        doc.setLineWidth(0.5);
-        doc.rect(xPos, yBoxPos, codeBoxWidth, 20);
-        
-        // Código
-        doc.setFont('courier', 'bold');
-        doc.setFontSize(9);
-        doc.setTextColor(52, 152, 219);
-        doc.text(barcode, xPos + 5, yBoxPos + 8);
-        
-        // Frequência
-        const count = AppState.currentReport.barcodeFrequency[barcode] || 0;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`${count} registro${count > 1 ? 's' : ''}`, xPos + 5, yBoxPos + 15);
-    });
-    
-    // Rodapé
-    const finalY = Math.max(yPos + (Math.ceil(sampleBarcodes.length / codesPerRow) * 25), pageHeight - 30);
-    
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text('StockTrack — Sistema de Controle de Retiradas', margin, finalY);
-    doc.text('Idealizado por Flávio Monteiro • Implementação técnica com apoio de IA', margin, finalY + 5);
-    doc.text(`Página ${doc.internal.getNumberOfPages()}`, pageWidth - margin, finalY, null, null, 'right');
-    
-    // Salvar PDF
-    const fileName = `relatorio_stocktrack_${new Date().toISOString().slice(0,10)}.pdf`;
-    doc.save(fileName);
-    
-    showAlert('PDF gerado com sucesso no formato organizado!', 'success');
-}
-
-// function shareReport() {
-//     if (!AppState.currentReport || AppState.currentReport.filteredRecords.length === 0) {
-//         showAlert('Gere um relatório primeiro para compartilhar.', 'warning');
-//         return;
-//     }
-    
-//     // Texto do relatório para compartilhamento
-//     const periodText = AppState.currentReport.period === 'custom' 
-//         ? `${formatDate(AppState.currentReport.startDate)} a ${formatDate(AppState.currentReport.endDate)}`
-//         : getPeriodName(AppState.currentReport.period);
-    
-//     const reportText = `📊 RELATÓRIO DE RETIRADAS - ${AppState.settings.companyName}
-
-// Período: ${periodText}
-// Total Retirado: ${AppState.currentReport.totalQuantity} unidades
-// Registros: ${AppState.currentReport.filteredRecords.length} ocorrências
-// Média: ${AppState.currentReport.avgPerRecord.toFixed(1)} unidades/movimento
-
-// Principais itens:
-// ${Object.entries(AppState.currentReport.summary)
-//     .sort((a, b) => b[1].quantity - a[1].quantity)
-//     .slice(0, 3)
-//     .map(([key, data], index) => 
-//         `${index + 1}. ${key}: ${data.quantity} unidades`
-//     ).join('\n')}
-
-// Gerado em: ${formatDateTime(new Date().toISOString())}
-// Sistema StockTrack`;
-
-//     // Tentar usar API de compartilhamento do navegador
-//     if (navigator.share) {
-//         navigator.share({
-//             title: `Relatório de Retiradas - ${AppState.settings.companyName}`,
-//             text: reportText,
-//             url: window.location.href
-//         }).then(() => {
-//             showAlert('Relatório compartilhado com sucesso!', 'success');
-//         }).catch(error => {
-//             console.log('Compartilhamento cancelado:', error);
-//             // Fallback para download
-//             downloadTextFile(reportText);
-//         });
-//     } else {
-//         // Fallback para download de arquivo de texto
-//         downloadTextFile(reportText);
-//     }
-// }
 
 function downloadTextFile(text) {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -1117,39 +715,41 @@ function downloadTextFile(text) {
     showAlert('Relatório exportado como texto!', 'success');
 }
 
-// FUNÇÕES AUXILIARES PARA RELATÓRIOS
-function getPeriodName(period) {
-    const periods = {
-        'today': 'Hoje',
-        'yesterday': 'Ontem',
-        'week': 'Esta Semana',
-        'month': 'Este Mês',
-        'custom': 'Personalizado'
-    };
-    return periods[period] || period;
+// FUNÇÃO PARA FORMATAR VALORES DE QUANTIDADE
+function formatQuantityValue(quantity, unit) {
+    const numQuantity = parseFloat(quantity);
+    
+    switch(unit) {
+        case 'KG':
+            return numQuantity.toFixed(2);
+        case 'L':
+            return numQuantity.toFixed(1);
+        case 'M':
+            return numQuantity.toFixed(2);
+        default:
+            return numQuantity.toFixed(0);
+    }
 }
 
-function getGroupByName(groupBy) {
-    const groups = {
-        'product': 'Produto',
-        'sector': 'Setor',
-        'employee': 'Colaborador',
-        'hour': 'Hora do Dia'
+// FUNÇÃO PARA OBTER ABREVIAÇÃO DA UNIDADE
+function getUnitAbbreviation(unit) {
+    const abbreviations = {
+        'UN': 'un',
+        'KG': 'kg',
+        'ML': 'ml',
+        'L': 'l',
+        'M': 'm',
+        'CX': 'cx',
+        'PC': 'pc',
+        'OUTRO': 'un'
     };
-    return groups[groupBy] || groupBy;
+    return abbreviations[unit] || unit;
 }
 
 // INICIALIZAÇÃO DOS RELATÓRIOS
 document.addEventListener('DOMContentLoaded', function() {
-    // Botão para gerar relatório
     document.getElementById('generate-report-btn').addEventListener('click', generateReport);
-    
-    // Botão para exportar PDF
     document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
-    
-    // Botão para exportar imagem
     document.getElementById('export-image-btn').addEventListener('click', exportToImage);
-    
-    // Botão para compartilhar relatório
     document.getElementById('share-report-btn').addEventListener('click', shareReport);
 });

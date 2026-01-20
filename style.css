@@ -1242,3 +1242,172 @@ body {
     color: #7f8c8d;
     font-size: 11px;
 }
+
+
+/* Adicione ao style.css */
+.simple-report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 2px solid #2c3e50;
+}
+
+.simple-report-table th {
+    background-color: #f8f9fa;
+    border: 2px solid #2c3e50;
+    padding: 15px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.simple-report-table td {
+    border: 1px solid #e8eaed;
+    padding: 12px;
+    vertical-align: top;
+}
+
+.product-title-cell {
+    background-color: #f8fafc;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.barcode-cell {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #3498db;
+    background-color: #f0f8ff;
+}
+
+.quantity-cell {
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.details-cell {
+    background-color: #fafafa;
+    font-size: 13px;
+}
+
+.detail-item {
+    padding: 4px 0;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+/* Estilos para relatório simplificado */
+.report-simple-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e8eaed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.product-card-simple {
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+.product-card-simple:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.product-header-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.product-name-simple {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.product-barcode-simple {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #3498db;
+    background: #f0f8ff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.product-quantity-simple {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: right;
+}
+
+.unit-label-simple {
+    font-size: 12px;
+    color: #7f8c8d;
+    display: block;
+    text-transform: uppercase;
+}
+
+/* Adicione ao final do style.css */
+
+/* Estilos para unidade de medida */
+.unit-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+    margin-left: 5px;
+}
+
+/* Estilos para quantidade com unidade */
+.quantity-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quantity-value {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.quantity-unit {
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* Estilos para relatório com unidades */
+.report-unit-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.unit-icon {
+    color: #3498db;
+    font-size: 14px;
+}
+
+.unit-text {
+    font-size: 13px;
+    color: #7f8c8d;
+}

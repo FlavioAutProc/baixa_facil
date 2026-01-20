@@ -21,35 +21,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initApp() {
-    // Configurar menu de navegação
     setupNavigation();
-    
-    // Configurar formulário de registro
     setupRegistrationForm();
-    
-    // Configurar botões e eventos
     setupButtons();
-    
-    // Carregar configurações salvas
     loadSettings();
-    
-    // Atualizar exibição inicial
     updateRecordsDisplay();
     updateLastRegistration();
     
-    // Configurar FAB
     document.getElementById('fab-add').addEventListener('click', function() {
         switchScreen('register');
         document.getElementById('product-name').focus();
     });
     
-    // Configurar filtro de registros
     setupFilter();
+    updateQuantityLimits();
     
-    // Atualizar display da quantidade máxima
-    updateMaxQuantityDisplay();
-    
-    // Inicializar scanner (será configurado quando necessário)
+    // Configurar mudança de unidade
+    document.getElementById('unit').addEventListener('change', function() {
+        updateQuantityLimits();
+    });
 }
 
 // NAVEGAÇÃO ENTRE TELAS
@@ -60,30 +50,24 @@ function setupNavigation() {
         item.addEventListener('click', function() {
             const screenId = this.getAttribute('data-screen');
             
-            // Atualizar menu ativo
             navItems.forEach(nav => nav.classList.remove('active'));
             this.classList.add('active');
             
-            // Alternar tela
             switchScreen(screenId);
         });
     });
 }
 
 function switchScreen(screenId) {
-    // Esconder todas as telas
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
     
-    // Mostrar tela selecionada
     document.getElementById(`${screenId}-screen`).classList.add('active');
     
-    // Atualizar dados específicos da tela
     if (screenId === 'records') {
         updateRecordsDisplay();
     } else if (screenId === 'reports') {
-        // Limpar relatório anterior
         document.getElementById('report-content').innerHTML = '';
         document.getElementById('report-summary').innerHTML = `
             <p>Nenhum relatório gerado</p>
@@ -103,29 +87,118 @@ function setupRegistrationForm() {
     
     // Validação em tempo real
     const quantityInput = document.getElementById('quantity');
+    const unitSelect = document.getElementById('unit');
+    
     quantityInput.addEventListener('change', function() {
-        validateQuantity(this.value);
+        validateQuantity(this.value, unitSelect.value);
     });
     
-    // Botão de scanner (configurado em scanner.js)
+    unitSelect.addEventListener('change', function() {
+        const quantity = quantityInput.value;
+        validateQuantity(quantity, this.value);
+        updateQuantityLimits();
+    });
+    
+    // Botão de scanner
     document.getElementById('scan-btn').addEventListener('click', function() {
         openScanner();
     });
 }
 
+// FUNÇÃO PARA ATUALIZAR LIMITES DE QUANTIDADE
+function updateQuantityLimits() {
+    const unit = document.getElementById('unit').value;
+    const quantityInput = document.getElementById('quantity');
+    const minQuantitySpan = document.getElementById('min-quantity');
+    const maxQuantitySpan = document.getElementById('max-quantity-display');
+    
+    switch(unit) {
+        case 'KG':
+            quantityInput.min = '0.01';
+            quantityInput.step = '0.01';
+            quantityInput.placeholder = '0.00';
+            minQuantitySpan.textContent = '0.01';
+            maxQuantitySpan.textContent = '1000.00 kg';
+            break;
+        case 'ML':
+            quantityInput.min = '1';
+            quantityInput.step = '1';
+            quantityInput.placeholder = '0';
+            minQuantitySpan.textContent = '1';
+            maxQuantitySpan.textContent = '10000 ml';
+            break;
+        case 'L':
+            quantityInput.min = '0.1';
+            quantityInput.step = '0.1';
+            quantityInput.placeholder = '0.0';
+            minQuantitySpan.textContent = '0.1';
+            maxQuantitySpan.textContent = '1000.0 l';
+            break;
+        default:
+            quantityInput.min = '1';
+            quantityInput.step = '1';
+            quantityInput.placeholder = '0';
+            minQuantitySpan.textContent = '1';
+            maxQuantitySpan.textContent = AppState.settings.maxQuantity + ' un';
+    }
+}
+
 // VALIDAÇÕES
-function validateQuantity(quantity) {
-    const max = AppState.settings.maxQuantity || 9999;
+function validateQuantity(quantity, unit) {
     const alertDiv = document.getElementById('form-alert');
     
-    if (quantity <= 0) {
+    if (!quantity || quantity === '') {
+        return false;
+    }
+    
+    const numQuantity = parseFloat(quantity);
+    
+    if (numQuantity <= 0) {
         showAlert('A quantidade deve ser maior que zero.', 'error');
         return false;
     }
     
-    if (quantity > max) {
-        showAlert(`A quantidade não pode exceder ${max}.`, 'error');
-        return false;
+    // Validações específicas por unidade
+    switch(unit) {
+        case 'KG':
+            if (numQuantity > 1000) {
+                showAlert('A quantidade não pode exceder 1000 kg.', 'error');
+                return false;
+            }
+            if (numQuantity < 0.01) {
+                showAlert('A quantidade mínima é 0.01 kg (10g).', 'error');
+                return false;
+            }
+            break;
+        case 'ML':
+            if (numQuantity > 10000) {
+                showAlert('A quantidade não pode exceder 10.000 ml (10L).', 'error');
+                return false;
+            }
+            if (numQuantity < 1) {
+                showAlert('A quantidade mínima é 1 ml.', 'error');
+                return false;
+            }
+            break;
+        case 'L':
+            if (numQuantity > 1000) {
+                showAlert('A quantidade não pode exceder 1000 litros.', 'error');
+                return false;
+            }
+            if (numQuantity < 0.1) {
+                showAlert('A quantidade mínima é 0.1 litro (100ml).', 'error');
+                return false;
+            }
+            break;
+        default: // UN, CX, PC, M, OUTRO
+            if (numQuantity > AppState.settings.maxQuantity) {
+                showAlert(`A quantidade não pode exceder ${AppState.settings.maxQuantity}.`, 'error');
+                return false;
+            }
+            if (numQuantity < 1) {
+                showAlert('A quantidade mínima é 1 unidade.', 'error');
+                return false;
+            }
     }
     
     return true;
@@ -136,19 +209,14 @@ function validateBarcode(barcode) {
         showAlert('O código de barras é obrigatório.', 'error');
         return false;
     }
-    
-    // Verificar duplicidade com base no tempo configurado
-       
-    
-    
     return true;
 }
 
-// FUNÇÃO VALIDATEFORM MODIFICADA PARA REMOVER REFERÊNCIA À DUPLICIDADE
 function validateForm() {
     const productName = document.getElementById('product-name').value.trim();
     const barcode = document.getElementById('barcode').value.trim();
     const quantity = document.getElementById('quantity').value;
+    const unit = document.getElementById('unit').value;
     const sector = document.getElementById('origin-sector').value;
     const employee = document.getElementById('employee').value.trim();
     
@@ -157,12 +225,17 @@ function validateForm() {
         return false;
     }
     
-    if (!barcode || barcode.trim() === '') {
+    if (!barcode) {
         showAlert('O código de barras é obrigatório.', 'error');
         return false;
     }
     
-    if (!validateQuantity(quantity)) return false;
+    if (!validateQuantity(quantity, unit)) return false;
+    
+    if (!unit) {
+        showAlert('A unidade de medida é obrigatória.', 'error');
+        return false;
+    }
     
     if (!sector) {
         showAlert('O setor de origem é obrigatório.', 'error');
@@ -177,13 +250,14 @@ function validateForm() {
     return true;
 }
 
-// REGISTRO DE RETIRADA
+// REGISTRO DE RETIRADA COMPLETO
 function registerWithdrawal() {
     if (!validateForm()) return;
     
     const productName = document.getElementById('product-name').value.trim();
     const barcode = document.getElementById('barcode').value.trim();
-    const quantity = parseInt(document.getElementById('quantity').value);
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const unit = document.getElementById('unit').value;
     const sector = document.getElementById('origin-sector').value;
     const employee = document.getElementById('employee').value.trim();
     const notes = document.getElementById('notes').value.trim();
@@ -194,6 +268,7 @@ function registerWithdrawal() {
         productName,
         barcode,
         quantity,
+        unit,
         sector,
         employee,
         notes,
@@ -214,8 +289,12 @@ function registerWithdrawal() {
     // Feedback visual
     showAlert('Retirada registrada com sucesso!', 'success');
     
-    // Limpar formulário
-    document.getElementById('register-form').reset();
+    // Limpar formulário (exceto unidade)
+    document.getElementById('product-name').value = '';
+    document.getElementById('barcode').value = '';
+    document.getElementById('quantity').value = '';
+    document.getElementById('employee').value = '';
+    document.getElementById('notes').value = '';
     
     // Atualizar exibições
     updateLastRegistration();
@@ -225,7 +304,7 @@ function registerWithdrawal() {
     document.getElementById('product-name').focus();
 }
 
-// GERENCIAMENTO DE REGISTROS
+// GERENCIAMENTO DE REGISTROS - ATUALIZADO
 function updateRecordsDisplay() {
     const recordsList = document.getElementById('records-list');
     const emptyState = document.getElementById('empty-records');
@@ -244,9 +323,9 @@ function updateRecordsDisplay() {
         new Date(record.timestamp).toDateString() === today
     );
     
-    // Atualizar totais
+    // Atualizar totais (considerando unidades diferentes)
     const totalToday = todayRecords.reduce((sum, record) => sum + record.quantity, 0);
-    totalItems.textContent = totalToday;
+    totalItems.textContent = formatQuantityDisplay(totalToday, 'UN');
     totalRecords.textContent = filteredRecords.length;
     
     // Limpar lista
@@ -266,7 +345,11 @@ function updateRecordsDisplay() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td style="font-weight: 500;">${record.productName}</td>
-            <td><span class="badge ${record.quantity > 10 ? 'badge-warning' : 'badge-success'}">${record.quantity}</span></td>
+            <td>
+                <span class="badge ${record.quantity > (record.unit === 'KG' ? 100 : 10) ? 'badge-warning' : 'badge-success'}">
+                    ${formatQuantityDisplay(record.quantity, record.unit)}
+                </span>
+            </td>
             <td><span class="badge badge-primary">${getSectorName(record.sector)}</span></td>
             <td style="color: #7f8c8d; font-size: 13px;">${formatTime(record.timestamp)}</td>
         `;
@@ -292,10 +375,13 @@ function updateLastRegistration() {
                         <strong style="color: #2c3e50; font-size: 16px;">${lastRecord.productName}</strong><br>
                         <small style="color: #7f8c8d;">Código: ${lastRecord.barcode}</small>
                     </div>
-                    <span class="badge ${lastRecord.quantity > 10 ? 'badge-warning' : 'badge-success'}" style="font-size: 14px;">${lastRecord.quantity}</span>
+                    <span class="badge ${lastRecord.quantity > (lastRecord.unit === 'KG' ? 100 : 10) ? 'badge-warning' : 'badge-success'}" style="font-size: 14px;">
+                        ${formatQuantityDisplay(lastRecord.quantity, lastRecord.unit)}
+                    </span>
                 </div>
                 <div style="margin-top: 8px;">
                     <small style="color: #7f8c8d;">
+                        <i class="fas fa-balance-scale"></i> ${getUnitName(lastRecord.unit)} | 
                         <i class="fas fa-user"></i> ${lastRecord.employee} | 
                         <i class="fas fa-building"></i> ${getSectorName(lastRecord.sector)}<br>
                         <i class="fas fa-clock"></i> ${formatDateTime(lastRecord.timestamp)}
@@ -327,17 +413,19 @@ function showRecordDetails(record) {
                 
                 <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
                     <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Quantidade</strong>
-                    <span class="badge ${record.quantity > 10 ? 'badge-warning' : 'badge-success'}" style="font-size: 14px;">${record.quantity} unidades</span>
+                    <span class="badge ${record.quantity > (record.unit === 'KG' ? 100 : 10) ? 'badge-warning' : 'badge-success'}" style="font-size: 14px;">
+                        ${formatQuantityDisplay(record.quantity, record.unit)}
+                    </span>
+                </div>
+                
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
+                    <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Unidade</strong>
+                    <span style="color: #2c3e50; font-weight: 600;">${getUnitName(record.unit)}</span>
                 </div>
                 
                 <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
                     <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Código</strong>
                     <span style="color: #2c3e50; font-family: monospace; font-weight: 600;">${record.barcode}</span>
-                </div>
-                
-                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
-                    <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Setor</strong>
-                    <span class="badge badge-primary">${getSectorName(record.sector)}</span>
                 </div>
             </div>
             
@@ -366,7 +454,53 @@ function showRecordDetails(record) {
     showConfirmation('Detalhes da Retirada', message, false);
 }
 
-// FILTRO DE REGISTROS
+// FUNÇÕES UTILITÁRIAS PARA UNIDADES
+function getUnitLabel(unit) {
+    const units = {
+        'UN': 'un',
+        'KG': 'kg',
+        'ML': 'ml',
+        'L': 'l',
+        'M': 'm',
+        'CX': 'cx',
+        'PC': 'pc',
+        'OUTRO': 'un'
+    };
+    return units[unit] || unit;
+}
+
+function getUnitName(unit) {
+    const units = {
+        'UN': 'Unidade',
+        'KG': 'Quilograma',
+        'ML': 'Mililitro',
+        'L': 'Litro',
+        'M': 'Metro',
+        'CX': 'Caixa',
+        'PC': 'Peça',
+        'OUTRO': 'Outro'
+    };
+    return units[unit] || unit;
+}
+
+function formatQuantityDisplay(quantity, unit) {
+    const numQuantity = parseFloat(quantity);
+    
+    switch(unit) {
+        case 'KG':
+            return numQuantity.toFixed(2) + ' kg';
+        case 'ML':
+            return numQuantity.toFixed(0) + ' ml';
+        case 'L':
+            return numQuantity.toFixed(1) + ' l';
+        case 'M':
+            return numQuantity.toFixed(2) + ' m';
+        default:
+            return numQuantity.toFixed(0) + ' ' + getUnitLabel(unit);
+    }
+}
+
+// FILTRO DE REGISTROS (mantido igual)
 function setupFilter() {
     const filterBtn = document.getElementById('filter-records');
     const closeFilterBtn = document.getElementById('close-filter');
@@ -411,17 +545,14 @@ function setupFilter() {
 
 function filterRecords(records, filter) {
     return records.filter(record => {
-        // Filtrar por setor
         if (filter.sector && record.sector !== filter.sector) {
             return false;
         }
         
-        // Filtrar por colaborador
         if (filter.employee && !record.employee.toLowerCase().includes(filter.employee.toLowerCase())) {
             return false;
         }
         
-        // Filtrar por data
         const recordDate = new Date(record.timestamp);
         const today = new Date();
         
@@ -447,32 +578,23 @@ function filterRecords(records, filter) {
     });
 }
 
-// CONFIGURAÇÕES
+// CONFIGURAÇÕES (mantido igual)
 function loadSettings() {
     document.getElementById('company-name').value = AppState.settings.companyName;
     document.getElementById('max-quantity').value = AppState.settings.maxQuantity;
     document.getElementById('auto-save').value = AppState.settings.autoSave;
     document.getElementById('scan-sound').value = AppState.settings.scanSound;
     
-    // Atualizar display da quantidade máxima
-    updateMaxQuantityDisplay();
-    
-    // Configurar evento para período personalizado
     document.getElementById('report-period').addEventListener('change', function() {
         document.getElementById('custom-period').style.display = 
             this.value === 'custom' ? 'block' : 'none';
     });
     
-    // Configurar data mínima e máxima para filtros
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('start-date').max = today;
     document.getElementById('end-date').max = today;
     document.getElementById('start-date').value = today;
     document.getElementById('end-date').value = today;
-}
-
-function updateMaxQuantityDisplay() {
-    document.getElementById('max-quantity-display').textContent = AppState.settings.maxQuantity;
 }
 
 function saveSettings() {
@@ -483,13 +605,10 @@ function saveSettings() {
     
     localStorage.setItem('stocktrack_settings', JSON.stringify(AppState.settings));
     
-    // Atualizar display
-    updateMaxQuantityDisplay();
-    
     showAlert('Configurações salvas com sucesso!', 'success');
 }
 
-// FUNÇÕES UTILITÁRIAS
+// FUNÇÕES UTILITÁRIAS GERAIS
 function saveRecords() {
     localStorage.setItem('stocktrack_records', JSON.stringify(AppState.records));
 }
@@ -512,7 +631,6 @@ function showAlert(message, type) {
     alertDiv.className = `alert alert-${type}`;
     alertDiv.style.display = 'flex';
     
-    // Auto-esconder após 5 segundos
     setTimeout(() => {
         alertDiv.style.display = 'none';
     }, 5000);
@@ -527,7 +645,6 @@ function showConfirmation(title, message, showCancel = true) {
     messageDiv.innerHTML = message;
     modal.classList.add('active');
     
-    // Configurar botões
     const confirmBtn = document.getElementById('confirm-ok');
     const cancelBtn = document.getElementById('confirm-cancel');
     
@@ -551,7 +668,6 @@ function getSectorName(sectorCode) {
         'manutencao': 'Manutenção',
         'outro': 'Outro'
     };
-    
     return sectors[sectorCode] || sectorCode;
 }
 
@@ -569,15 +685,11 @@ function formatTime(timestamp) {
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-// CONFIGURAÇÃO DE BOTÕES
+// CONFIGURAÇÃO DE BOTÕES (mantido igual)
 function setupButtons() {
-    // Botão para exportar Excel
     document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
-    
-    // Botão para salvar configurações
     document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
     
-    // Botão para backup de dados
     document.getElementById('backup-data-btn').addEventListener('click', function() {
         const dataStr = JSON.stringify({
             records: AppState.records,
@@ -597,7 +709,6 @@ function setupButtons() {
         showAlert('Backup realizado com sucesso!', 'success');
     });
     
-    // Botão para restaurar dados
     document.getElementById('restore-data-btn').addEventListener('click', function() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -648,7 +759,6 @@ function setupButtons() {
         input.click();
     });
     
-    // Botão para limpar registros
     document.getElementById('clear-records-btn').addEventListener('click', function() {
         showConfirmation('Limpar Registros', 
             `<div class="alert alert-warning">
@@ -674,22 +784,27 @@ function setupButtons() {
     });
 }
 
-// EXPORTAÇÃO PARA EXCEL
+// EXPORTAÇÃO PARA EXCEL - ATUALIZADA
 function exportToExcel() {
     if (AppState.records.length === 0) {
         showAlert('Não há registros para exportar.', 'warning');
         return;
     }
     
-    // Criar cabeçalho CSV
-    let csv = 'Produto,Código,Quantidade,Setor,Colaborador,Observações,Data/Hora\n';
+    // Criar cabeçalho CSV com unidade
+    let csv = 'Produto,Código,Quantidade,Unidade,Setor,Colaborador,Observações,Data/Hora\n';
     
     // Adicionar registros
     AppState.records.forEach(record => {
+        const formattedQuantity = record.unit === 'KG' ? record.quantity.toFixed(2) : 
+                                 record.unit === 'L' ? record.quantity.toFixed(1) : 
+                                 record.quantity.toFixed(0);
+        
         const row = [
             `"${record.productName}"`,
             `"${record.barcode}"`,
-            record.quantity,
+            formattedQuantity,
+            `"${getUnitLabel(record.unit)}"`,
             `"${getSectorName(record.sector)}"`,
             `"${record.employee}"`,
             `"${record.notes || ''}"`,
