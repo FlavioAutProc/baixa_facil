@@ -375,7 +375,7 @@ function exportToImage() {
     container.style.padding = '40px';
     container.style.backgroundColor = '#ffffff';
     container.style.fontFamily = 'Arial, sans-serif';
-    container.style.color = '#2c3e50';
+    container.style.color = '#502c2c';
     container.style.lineHeight = '1.4';
     
     const today = new Date();
@@ -410,7 +410,7 @@ function exportToImage() {
     infoSection.style.marginBottom = '30px';
     infoSection.style.padding = '15px';
     infoSection.style.backgroundColor = '#f8f9fa';
-    infoSection.style.borderRadius = '8px';
+    infoSection.style.borderRadius = '20px';
     infoSection.style.fontSize = '14px';
     
     infoSection.innerHTML = `
@@ -441,7 +441,7 @@ function exportToImage() {
     const productsTitle = document.createElement('div');
     productsTitle.style.fontSize = '20px';
     productsTitle.style.fontWeight = 'bold';
-    productsTitle.style.color = '#2c3e50';
+    productsTitle.style.color = '#502c2ce3';
     productsTitle.style.textAlign = 'center';
     productsTitle.style.marginBottom = '30px';
     productsTitle.textContent = 'PRODUTOS RETIRADOS';
@@ -456,12 +456,14 @@ function exportToImage() {
         const productTable = document.createElement('table');
         productTable.style.width = '100%';
         productTable.style.borderCollapse = 'collapse';
-        productTable.style.border = '2px solid #2c3e50';
+        productTable.style.border = '1px solid #b9b9b9d5';
+        productTable.style.backgroundColor = '#F8FAFC';
+        productTable.style.borderRadius = '10px';
         productTable.style.marginBottom = '15px';
         
         productTable.innerHTML = `
             <tr>
-                <td style="border-right: 2px solid #2c3e50; padding: 15px; width: 70%; vertical-align: top;">
+                <td style="border-right: 2px solid #bdbdbd; padding: 15px; width: 70%; vertical-align: top;">
                     <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">
                         ${productIndex + 1}. ${productData.productName}
                     </div>
