@@ -661,12 +661,12 @@ function showConfirmation(title, message, showCancel = true) {
 
 function getSectorName(sectorCode) {
     const sectors = {
-        'estoque': 'Estoque',
-        'loja': 'Loja',
-        'producao': 'Produção',
-        'expedicao': 'Expedição',
-        'manutencao': 'Manutenção',
-        'outro': 'Outro'
+        'padaria': 'Padaria',
+        'confeitaria': 'Confeitaria',
+        'pastelaria': 'Pastelaria'
+        // 'expedicao': 'Expedição',
+        // 'manutencao': 'Manutenção',
+        // 'outro': 'Outro'
     };
     return sectors[sectorCode] || sectorCode;
 }
