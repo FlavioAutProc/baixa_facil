@@ -1,17 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>StockTrack - Registro de Retiradas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
+<style>
+    /* Garantir que o app-container esteja escondido inicialmente */
+    .app-container {
+        display: none;
+    }
+
+    .loading-screen.fade-out+.app-container {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+</style>
+
 <body>
+    <!-- Adicione esta seção logo após a tag <body> e antes do app-container -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-container">
+            <!-- Logo como background -->
+            <div class="logo-background">
+                <img src="logo01" alt="StockTrack Logo" class="logo-image" />
+            </div>
+
+            <!-- Conteúdo principal do loading -->
+            <div class="loading-content">
+                <!-- Spinner animado -->
+                <div class="loading-spinner">
+                    <div class="spinner-ring">
+                        <div class="spinner-fill"></div>
+                    </div>
+                    <div class="spinner-logo">
+                        <i class="fas fa-boxes-stacked"></i>
+                    </div>
+                </div>
+
+                <!-- Mensagem de carregamento -->
+                <div class="loading-message">
+                    <h2 class="loading-title">StockTrack</h2>
+                    <p class="loading-subtitle">Sistema de Controle de Retiradas</p>
+                    <p class="loading-text">Carregando recursos do sistema...</p>
+                </div>
+
+                <!-- Barra de progresso -->
+                <div class="progress-container">
+                    <div class="progress-bar" id="loading-progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-percent" id="loading-percent">0%</div>
+                </div>
+
+                <!-- Status do carregamento -->
+                <div class="loading-status">
+                    <div class="status-item">
+                        <i class="fas fa-check status-icon status-pending"></i>
+                        <span class="status-text">Inicializando sistema...</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-database status-icon status-pending"></i>
+                        <span class="status-text">Carregando dados...</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-cog status-icon status-pending"></i>
+                        <span class="status-text">Configurando interface...</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-check-circle status-icon status-pending"></i>
+                        <span class="status-text">Preparando scanner...</span>
+                    </div>
+                </div>
+
+                <!-- Rodapé -->
+                <div class="loading-footer">
+                    <p class="footer-text">© 2024 StockTrack - Controle de Materiais</p>
+                    <p class="footer-version">Versão 4.0 • Loading...</p>
+                </div>
+            </div>
+
+            <!-- Efeitos visuais -->
+            <div class="loading-effects">
+                <div class="effect-pulse"></div>
+                <div class="effect-pulse effect-pulse-2"></div>
+            </div>
+        </div>
+    </div>
     <div class="app-container">
         <!-- HEADER -->
         <header class="app-header">
@@ -31,29 +113,35 @@
                         <i class="fas fa-hand-holding"></i>
                         Nova Retirada
                     </h2>
-                    
-                    <div id="form-alert" class="alert" style="display: none;"></div>
-                    
+
+                    <div id="form-alert" class="alert" style="display: none"></div>
+
                     <form id="register-form">
                         <div class="form-group">
                             <label class="form-label" for="product-name">Produto *</label>
-                            <input type="text" id="product-name" class="form-control" placeholder="Digite o nome do produto" required>
+                            <input type="text" id="product-name" class="form-control"
+                                placeholder="Digite o nome do produto" required />
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="barcode">Código de Barras *</label>
                             <div class="d-flex gap-1">
-                                <input type="text" id="barcode" class="form-control" placeholder="Digite ou escaneie o código" required>
+                                <input type="text" id="barcode" class="form-control"
+                                    placeholder="Digite ou escaneie o código" required />
                                 <button type="button" id="scan-btn" class="btn btn-secondary btn-small">
                                     <i class="fas fa-camera"></i>
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="quantity">Quantidade *</label>
-                            <input type="number" id="quantity" class="form-control" placeholder="0" min="1" max="9999" required>
-                            <div class="text-muted" style="font-size: 14px; margin-top: 5px;">Mínimo: 1 | Máximo: <span id="max-quantity-display">9999</span></div>
+                            <input type="number" id="quantity" class="form-control" placeholder="0" min="1" max="9999"
+                                required />
+                            <div class="text-muted" style="font-size: 14px; margin-top: 5px">
+                                Mínimo: 1 | Máximo:
+                                <span id="max-quantity-display">9999</span>
+                            </div>
                         </div>
 
                         <!-- No formulário de registro, adicione após o campo de quantidade: -->
@@ -70,7 +158,7 @@
                                 <option value="OUTRO">Outro</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="origin-sector">Setor de Origem *</label>
                             <select id="origin-sector" class="form-control" required>
@@ -83,24 +171,26 @@
                                 <option value="outro">Outro</option> -->
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="employee">Colaborador *</label>
-                            <input type="text" id="employee" class="form-control" placeholder="Nome do colaborador" required>
+                            <input type="text" id="employee" class="form-control" placeholder="Nome do colaborador"
+                                required />
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="notes">Observações</label>
-                            <textarea id="notes" class="form-control" placeholder="Observações adicionais (opcional)" rows="2"></textarea>
+                            <textarea id="notes" class="form-control" placeholder="Observações adicionais (opcional)"
+                                rows="2"></textarea>
                         </div>
-                        
+
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-check-circle"></i>
                             Registrar Retirada
                         </button>
                     </form>
                 </div>
-                
+
                 <div class="card">
                     <h2 class="card-title">
                         <i class="fas fa-history"></i>
@@ -126,10 +216,10 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card">
                     <div class="d-flex justify-between align-center mb-2">
-                        <h2 class="card-title" style="margin: 0;">
+                        <h2 class="card-title" style="margin: 0">
                             <i class="fas fa-list"></i>
                             Histórico de Retiradas
                         </h2>
@@ -137,7 +227,7 @@
                             <i class="fas fa-filter"></i> Filtrar
                         </button>
                     </div>
-                    
+
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -153,15 +243,15 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div id="empty-records" class="empty-state">
                         <i class="fas fa-clipboard-list"></i>
                         <p>Nenhuma retirada registrada</p>
-                        <p class="text-muted" style="font-size: 14px; margin-top: 10px;">
+                        <p class="text-muted" style="font-size: 14px; margin-top: 10px">
                             As retiradas aparecerão aqui após serem cadastradas
                         </p>
                     </div>
-                    
+
                     <div class="d-flex justify-between mt-2">
                         <button id="export-excel-btn" class="btn btn-secondary btn-small">
                             <i class="fas fa-file-excel"></i> Excel
@@ -186,15 +276,17 @@
                         <i class="fas fa-chart-bar"></i>
                         Relatórios
                     </h2>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
                         <div>
                             <strong>Relatórios por período</strong>
-                            <p>Os dados são agrupados automaticamente conforme selecionado</p>
+                            <p>
+                                Os dados são agrupados automaticamente conforme selecionado
+                            </p>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="report-period">Período</label>
                         <select id="report-period" class="form-control">
@@ -205,20 +297,20 @@
                             <option value="custom">Personalizado</option>
                         </select>
                     </div>
-                    
-                    <div id="custom-period" style="display: none;">
+
+                    <div id="custom-period" style="display: none">
                         <div class="d-flex gap-2">
-                            <div class="form-group" style="flex: 1;">
+                            <div class="form-group" style="flex: 1">
                                 <label class="form-label" for="start-date">Data Inicial</label>
-                                <input type="date" id="start-date" class="form-control">
+                                <input type="date" id="start-date" class="form-control" />
                             </div>
-                            <div class="form-group" style="flex: 1;">
+                            <div class="form-group" style="flex: 1">
                                 <label class="form-label" for="end-date">Data Final</label>
-                                <input type="date" id="end-date" class="form-control">
+                                <input type="date" id="end-date" class="form-control" />
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="group-by">Agrupar por</label>
                         <select id="group-by" class="form-control">
@@ -228,19 +320,19 @@
                             <option value="hour">Hora do Dia</option>
                         </select>
                     </div>
-                    
+
                     <div class="d-flex gap-2">
-                        <button id="generate-report-btn" class="btn btn-primary" style="flex: 1;">
+                        <button id="generate-report-btn" class="btn btn-primary" style="flex: 1">
                             <i class="fas fa-chart-pie"></i>
                             Gerar
                         </button>
-                        <button id="share-report-btn" class="btn btn-success" style="flex: 1;">
+                        <button id="share-report-btn" class="btn btn-success" style="flex: 1">
                             <i class="fas fa-share-alt"></i>
                             Compartilhar
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="card">
                     <h2 class="card-title">
                         <i class="fas fa-chart-line"></i>
@@ -248,7 +340,9 @@
                     </h2>
                     <div id="report-summary" class="text-muted text-center">
                         <p>Nenhum relatório gerado</p>
-                        <p style="font-size: 14px;">Use o formulário acima para gerar um relatório</p>
+                        <p style="font-size: 14px">
+                            Use o formulário acima para gerar um relatório
+                        </p>
                     </div>
                 </div>
 
@@ -270,20 +364,22 @@
                         <i class="fas fa-cog"></i>
                         Configurações
                     </h2>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="company-name">Nome da Empresa</label>
-                        <input type="text" id="company-name" class="form-control" placeholder="Nome da sua empresa" value="StockTrack">
+                        <input type="text" id="company-name" class="form-control" placeholder="Nome da sua empresa"
+                            value="StockTrack" />
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="max-quantity">Quantidade Máxima</label>
-                        <input type="number" id="max-quantity" class="form-control" value="9999" min="100" max="99999">
-                        <div class="text-muted" style="font-size: 14px; margin-top: 5px;">
+                        <input type="number" id="max-quantity" class="form-control" value="9999" min="100"
+                            max="99999" />
+                        <div class="text-muted" style="font-size: 14px; margin-top: 5px">
                             Define o limite máximo para retiradas por item
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="auto-save">Salvamento Automático</label>
                         <select id="auto-save" class="form-control">
@@ -291,7 +387,7 @@
                             <option value="disabled">Desativado</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="scan-sound">Som ao Escanear</label>
                         <select id="scan-sound" class="form-control">
@@ -312,7 +408,7 @@
                             Evita registros duplicados acidentais
                         </div>
                     </div> -->
-                    
+
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i>
                         <div>
@@ -320,18 +416,18 @@
                             <p>Seus registros são armazenados apenas neste dispositivo</p>
                         </div>
                     </div>
-                    
+
                     <button id="save-settings-btn" class="btn btn-primary">
                         <i class="fas fa-save"></i>
                         Salvar Configurações
                     </button>
-                    
+
                     <div class="d-flex gap-2 mt-2">
-                        <button id="backup-data-btn" class="btn btn-secondary" style="flex: 1;">
+                        <button id="backup-data-btn" class="btn btn-secondary" style="flex: 1">
                             <i class="fas fa-download"></i>
                             Backup
                         </button>
-                        <button id="restore-data-btn" class="btn btn-secondary" style="flex: 1;">
+                        <button id="restore-data-btn" class="btn btn-secondary" style="flex: 1">
                             <i class="fas fa-upload"></i>
                             Restaurar
                         </button>
@@ -380,7 +476,7 @@
                             <p>Posicione o código de barras dentro do quadro</p>
                         </div>
                     </div>
-                    
+
                     <div class="scanner-container">
                         <div id="qr-reader"></div>
                         <div class="scanner-overlay">
@@ -389,7 +485,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="text-center mt-2">
                         <button id="toggle-camera" class="btn btn-secondary btn-small">
                             <i class="fas fa-sync-alt"></i>
@@ -412,10 +508,10 @@
                 <div class="modal-body">
                     <div id="confirmation-message"></div>
                     <div class="d-flex gap-2 mt-3">
-                        <button id="confirm-cancel" class="btn btn-secondary" style="flex: 1;">
+                        <button id="confirm-cancel" class="btn btn-secondary" style="flex: 1">
                             Cancelar
                         </button>
-                        <button id="confirm-ok" class="btn btn-primary" style="flex: 1;">
+                        <button id="confirm-ok" class="btn btn-primary" style="flex: 1">
                             Confirmar
                         </button>
                     </div>
@@ -448,7 +544,7 @@
                             <option value="outro">Outro</option> -->
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="filter-date">Data</label>
                         <select id="filter-date" class="form-control">
@@ -459,18 +555,19 @@
                             <option value="all">Todo período</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="filter-employee">Colaborador</label>
-                        <input type="text" id="filter-employee" class="form-control" placeholder="Filtrar por colaborador">
+                        <input type="text" id="filter-employee" class="form-control"
+                            placeholder="Filtrar por colaborador" />
                     </div>
-                    
+
                     <div class="d-flex gap-2">
-                        <button id="apply-filter" class="btn btn-primary" style="flex: 1;">
+                        <button id="apply-filter" class="btn btn-primary" style="flex: 1">
                             <i class="fas fa-check"></i>
                             Aplicar
                         </button>
-                        <button id="clear-filter" class="btn btn-secondary" style="flex: 1;">
+                        <button id="clear-filter" class="btn btn-secondary" style="flex: 1">
                             <i class="fas fa-times"></i>
                             Limpar
                         </button>
@@ -485,8 +582,10 @@
         </button>
     </div>
 
+    <script src="loading.js"></script>
     <script src="scanner.js"></script>
     <script src="reports.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

@@ -1194,3 +1194,470 @@ body {
         border: 1px solid #ddd;
     }
 }
+
+
+/* Adicione estas regras ao seu arquivo style.css existente */
+
+/* TELA DE CARREGAMENTO - V4.0 */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease;
+}
+
+.loading-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Logo como background com efeito */
+.logo-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.08;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.logo-image {
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(200%);
+    opacity: 0.3;
+}
+
+/* Conteúdo principal do loading */
+.loading-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px;
+    max-width: 800px;
+    width: 90%;
+    animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Spinner animado */
+.loading-spinner {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 40px;
+}
+
+.spinner-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        var(--primary) 25%,
+        var(--primary-light) 50%,
+        transparent 55%,
+        transparent 100%
+    );
+    animation: rotateSpinner 2s linear infinite;
+    filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.3));
+}
+
+.spinner-ring::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.spinner-fill {
+    position: absolute;
+    inset: 8px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.spinner-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    font-size: 40px;
+    color: var(--primary);
+    animation: pulseLogo 2s ease-in-out infinite;
+}
+
+/* Mensagens de carregamento */
+.loading-message {
+    margin-bottom: 40px;
+}
+
+.loading-title {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.loading-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
+.loading-text {
+    font-size: 16px;
+    color: var(--text-tertiary);
+    animation: fadeText 2s ease-in-out infinite;
+}
+
+/* Barra de progresso */
+.progress-container {
+    max-width: 400px;
+    margin: 0 auto 40px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        var(--primary) 0%, 
+        var(--primary-light) 50%, 
+        var(--primary) 100%);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: width 0.3s ease-out;
+    animation: progressGlow 2s ease-in-out infinite;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 100%);
+    animation: progressShine 1.5s ease-in-out infinite;
+}
+
+.progress-percent {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: center;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+/* Status do carregamento */
+.loading-status {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto 40px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition);
+}
+
+.status-item.active {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: var(--primary);
+}
+
+.status-icon {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+}
+
+.status-icon.status-pending {
+    color: var(--text-tertiary);
+}
+
+.status-icon.status-active {
+    color: var(--warning);
+    animation: spin 1s linear infinite;
+}
+
+.status-icon.status-completed {
+    color: var(--success);
+}
+
+.status-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.status-item.active .status-text {
+    color: white;
+    font-weight: 500;
+}
+
+/* Rodapé */
+.loading-footer {
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-text {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+}
+
+.footer-version {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    opacity: 0.7;
+}
+
+/* Efeitos visuais */
+.loading-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.effect-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, 
+        rgba(37, 99, 235, 0.1) 0%, 
+        transparent 70%);
+    animation: pulseEffect 3s ease-out infinite;
+}
+
+.effect-pulse-2 {
+    animation-delay: 1.5s;
+    width: 400px;
+    height: 400px;
+}
+
+/* Animações */
+@keyframes rotateSpinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulseLogo {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes fadeText {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes progressGlow {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+@keyframes progressShine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
+}
+
+@keyframes pulseEffect {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .loading-content {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .loading-spinner {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 30px;
+    }
+    
+    .spinner-logo {
+        font-size: 28px;
+    }
+    
+    .loading-title {
+        font-size: 36px;
+    }
+    
+    .loading-subtitle {
+        font-size: 16px;
+    }
+    
+    .loading-status {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .progress-container {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .loading-title {
+        font-size: 28px;
+    }
+    
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .spinner-logo {
+        font-size: 24px;
+    }
+    
+    .progress-percent {
+        font-size: 20px;
+    }
+}
+
+/* Efeito de saída */
+.loading-screen.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* Modo claro */
+@media (prefers-color-scheme: light) {
+    .loading-screen {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    
+    .logo-background .logo-image {
+        filter: grayscale(100%) brightness(20%);
+    }
+    
+    .spinner-ring::before,
+    .spinner-fill {
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    }
+    
+    .loading-status .status-item {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .loading-footer {
+        border-top-color: rgba(0, 0, 0, 0.1);
+    }
+}
