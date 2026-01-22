@@ -361,7 +361,7 @@ function exportToPDF() {
     showAlert('PDF gerado com sucesso!', 'success');
 }
 
-// FUNÇÃO exportToImage ATUALIZADA COM UNIDADES
+// FUNÇÃO exportToImage ATUALIZADA COM VALORES EXATOS
 function exportToImage() {
     if (!AppState.currentReport || AppState.currentReport.filteredRecords.length === 0) {
         showAlert('Gere um relatório primeiro para exportar.', 'warning');
@@ -461,6 +461,16 @@ function exportToImage() {
         productTable.style.borderRadius = '10px';
         productTable.style.marginBottom = '15px';
         
+        // Formatar quantidade total exatamente como foi informada
+        let totalQuantityDisplay;
+        if (productData.unit === 'KG' || productData.unit === 'L' || productData.unit === 'M') {
+            // Para unidades decimais, mostrar com até 3 casas decimais
+            totalQuantityDisplay = formatDecimalNumber(productData.totalQuantity, 3);
+        } else {
+            // Para unidades inteiras, mostrar sem casas decimais
+            totalQuantityDisplay = formatDecimalNumber(productData.totalQuantity, 0);
+        }
+        
         productTable.innerHTML = `
             <tr>
                 <td style="border-right: 2px solid #bdbdbd; padding: 15px; width: 70%; vertical-align: top;">
@@ -476,7 +486,7 @@ function exportToImage() {
                 </td>
                 <td style="padding: 15px; width: 30%; text-align: center; vertical-align: middle;">
                     <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">
-                        ${formatQuantityValue(productData.totalQuantity, productData.unit)}
+                        ${totalQuantityDisplay}
                     </div>
                     <div style="font-size: 12px; color: #7f8c8d; text-transform: uppercase;">
                         ${getUnitLabel(productData.unit)}
@@ -500,6 +510,16 @@ function exportToImage() {
             detailItem.style.paddingLeft = '15px';
             detailItem.style.borderLeft = '3px solid #3498db';
             
+            // Formatar quantidade exatamente como foi informada
+            let quantityDisplay;
+            if (record.unit === 'KG' || record.unit === 'L' || record.unit === 'M') {
+                // Para unidades decimais, mostrar com até 3 casas decimais
+                quantityDisplay = formatDecimalNumber(record.quantity, 3);
+            } else {
+                // Para unidades inteiras, mostrar sem casas decimais
+                quantityDisplay = formatDecimalNumber(record.quantity, 0);
+            }
+            
             let detailHTML = `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
                     <div>
@@ -507,7 +527,7 @@ function exportToImage() {
                         <span>${getSectorName(record.sector)}</span>
                     </div>
                     <div style="font-weight: bold; color: #2c3e50;">
-                        ${formatQuantityDisplay(record.quantity, record.unit)}
+                        ${quantityDisplay} ${getUnitLabel(record.unit)}
                     </div>
                 </div>
                 <div style="font-size: 11px; color: #7f8c8d;">
@@ -612,6 +632,51 @@ function exportToImage() {
         document.body.removeChild(container);
         showAlert('Erro ao gerar imagem. Tente novamente.', 'error');
     });
+}
+
+// FUNÇÃO AUXILIAR PARA FORMATAR NÚMERO DECIMAL EXATAMENTE
+function formatDecimalNumber(value, maxDecimals) {
+    const num = parseFloat(value);
+    
+    if (isNaN(num)) return '0';
+    
+    // Se for número inteiro e maxDecimals é 0, mostrar sem ponto decimal
+    if (maxDecimals === 0 && Number.isInteger(num)) {
+        return num.toString();
+    }
+    
+    // Converter para string para preservar casas decimais
+    const strValue = num.toString();
+    
+    // Se já tem notação científica ou muitos decimais, formatar
+    if (strValue.includes('e') || strValue.includes('E')) {
+        // Para números muito pequenos ou grandes, usar toFixed
+        return num.toFixed(maxDecimals).replace(/\.?0+$/, '');
+    }
+    
+    // Separar parte inteira e decimal
+    const parts = strValue.split('.');
+    const integerPart = parts[0];
+    let decimalPart = parts[1] || '';
+    
+    // Limitar casas decimais se necessário
+    if (decimalPart.length > maxDecimals) {
+        decimalPart = decimalPart.substring(0, maxDecimals);
+    }
+    
+    // Remover zeros à direita
+    decimalPart = decimalPart.replace(/0+$/, '');
+    
+    // Construir resultado
+    if (decimalPart.length > 0) {
+        // Garantir que tenha pelo menos uma casa decimal se o número original tinha
+        if (decimalPart.length === 0 && parts[1] && parts[1].length > 0) {
+            decimalPart = '0';
+        }
+        return `${integerPart}.${decimalPart}`;
+    } else {
+        return integerPart;
+    }
 }
 
 // FUNÇÃO shareReport ATUALIZADA
