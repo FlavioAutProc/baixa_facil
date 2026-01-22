@@ -28,6 +28,9 @@ function initApp() {
     updateRecordsDisplay();
     updateLastRegistration();
     
+    // Configurar edição de registros
+    setupRecordEditing();
+    
     document.getElementById('fab-add').addEventListener('click', function() {
         switchScreen('register');
         document.getElementById('product-name').focus();
@@ -41,7 +44,6 @@ function initApp() {
         updateQuantityLimits();
     });
 }
-
 // NAVEGAÇÃO ENTRE TELAS
 function setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
@@ -105,44 +107,47 @@ function setupRegistrationForm() {
     });
 }
 
-// FUNÇÃO PARA ATUALIZAR LIMITES DE QUANTIDADE
+// FUNÇÃO PARA ATUALIZAR LIMITES DE QUANTIDADE - VERSÃO CORRIGIDA
 function updateQuantityLimits() {
     const unit = document.getElementById('unit').value;
     const quantityInput = document.getElementById('quantity');
+    
+    // Só atualizar se estiver na tela de registro
+    if (!quantityInput) return;
+    
     const minQuantitySpan = document.getElementById('min-quantity');
     const maxQuantitySpan = document.getElementById('max-quantity-display');
     
     switch(unit) {
         case 'KG':
-            quantityInput.min = '0.01';
-            quantityInput.step = '0.01';
-            quantityInput.placeholder = '0.00';
-            minQuantitySpan.textContent = '0.01';
-            maxQuantitySpan.textContent = '1000.00 kg';
+            quantityInput.min = '0.001';
+            quantityInput.step = '0.001';
+            quantityInput.placeholder = '0.000';
+            if (minQuantitySpan) minQuantitySpan.textContent = '0.001';
+            if (maxQuantitySpan) maxQuantitySpan.textContent = '1000.000 kg';
             break;
         case 'ML':
             quantityInput.min = '1';
             quantityInput.step = '1';
             quantityInput.placeholder = '0';
-            minQuantitySpan.textContent = '1';
-            maxQuantitySpan.textContent = '10000 ml';
+            if (minQuantitySpan) minQuantitySpan.textContent = '1';
+            if (maxQuantitySpan) maxQuantitySpan.textContent = '10000 ml';
             break;
         case 'L':
-            quantityInput.min = '0.1';
-            quantityInput.step = '0.1';
-            quantityInput.placeholder = '0.0';
-            minQuantitySpan.textContent = '0.1';
-            maxQuantitySpan.textContent = '1000.0 l';
+            quantityInput.min = '0.001';
+            quantityInput.step = '0.001';
+            quantityInput.placeholder = '0.000';
+            if (minQuantitySpan) minQuantitySpan.textContent = '0.001';
+            if (maxQuantitySpan) maxQuantitySpan.textContent = '1000.000 l';
             break;
         default:
             quantityInput.min = '1';
             quantityInput.step = '1';
             quantityInput.placeholder = '0';
-            minQuantitySpan.textContent = '1';
-            maxQuantitySpan.textContent = AppState.settings.maxQuantity + ' un';
+            if (minQuantitySpan) minQuantitySpan.textContent = '1';
+            if (maxQuantitySpan) maxQuantitySpan.textContent = AppState.settings.maxQuantity + ' un';
     }
 }
-
 // VALIDAÇÕES
 function validateQuantity(quantity, unit) {
     const alertDiv = document.getElementById('form-alert');
@@ -165,8 +170,8 @@ function validateQuantity(quantity, unit) {
                 showAlert('A quantidade não pode exceder 1000 kg.', 'error');
                 return false;
             }
-            if (numQuantity < 0.01) {
-                showAlert('A quantidade mínima é 0.01 kg (10g).', 'error');
+            if (numQuantity < 0.001) {
+                showAlert('A quantidade mínima é 0.001 kg (1g).', 'error');
                 return false;
             }
             break;
@@ -185,8 +190,8 @@ function validateQuantity(quantity, unit) {
                 showAlert('A quantidade não pode exceder 1000 litros.', 'error');
                 return false;
             }
-            if (numQuantity < 0.1) {
-                showAlert('A quantidade mínima é 0.1 litro (100ml).', 'error');
+            if (numQuantity < 0.001) {
+                showAlert('A quantidade mínima é 0.001 litro (1ml).', 'error');
                 return false;
             }
             break;
@@ -454,6 +459,279 @@ function showRecordDetails(record) {
     showConfirmation('Detalhes da Retirada', message, false);
 }
 
+// FUNÇÃO DE EDIÇÃO DE REGISTROS
+function setupRecordEditing() {
+    // Salvar a função original
+    const originalShowRecordDetails = window.showRecordDetails;
+    
+    // Substituir pela nova versão com botões de edição
+    window.showRecordDetails = function(record) {
+        const message = `
+            <div style="background: #f8fafc; padding: 20px; border-radius: 12px;">
+                <h3 style="color: #2c3e50; margin-bottom: 16px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">Detalhes da Retirada</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
+                        <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Produto</strong>
+                        <span style="color: #2c3e50; font-weight: 600;">${record.productName}</span>
+                    </div>
+                    
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
+                        <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Quantidade</strong>
+                        <span class="badge ${record.quantity > (record.unit === 'KG' ? 100 : 10) ? 'badge-warning' : 'badge-success'}" style="font-size: 14px;">
+                            ${formatQuantityDisplay(record.quantity, record.unit)}
+                        </span>
+                    </div>
+                    
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
+                        <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Unidade</strong>
+                        <span style="color: #2c3e50; font-weight: 600;">${getUnitName(record.unit)}</span>
+                    </div>
+                    
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed;">
+                        <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Código</strong>
+                        <span style="color: #2c3e50; font-family: monospace; font-weight: 600;">${record.barcode}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Colaborador</strong>
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed; color: #2c3e50; font-weight: 600;">
+                        <i class="fas fa-user"></i> ${record.employee}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Setor</strong>
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed; color: #2c3e50; font-weight: 600;">
+                        <i class="fas fa-building"></i> ${getSectorName(record.sector)}
+                    </div>
+                </div>
+                
+                ${record.notes ? `
+                <div style="margin-bottom: 16px;">
+                    <strong style="color: #7f8c8d; font-size: 12px; display: block; margin-bottom: 4px;">Observações</strong>
+                    <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid #3498db; color: #0d47a1;">
+                        ${record.notes}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e8eaed; color: #7f8c8d; font-size: 14px;">
+                    <i class="fas fa-clock"></i> Registrado em: ${formatDateTime(record.timestamp)}
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="editRecord(${record.id})" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button onclick="deleteRecord(${record.id})" class="btn btn-danger" style="flex: 1;">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        showConfirmation('Detalhes da Retirada', message, false);
+    };
+}
+
+// FUNÇÃO PARA EDITAR REGISTRO - VERSÃO CORRIGIDA
+function editRecord(recordId) {
+    const record = AppState.records.find(r => r.id === recordId);
+    if (!record) {
+        showAlert('Registro não encontrado.', 'error');
+        return;
+    }
+    
+    // Fechar modal de confirmação primeiro
+    document.getElementById('confirmation-modal').classList.remove('active');
+    
+    // Mudar para tela de registro ANTES de preencher os campos
+    switchScreen('register');
+    
+    // Pequeno delay para garantir que a tela foi carregada
+    setTimeout(() => {
+        // Preencher formulário com dados do registro
+        document.getElementById('product-name').value = record.productName;
+        document.getElementById('barcode').value = record.barcode;
+        document.getElementById('quantity').value = record.quantity;
+        document.getElementById('unit').value = record.unit;
+        document.getElementById('origin-sector').value = record.sector;
+        document.getElementById('employee').value = record.employee;
+        document.getElementById('notes').value = record.notes || '';
+        
+        // Atualizar limites da unidade
+        updateQuantityLimits();
+        
+        // Focar no primeiro campo
+        document.getElementById('product-name').focus();
+        
+        // Configurar botão de atualização
+        setupEditMode(recordId);
+        
+        showAlert('Preencha os campos e clique em "Atualizar Registro" para salvar as alterações.', 'info');
+    }, 100);
+}
+
+// FUNÇÃO AUXILIAR PARA CONFIGURAR MODO DE EDIÇÃO
+function setupEditMode(recordId) {
+    const form = document.getElementById('register-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    // Alterar botão para "Atualizar Registro"
+    submitButton.innerHTML = '<i class="fas fa-save"></i> Atualizar Registro';
+    submitButton.className = 'btn btn-warning';
+    
+    // Remover event listener antigo e adicionar novo
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    
+    // Reconfigurar validações básicas
+    newForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateRecord(recordId);
+    });
+    
+    // Adicionar botão de cancelar
+    const cancelBtn = document.createElement('button');
+    cancelBtn.id = 'cancel-edit-btn';
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'btn btn-secondary mt-2';
+    cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar Edição';
+    cancelBtn.onclick = cancelEdit;
+    
+    newForm.appendChild(cancelBtn);
+}
+
+// FUNÇÃO PARA ATUALIZAR REGISTRO
+function updateRecord(recordId) {
+    if (!validateForm()) return;
+    
+    const recordIndex = AppState.records.findIndex(r => r.id === recordId);
+    if (recordIndex === -1) {
+        showAlert('Registro não encontrado.', 'error');
+        return;
+    }
+    
+    const productName = document.getElementById('product-name').value.trim();
+    const barcode = document.getElementById('barcode').value.trim();
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const unit = document.getElementById('unit').value;
+    const sector = document.getElementById('origin-sector').value;
+    const employee = document.getElementById('employee').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+    
+    // Atualizar registro
+    AppState.records[recordIndex] = {
+        ...AppState.records[recordIndex],
+        productName,
+        barcode,
+        quantity,
+        unit,
+        sector,
+        employee,
+        notes,
+        updatedAt: new Date().toISOString()
+    };
+    
+    // Salvar no localStorage
+    saveRecords();
+    
+    // Feedback visual
+    showAlert('Registro atualizado com sucesso!', 'success');
+    
+    // Limpar formulário e restaurar estado normal
+    document.getElementById('product-name').value = '';
+    document.getElementById('barcode').value = '';
+    document.getElementById('quantity').value = '';
+    document.getElementById('employee').value = '';
+    document.getElementById('notes').value = '';
+    
+    // Restaurar botão original
+    const submitButton = document.querySelector('#register-form button[type="submit"]');
+    submitButton.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Retirada';
+    submitButton.className = 'btn btn-primary';
+    
+    // Remover botão de cancelar
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    if (cancelBtn) cancelBtn.remove();
+    
+    // Restaurar evento original
+    document.getElementById('register-form').onsubmit = function(e) {
+        e.preventDefault();
+        registerWithdrawal();
+    };
+    
+    // Atualizar exibições
+    updateLastRegistration();
+    updateRecordsDisplay();
+    
+    // Focar no primeiro campo para próximo registro
+    document.getElementById('product-name').focus();
+}
+
+// FUNÇÃO PARA CANCELAR EDIÇÃO
+function cancelEdit() {
+    // Limpar formulário
+    document.getElementById('product-name').value = '';
+    document.getElementById('barcode').value = '';
+    document.getElementById('quantity').value = '';
+    document.getElementById('employee').value = '';
+    document.getElementById('notes').value = '';
+    
+    // Remover botão de cancelar
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    if (cancelBtn) cancelBtn.remove();
+    
+    // Restaurar formulário ao estado original
+    const form = document.getElementById('register-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Retirada';
+    submitButton.className = 'btn btn-primary';
+    
+    // Restaurar evento de submit original
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        registerWithdrawal();
+    };
+    
+    showAlert('Edição cancelada.', 'info');
+}
+
+// FUNÇÃO PARA EXCLUIR REGISTRO
+function deleteRecord(recordId) {
+    const record = AppState.records.find(r => r.id === recordId);
+    if (!record) {
+        showAlert('Registro não encontrado.', 'error');
+        return;
+    }
+    
+    showConfirmation('Excluir Registro', 
+        `<div class="alert alert-danger">
+            <strong>Confirmação de Exclusão</strong><br>
+            Tem certeza que deseja excluir este registro?<br><br>
+            <strong>Produto:</strong> ${record.productName}<br>
+            <strong>Quantidade:</strong> ${formatQuantityDisplay(record.quantity, record.unit)}<br>
+            <strong>Colaborador:</strong> ${record.employee}<br><br>
+            Esta ação não pode ser desfeita.
+        </div>`,
+        true
+    );
+    
+    document.getElementById('confirm-ok').onclick = function() {
+        const recordIndex = AppState.records.findIndex(r => r.id === recordId);
+        if (recordIndex !== -1) {
+            AppState.records.splice(recordIndex, 1);
+            saveRecords();
+            updateRecordsDisplay();
+            updateLastRegistration();
+            document.getElementById('confirmation-modal').classList.remove('active');
+            showAlert('Registro excluído com sucesso!', 'success');
+        }
+    };
+}
+
 // FUNÇÕES UTILITÁRIAS PARA UNIDADES
 function getUnitLabel(unit) {
     const units = {
@@ -488,13 +766,18 @@ function formatQuantityDisplay(quantity, unit) {
     
     switch(unit) {
         case 'KG':
-            return numQuantity.toFixed(2) + ' kg';
+            // Mostrar até 3 casas decimais, removendo zeros à direita
+            const kgValue = numQuantity.toFixed(3);
+            return kgValue.replace(/\.?0+$/, '') + ' kg';
         case 'ML':
             return numQuantity.toFixed(0) + ' ml';
         case 'L':
-            return numQuantity.toFixed(1) + ' l';
+            // Mostrar até 3 casas decimais para litros
+            const lValue = numQuantity.toFixed(3);
+            return lValue.replace(/\.?0+$/, '') + ' l';
         case 'M':
-            return numQuantity.toFixed(2) + ' m';
+            const mValue = numQuantity.toFixed(3);
+            return mValue.replace(/\.?0+$/, '') + ' m';
         default:
             return numQuantity.toFixed(0) + ' ' + getUnitLabel(unit);
     }
@@ -784,7 +1067,7 @@ function setupButtons() {
     });
 }
 
-// EXPORTAÇÃO PARA EXCEL - ATUALIZADA
+// EXPORTAÇÃO PARA EXCEL - ATUALIZADA COM 3 CASAS DECIMAIS
 function exportToExcel() {
     if (AppState.records.length === 0) {
         showAlert('Não há registros para exportar.', 'warning');
@@ -796,9 +1079,12 @@ function exportToExcel() {
     
     // Adicionar registros
     AppState.records.forEach(record => {
-        const formattedQuantity = record.unit === 'KG' ? record.quantity.toFixed(2) : 
-                                 record.unit === 'L' ? record.quantity.toFixed(1) : 
-                                 record.quantity.toFixed(0);
+        let formattedQuantity;
+        if (record.unit === 'KG' || record.unit === 'L' || record.unit === 'M') {
+            formattedQuantity = record.quantity.toFixed(3);
+        } else {
+            formattedQuantity = record.quantity.toFixed(0);
+        }
         
         const row = [
             `"${record.productName}"`,
