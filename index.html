@@ -249,39 +249,35 @@
             padding: 0 5px;
         }
 
-        /* ===== FAB ===== */
-        .fab {
-            position: fixed;
-            bottom: calc(var(--tab-height) + var(--safe-bottom) + 24px);
-            right: 24px;
-            max-width: 480px;
-            margin-right: calc((100% - 480px) / 2);
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
+        /* Botão central de adicionar */
+        .tab-item.center-btn {
+            flex: 0 0 64px;
+            margin-top: -18px;
             background: var(--primary-gradient);
             color: #fff;
-            border: none;
-            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.4);
-            font-size: 26px;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            z-index: 25;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            padding: 0;
+            border: 4px solid var(--bg);
         }
 
-        .fab:active {
+        .tab-item.center-btn i {
+            font-size: 30px;
+            color: #fff;
+        }
+
+        .tab-item.center-btn:active {
             transform: scale(0.92);
         }
 
-        .fab.hidden {
-            transform: scale(0) rotate(90deg);
-            opacity: 0;
-            pointer-events: none;
+        .tab-item.center-btn span {
+            display: none;
         }
 
         /* ===== CARDS ===== */
@@ -896,9 +892,6 @@
                 border-left: 1px solid var(--border);
                 border-right: 1px solid var(--border);
             }
-            .fab {
-                right: calc(50% - 240px + 24px);
-            }
         }
 
         @media (max-width: 400px) {
@@ -982,9 +975,6 @@
             .tab-bar {
                 max-width: 480px;
             }
-            .fab {
-                max-width: 480px;
-            }
             .scanner-overlay {
                 max-width: 480px;
             }
@@ -1011,27 +1001,8 @@
         <!-- MAIN CONTENT -->
         <div class="main-content" id="mainContent">
 
-            <!-- ===== TAB: REGISTRO ===== -->
-            <div class="tab-content active" id="tabRegister">
-                <div class="card" style="border: 2px dashed var(--border); background: transparent; box-shadow: none;">
-                    <div style="text-align:center; padding: 20px 0 8px;">
-                        <i class="fas fa-camera" style="font-size:48px; color:var(--border);"></i>
-                        <h3 style="margin-top:8px; font-weight:600;">Registrar Retirada</h3>
-                        <p style="color:var(--text-secondary); font-size:14px;">Toque no botão abaixo para adicionar um novo registro</p>
-                    </div>
-                </div>
-
-                <!-- Últimos registros (mini preview) -->
-                <div id="previewList">
-                    <div class="history-empty" style="padding:20px;">
-                        <i class="fas fa-inbox"></i>
-                        <p>Nenhum registro ainda</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- ===== TAB: HISTÓRICO ===== -->
-            <div class="tab-content" id="tabHistory">
+            <div class="tab-content active" id="tabHistory">
                 <div class="card" style="padding: 12px 16px;">
                     <div class="history-filters">
                         <input type="text" class="form-control" id="filterProduct" placeholder="Produto..." style="flex:2; min-width:120px;" />
@@ -1103,25 +1074,24 @@
 
         <!-- BOTTOM TAB BAR -->
         <div class="tab-bar" id="tabBar">
-            <button class="tab-item active" data-tab="tabRegister">
-                <i class="fas fa-plus-circle"></i>
-                <span>Registrar</span>
-            </button>
-            <button class="tab-item" data-tab="tabHistory">
+            <!-- Histórico -->
+            <button class="tab-item active" data-tab="tabHistory">
                 <i class="fas fa-clock-rotate-left"></i>
                 <span>Histórico</span>
                 <span class="tab-badge" id="historyBadge" style="display:none;">0</span>
             </button>
+
+            <!-- Botão central + (adicionar) -->
+            <button class="tab-item center-btn" id="addButton" aria-label="Adicionar retirada">
+                <i class="fas fa-plus"></i>
+            </button>
+
+            <!-- Relatórios -->
             <button class="tab-item" data-tab="tabReports">
                 <i class="fas fa-chart-pie"></i>
                 <span>Relatórios</span>
             </button>
         </div>
-
-        <!-- FAB -->
-        <button class="fab" id="fabAdd" aria-label="Adicionar retirada">
-            <i class="fas fa-plus"></i>
-        </button>
     </div>
 
     <!-- ===== MODAL FORM ===== -->
@@ -1269,11 +1239,10 @@
         const $$ = (sel) => document.querySelectorAll(sel);
 
         const mainContent = $('#mainContent');
-        const tabRegister = $('#tabRegister');
         const tabHistory = $('#tabHistory');
         const tabReports = $('#tabReports');
         const tabItems = $$('.tab-item');
-        const fabAdd = $('#fabAdd');
+        const addButton = $('#addButton');
         const totalBadge = $('#totalBadge');
         const historyBadge = $('#historyBadge');
 
@@ -1313,9 +1282,6 @@
         const reportDetailCard = $('#reportDetailCard');
         const reportDetailList = $('#reportDetailList');
 
-        // Preview
-        const previewList = $('#previewList');
-
         // Toast
         const toast = $('#toast');
         let toastTimeout = null;
@@ -1329,7 +1295,6 @@
             toast.className = 'toast';
             toast.textContent = message;
             if (type) toast.classList.add(type);
-            // Força reflow
             void toast.offsetWidth;
             toast.classList.add('show');
             toastTimeout = setTimeout(() => {
@@ -1344,9 +1309,7 @@
         function renderAll() {
             renderBadge();
             renderHistory();
-            renderPreview();
             renderReports();
-            updateFabVisibility();
         }
 
         function renderBadge() {
@@ -1358,47 +1321,6 @@
             } else {
                 historyBadge.style.display = 'none';
             }
-        }
-
-        function renderPreview() {
-            const recent = [...withdrawals].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
-            if (recent.length === 0) {
-                previewList.innerHTML = `
-                    <div class="history-empty" style="padding:20px;">
-                        <i class="fas fa-inbox"></i>
-                        <p>Nenhum registro ainda</p>
-                    </div>
-                `;
-                return;
-            }
-            let html = `
-                <div style="margin-top: 4px;">
-                    <div style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">
-                        <i class="fas fa-clock"></i> Últimas retiradas
-                    </div>
-                    <div class="history-list">
-            `;
-            recent.forEach(item => {
-                html += `
-                    <div class="history-item">
-                        <div class="item-info">
-                            <div class="product-name">
-                                ${escapeHtml(item.product)}
-                                ${item.barcode ? `<span class="barcode-tag">${escapeHtml(item.barcode)}</span>` : ''}
-                            </div>
-                            <div class="item-meta">
-                                <span><i class="fas fa-tag"></i> ${formatDateTime(item.timestamp)}</span>
-                                ${item.sector ? `<span><i class="fas fa-location-dot"></i> ${escapeHtml(item.sector)}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="item-qty">
-                            ${item.quantity} <span class="unit-label">${getUnitLabel(item.unit)}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            html += `</div></div>`;
-            previewList.innerHTML = html;
         }
 
         function renderHistory() {
@@ -1472,7 +1394,6 @@
             reportQty.textContent = totalQty.toFixed(1);
             reportSectors.textContent = sectors;
 
-            // Detalhamento por produto
             if (withdrawals.length === 0) {
                 reportDetailCard.style.display = 'none';
                 return;
@@ -1511,15 +1432,6 @@
             reportDetailCard.style.display = 'block';
         }
 
-        function updateFabVisibility() {
-            const activeTab = document.querySelector('.tab-content.active');
-            if (activeTab && activeTab.id === 'tabRegister') {
-                fabAdd.classList.remove('hidden');
-            } else {
-                fabAdd.classList.add('hidden');
-            }
-        }
-
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -1531,41 +1443,41 @@
         //  TABS
         // ============================================================
         function switchTab(tabId) {
-            // Atualiza conteúdo
             $$('.tab-content').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
 
-            // Atualiza barra
             tabItems.forEach(el => el.classList.remove('active'));
+            // O botão central não tem data-tab, então ignoramos
             const btn = document.querySelector(`.tab-item[data-tab="${tabId}"]`);
             if (btn) btn.classList.add('active');
 
-            // Roda animação
             if (target) {
                 target.style.animation = 'none';
                 void target.offsetWidth;
                 target.style.animation = 'fadeUp 0.3s ease';
             }
 
-            updateFabVisibility();
-
             // Re-renderiza a aba que está sendo mostrada
             if (tabId === 'tabHistory') renderHistory();
             if (tabId === 'tabReports') renderReports();
-            if (tabId === 'tabRegister') renderPreview();
 
-            // Salva a tab ativa
             try {
                 sessionStorage.setItem('activeTab', tabId);
             } catch {}
         }
 
-        tabItems.forEach(btn => {
+        // Eventos das abas (Histórico e Relatórios)
+        document.querySelectorAll('.tab-item[data-tab]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tabId = btn.dataset.tab;
                 if (tabId) switchTab(tabId);
             });
+        });
+
+        // Botão central abre o modal
+        addButton.addEventListener('click', () => {
+            openModal(null);
         });
 
         // ============================================================
@@ -1573,7 +1485,6 @@
         // ============================================================
         function openModal(data) {
             if (data) {
-                // Edição
                 editingId = data.id;
                 formProduct.value = data.product || '';
                 formBarcode.value = data.barcode || '';
@@ -1588,7 +1499,6 @@
                 formUnit.value = 'un';
                 document.querySelector('.modal-title').textContent = 'Nova Retirada';
                 modalSubmit.textContent = 'Registrar';
-                // Foca no primeiro campo após abrir
                 setTimeout(() => formProduct.focus(), 350);
             }
             formModal.classList.add('open');
@@ -1603,7 +1513,6 @@
 
         modalCancel.addEventListener('click', closeModal);
 
-        // Fecha modal ao clicar no overlay
         formModal.addEventListener('click', (e) => {
             if (e.target === formModal) closeModal();
         });
@@ -1640,7 +1549,6 @@
             const now = new Date().toISOString();
 
             if (editingId) {
-                // Edição
                 const index = withdrawals.findIndex(w => w.id === editingId);
                 if (index !== -1) {
                     withdrawals[index] = {
@@ -1655,7 +1563,6 @@
                     showToast('Registro atualizado com sucesso!', 'success');
                 }
             } else {
-                // Novo
                 const newRecord = {
                     id: generateId(),
                     product,
@@ -1684,13 +1591,6 @@
         });
 
         // ============================================================
-        //  FAB
-        // ============================================================
-        fabAdd.addEventListener('click', () => {
-            openModal(null);
-        });
-
-        // ============================================================
         //  SCANNER (html5-qrcode)
         // ============================================================
         let html5QrCode = null;
@@ -1703,7 +1603,6 @@
             document.body.style.overflow = 'hidden';
 
             try {
-                // Limpa container
                 scannerContainer.innerHTML = '';
 
                 const reader = new Html5Qrcode('scanner-container');
@@ -1727,13 +1626,10 @@
 
                 await reader.start({ facingMode: 'environment' },
                     config,
-                    (decodedText, decodedResult) => {
-                        // Sucesso
+                    (decodedText) => {
                         handleScanSuccess(decodedText);
                     },
-                    (errorMessage) => {
-                        // Ignora erros contínuos
-                    }
+                    (errorMessage) => {}
                 );
 
                 html5QrCode = reader;
@@ -1747,15 +1643,11 @@
         }
 
         function handleScanSuccess(decodedText) {
-            // Preenche o campo de código de barras
             formBarcode.value = decodedText;
             showToast(`Código lido: ${decodedText}`, 'success', 1800);
-            // Para o scanner
             stopScanner();
-            // Fecha o overlay
             scannerOverlay.classList.remove('open');
             document.body.style.overflow = '';
-            // Foca no próximo campo
             formQuantity.focus();
         }
 
@@ -1765,7 +1657,7 @@
                     await html5QrCode.stop();
                     await html5QrCode.clear();
                 }
-            } catch (e) { /* ignora */ }
+            } catch (e) {}
             html5QrCode = null;
             isScannerRunning = false;
             scannerContainer.innerHTML = '';
@@ -1777,17 +1669,12 @@
             document.body.style.overflow = '';
         });
 
-        // Botões de scan
         const scanButtons = ['#scanBarcodeBtn', '#scanBarcodeBtnAlt'];
         scanButtons.forEach(sel => {
             const btn = document.querySelector(sel);
             if (btn) {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    // Fecha modal se estiver aberto
-                    if (formModal.classList.contains('open')) {
-                        // Mantém o modal aberto, mas inicia o scanner por cima
-                    }
                     startScanner();
                 });
             }
@@ -1843,7 +1730,6 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
 
-            // Cabeçalho
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
             doc.text('Relatório de Retiradas', pageWidth / 2, 18, { align: 'center' });
@@ -1853,7 +1739,6 @@
             doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth / 2, 26, { align: 'center' });
             doc.text(`Total de registros: ${data.length}`, pageWidth / 2, 32, { align: 'center' });
 
-            // Tabela
             const tableData = data.map(item => [
                 item.product,
                 item.barcode || '-',
@@ -1891,7 +1776,6 @@
                 margin: { left: 10, right: 10 },
             });
 
-            // Rodapé
             const finalY = doc.lastAutoTable.finalY + 6;
             doc.setFontSize(8);
             doc.setFont('helvetica', 'italic');
@@ -1914,7 +1798,6 @@
         });
 
         function generateHistoryImage(data) {
-            // Cria um elemento temporário para renderizar
             const container = document.createElement('div');
             container.style.cssText = `
                 position: fixed; left: -9999px; top: 0;
@@ -1994,7 +1877,6 @@
                 return;
             }
             if (confirm(`Tem certeza que deseja remover ${filtered.length} registro(s)?`)) {
-                // Remove apenas os filtrados
                 const ids = new Set(filtered.map(w => w.id));
                 withdrawals = withdrawals.filter(w => !ids.has(w.id));
                 saveData(withdrawals);
@@ -2019,7 +1901,6 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
 
-            // Título
             doc.setFontSize(20);
             doc.setFont('helvetica', 'bold');
             doc.text('📊 Relatório Completo', pageWidth / 2, 18, { align: 'center' });
@@ -2028,7 +1909,6 @@
             doc.setFont('helvetica', 'normal');
             doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth / 2, 26, { align: 'center' });
 
-            // Resumo
             const total = withdrawals.length;
             const items = new Set(withdrawals.map(w => w.product.toLowerCase())).size;
             const totalQty = withdrawals.reduce((sum, w) => sum + Number(w.quantity), 0);
@@ -2044,7 +1924,6 @@
             doc.text(`• Quantidade total: ${totalQty.toFixed(1)}`, 14, 55);
             doc.text(`• Setores envolvidos: ${sectors}`, 14, 61);
 
-            // Tabela detalhada
             const sorted = [...withdrawals].sort((a, b) => b.timestamp - a.timestamp);
 
             const tableData = sorted.map(item => [
@@ -2219,9 +2098,6 @@
                     closeModal();
                 }
             }
-            if (e.key === 'Enter' && formModal.classList.contains('open')) {
-                // O submit já é tratado pelo formulário
-            }
         });
 
         // ============================================================
@@ -2230,39 +2106,28 @@
         function init() {
             renderAll();
 
-            // Restaura tab ativa
+            // Restaura tab ativa (padrão: Histórico)
             try {
                 const saved = sessionStorage.getItem('activeTab');
                 if (saved && document.getElementById(saved)) {
                     switchTab(saved);
                 } else {
-                    switchTab('tabRegister');
+                    switchTab('tabHistory');
                 }
             } catch {
-                switchTab('tabRegister');
+                switchTab('tabHistory');
             }
 
-            // Fecha scanner se mudar de tab
-            const observer = new MutationObserver(() => {
-                if (scannerOverlay.classList.contains('open')) {
-                    // Não fecha automaticamente, mas mantém
-                }
-            });
-            observer.observe(document.querySelector('.tab-content.active') || document.body, { attributes: true,
-                attributeFilter: ['class'] });
-
-            // Atualiza ao voltar para a página
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
                     renderAll();
                 }
             });
 
-            console.log('✅ Sistema de Retirada para Produção iniciado');
+            console.log('✅ Sistema de Retirada para Produção iniciado (nova interface)');
             console.log(`📦 ${withdrawals.length} registros carregados`);
         }
 
-        // Carrega quando o DOM estiver pronto
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
