@@ -302,6 +302,14 @@
             font-weight: 600;
         }
 
+        .card-header .badge-light {
+            background: var(--bg);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
         /* ===== FORM ===== */
         .form-group {
             margin-bottom: 14px;
@@ -833,6 +841,80 @@
             margin-top: 2px;
         }
 
+        .report-analysis-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .report-analysis-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+        }
+
+        .report-analysis-card .analysis-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .report-analysis-card .analysis-title i {
+            color: var(--primary);
+        }
+
+        .report-analysis-card .analysis-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .report-analysis-card .analysis-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .report-analysis-card .analysis-list li:last-child {
+            border-bottom: none;
+        }
+
+        .report-analysis-card .analysis-list .item-name {
+            font-weight: 500;
+        }
+
+        .report-analysis-card .analysis-list .item-value {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .report-analysis-card .analysis-list .item-value strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .report-analysis-card .analysis-list .rank-number {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 22px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
         .report-actions {
             display: flex;
             flex-direction: column;
@@ -1029,43 +1111,58 @@
 
             <!-- ===== TAB: RELATÓRIOS ===== -->
             <div class="tab-content" id="tabReports">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-chart-bar" style="color:var(--primary);"></i> Resumo</h3>
+                <!-- Cards de resumo -->
+                <div class="report-summary" id="reportSummary">
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportTotal">0</div>
+                        <div class="stat-label">Total de retiradas</div>
                     </div>
-                    <div class="report-summary" id="reportSummary">
-                        <div class="report-stat">
-                            <div class="stat-number" id="reportTotal">0</div>
-                            <div class="stat-label">Total de retiradas</div>
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportItems">0</div>
+                        <div class="stat-label">Produtos distintos</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportSectors">0</div>
+                        <div class="stat-label">Setores envolvidos</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportToday">0</div>
+                        <div class="stat-label">Retiradas hoje</div>
+                    </div>
+                </div>
+
+                <!-- Análises: por setor e produtos mais retirados -->
+                <div class="report-analysis-grid">
+                    <div class="report-analysis-card">
+                        <div class="analysis-title"><i class="fas fa-building"></i> Retiradas por setor</div>
+                        <div id="sectorAnalysis">
+                            <p class="text-muted" style="font-size:14px;">Nenhum registro</p>
                         </div>
-                        <div class="report-stat">
-                            <div class="stat-number" id="reportItems">0</div>
-                            <div class="stat-label">Itens diferentes</div>
-                        </div>
-                        <div class="report-stat">
-                            <div class="stat-number" id="reportQty">0</div>
-                            <div class="stat-label">Quantidade total</div>
-                        </div>
-                        <div class="report-stat">
-                            <div class="stat-number" id="reportSectors">0</div>
-                            <div class="stat-label">Setores</div>
+                    </div>
+                    <div class="report-analysis-card">
+                        <div class="analysis-title"><i class="fas fa-trophy"></i> Produtos mais retirados</div>
+                        <div id="productRanking">
+                            <p class="text-muted" style="font-size:14px;">Nenhum registro</p>
                         </div>
                     </div>
                 </div>
 
+                <!-- Exportação -->
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-file-export" style="color:var(--primary);"></i> Exportar Relatório</h3>
+                        <h3><i class="fas fa-file-export" style="color:var(--primary);"></i> Relatório completo para baixa</h3>
+                        <span class="badge-light" id="reportTotalBadge">0 retiradas</span>
                     </div>
                     <div class="report-actions">
-                        <button class="btn btn-primary" id="reportPdfBtn"><i class="fas fa-file-pdf"></i> Gerar PDF Completo</button>
-                        <button class="btn btn-secondary" id="reportImageBtn"><i class="fas fa-image"></i> Gerar Imagem</button>
+                        <button class="btn btn-primary" id="reportPdfBtn"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary" id="reportImageBtn"><i class="fas fa-image"></i> Imagem</button>
                     </div>
                 </div>
 
+                <!-- Detalhamento extra (opcional) -->
                 <div class="card" id="reportDetailCard" style="display:none;">
                     <div class="card-header">
-                        <h3><i class="fas fa-list" style="color:var(--primary);"></i> Detalhamento</h3>
+                        <h3><i class="fas fa-list" style="color:var(--primary);"></i> Detalhamento por produto</h3>
                     </div>
                     <div id="reportDetailList"></div>
                 </div>
@@ -1226,6 +1323,14 @@
             return map[value] || value;
         }
 
+        function isToday(iso) {
+            const today = new Date();
+            const d = new Date(iso);
+            return d.getFullYear() === today.getFullYear() &&
+                d.getMonth() === today.getMonth() &&
+                d.getDate() === today.getDate();
+        }
+
         // ============================================================
         //  STATE
         // ============================================================
@@ -1275,8 +1380,11 @@
         // Reports
         const reportTotal = $('#reportTotal');
         const reportItems = $('#reportItems');
-        const reportQty = $('#reportQty');
         const reportSectors = $('#reportSectors');
+        const reportToday = $('#reportToday');
+        const reportTotalBadge = $('#reportTotalBadge');
+        const sectorAnalysis = $('#sectorAnalysis');
+        const productRanking = $('#productRanking');
         const reportPdfBtn = $('#reportPdfBtn');
         const reportImageBtn = $('#reportImageBtn');
         const reportDetailCard = $('#reportDetailCard');
@@ -1386,34 +1494,92 @@
         function renderReports() {
             const total = withdrawals.length;
             const items = new Set(withdrawals.map(w => w.product.toLowerCase())).size;
-            const totalQty = withdrawals.reduce((sum, w) => sum + Number(w.quantity), 0);
-            const sectors = new Set(withdrawals.map(w => w.sector || 'Sem setor')).size;
+            const sectorsSet = new Set(withdrawals.map(w => w.sector || 'Sem setor').filter(s => s.trim() !== ''));
+            const sectors = sectorsSet.size;
+            const todayCount = withdrawals.filter(w => isToday(w.timestamp)).length;
 
             reportTotal.textContent = total;
             reportItems.textContent = items;
-            reportQty.textContent = totalQty.toFixed(1);
             reportSectors.textContent = sectors;
+            reportToday.textContent = todayCount;
+            reportTotalBadge.textContent = `${total} retirada${total !== 1 ? 's' : ''}`;
 
+            // Análise por setor (contagem de registros)
+            const sectorMap = {};
+            withdrawals.forEach(w => {
+                const key = w.sector && w.sector.trim() ? w.sector.trim() : 'Sem setor';
+                sectorMap[key] = (sectorMap[key] || 0) + 1;
+            });
+            const sortedSectors = Object.entries(sectorMap).sort((a, b) => b[1] - a[1]);
+
+            if (sortedSectors.length === 0) {
+                sectorAnalysis.innerHTML = `<p class="text-muted" style="font-size:14px;">Nenhum registro</p>`;
+            } else {
+                let html = `<ul class="analysis-list">`;
+                sortedSectors.forEach(([sector, count]) => {
+                    html += `
+                        <li>
+                            <span class="item-name">${escapeHtml(sector)}</span>
+                            <span class="item-value"><strong>${count}</strong> registro${count !== 1 ? 's' : ''}</span>
+                        </li>
+                    `;
+                });
+                html += `</ul>`;
+                sectorAnalysis.innerHTML = html;
+            }
+
+            // Ranking de produtos por quantidade total
+            const productMap = {};
+            withdrawals.forEach(w => {
+                const key = w.product.toLowerCase();
+                if (!productMap[key]) {
+                    productMap[key] = { product: w.product, qty: 0 };
+                }
+                productMap[key].qty += Number(w.quantity);
+            });
+            const sortedProducts = Object.values(productMap).sort((a, b) => b.qty - a.qty);
+
+            if (sortedProducts.length === 0) {
+                productRanking.innerHTML = `<p class="text-muted" style="font-size:14px;">Nenhum registro</p>`;
+            } else {
+                let html = `<ul class="analysis-list">`;
+                sortedProducts.forEach((p, index) => {
+                    const rank = index + 1;
+                    html += `
+                        <li>
+                            <span class="item-name">
+                                <span class="rank-number">${rank}</span>
+                                ${escapeHtml(p.product)}
+                            </span>
+                            <span class="item-value"><strong>${p.qty.toFixed(1)}</strong> ${getUnitLabel(withdrawals.find(w => w.product.toLowerCase() === p.product.toLowerCase())?.unit || 'un')}</span>
+                        </li>
+                    `;
+                });
+                html += `</ul>`;
+                productRanking.innerHTML = html;
+            }
+
+            // Detalhamento por produto (card extra)
             if (withdrawals.length === 0) {
                 reportDetailCard.style.display = 'none';
                 return;
             }
 
-            const productMap = {};
+            const detailMap = {};
             withdrawals.forEach(w => {
                 const key = w.product.toLowerCase();
-                if (!productMap[key]) {
-                    productMap[key] = { product: w.product, qty: 0, unit: w.unit, count: 0 };
+                if (!detailMap[key]) {
+                    detailMap[key] = { product: w.product, qty: 0, unit: w.unit, count: 0 };
                 }
-                productMap[key].qty += Number(w.quantity);
-                productMap[key].count += 1;
+                detailMap[key].qty += Number(w.quantity);
+                detailMap[key].count += 1;
             });
 
-            const sorted = Object.values(productMap).sort((a, b) => b.qty - a.qty);
+            const sortedDetail = Object.values(detailMap).sort((a, b) => b.qty - a.qty);
 
-            let html = `<div class="history-list">`;
-            sorted.forEach(p => {
-                html += `
+            let detailHtml = `<div class="history-list">`;
+            sortedDetail.forEach(p => {
+                detailHtml += `
                     <div class="history-item">
                         <div class="item-info">
                             <div class="product-name">${escapeHtml(p.product)}</div>
@@ -1427,8 +1593,8 @@
                     </div>
                 `;
             });
-            html += `</div>`;
-            reportDetailList.innerHTML = html;
+            detailHtml += `</div>`;
+            reportDetailList.innerHTML = detailHtml;
             reportDetailCard.style.display = 'block';
         }
 
@@ -1448,7 +1614,6 @@
             if (target) target.classList.add('active');
 
             tabItems.forEach(el => el.classList.remove('active'));
-            // O botão central não tem data-tab, então ignoramos
             const btn = document.querySelector(`.tab-item[data-tab="${tabId}"]`);
             if (btn) btn.classList.add('active');
 
@@ -1458,7 +1623,6 @@
                 target.style.animation = 'fadeUp 0.3s ease';
             }
 
-            // Re-renderiza a aba que está sendo mostrada
             if (tabId === 'tabHistory') renderHistory();
             if (tabId === 'tabReports') renderReports();
 
@@ -1467,7 +1631,6 @@
             } catch {}
         }
 
-        // Eventos das abas (Histórico e Relatórios)
         document.querySelectorAll('.tab-item[data-tab]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tabId = btn.dataset.tab;
@@ -1475,7 +1638,6 @@
             });
         });
 
-        // Botão central abre o modal
         addButton.addEventListener('click', () => {
             openModal(null);
         });
@@ -1581,7 +1743,6 @@
             closeModal();
             renderAll();
 
-            // Se estiver na aba de histórico, atualiza
             if (document.querySelector('#tabHistory.active')) {
                 renderHistory();
             }
@@ -1695,7 +1856,7 @@
         });
 
         // ============================================================
-        //  EXPORT: PDF (History)
+        //  EXPORT: PDF (History) - layout gerencial
         // ============================================================
         function getFilteredData() {
             const productFilter = filterProduct.value.toLowerCase().trim();
@@ -1722,71 +1883,11 @@
                 showToast('Não há dados para exportar', 'warning');
                 return;
             }
-            generateHistoryPDF(data);
+            generateGenericReportPDF(data, 'RELATÓRIO GERENCIAL');
         });
 
-        function generateHistoryPDF(data) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = doc.internal.pageSize.getWidth();
-
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Relatório de Retiradas', pageWidth / 2, 18, { align: 'center' });
-
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth / 2, 26, { align: 'center' });
-            doc.text(`Total de registros: ${data.length}`, pageWidth / 2, 32, { align: 'center' });
-
-            const tableData = data.map(item => [
-                item.product,
-                item.barcode || '-',
-                String(item.quantity),
-                getUnitLabel(item.unit),
-                item.sector || '-',
-                formatDateTime(item.timestamp),
-            ]);
-
-            doc.autoTable({
-                startY: 38,
-                head: [
-                    ['Produto', 'Código', 'Qtd', 'Un.', 'Setor', 'Data/Hora']
-                ],
-                body: tableData,
-                theme: 'striped',
-                headStyles: {
-                    fillColor: [37, 99, 235],
-                    textColor: [255, 255, 255],
-                    fontSize: 9,
-                    halign: 'center',
-                },
-                styles: {
-                    fontSize: 8,
-                    cellPadding: 2.5,
-                },
-                columnStyles: {
-                    0: { cellWidth: 35 },
-                    1: { cellWidth: 28 },
-                    2: { cellWidth: 15, halign: 'center' },
-                    3: { cellWidth: 15, halign: 'center' },
-                    4: { cellWidth: 28 },
-                    5: { cellWidth: 38 },
-                },
-                margin: { left: 10, right: 10 },
-            });
-
-            const finalY = doc.lastAutoTable.finalY + 6;
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'italic');
-            doc.text('Sistema de Retirada para Produção', pageWidth / 2, finalY, { align: 'center' });
-
-            doc.save(`retiradas_${new Date().toISOString().slice(0,10)}.pdf`);
-            showToast('PDF exportado com sucesso!', 'success');
-        }
-
         // ============================================================
-        //  EXPORT: Imagem (History)
+        //  EXPORT: Imagem (History) - mesmo layout do PDF
         // ============================================================
         exportImageBtn.addEventListener('click', () => {
             const data = getFilteredData();
@@ -1798,43 +1899,52 @@
         });
 
         function generateHistoryImage(data) {
+            // Mesmo layout do PDF gerencial
             const container = document.createElement('div');
             container.style.cssText = `
                 position: fixed; left: -9999px; top: 0;
                 width: 800px; background: #ffffff;
                 font-family: 'Inter', -apple-system, sans-serif;
-                padding: 32px 28px;
+                padding: 40px 32px;
                 border-radius: 0;
                 box-shadow: 0 4px 24px rgba(0,0,0,0.05);
             `;
+
+            // Período
+            let periodo = '— a —';
+            if (data.length > 0) {
+                const first = data[0].timestamp;
+                const last = data[data.length - 1].timestamp;
+                periodo = `${formatDate(first)} a ${formatDate(last)}`;
+            }
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
             container.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #2563eb; padding-bottom:12px;">
-                    <div>
-                        <div style="font-size:22px; font-weight:700; color:#0f172a;">📦 Retiradas para Produção</div>
-                        <div style="font-size:13px; color:#64748b; margin-top:4px;">${new Date().toLocaleString('pt-BR')}</div>
-                    </div>
-                    <div style="text-align:right; font-size:13px; color:#64748b;">
-                        <div>Total: ${data.length} registro${data.length !== 1 ? 's' : ''}</div>
-                    </div>
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:22px; font-weight:700; color:#0f172a;">RETIRADAS -</div>
+                    <div style="font-size:14px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748b; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                    <div><strong>Período:</strong> ${periodo}</div>
+                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
                 </div>
                 <table style="width:100%; border-collapse:collapse; font-size:13px;">
                     <thead>
                         <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">Produto</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">Código</th>
-                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">Qtd</th>
-                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">Un.</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">Setor</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">Data/Hora</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO DE BARRAS</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
+                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${data.map(item => `
                             <tr style="border-bottom:1px solid #f1f5f9;">
-                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
                                 <td style="padding:8px 8px; font-family:monospace; font-size:12px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
-                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity}</td>
-                                <td style="padding:8px 8px; text-align:center;">${getUnitLabel(item.unit)}</td>
+                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
+                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
                                 <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
                                 <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
                             </tr>
@@ -1886,179 +1996,163 @@
         });
 
         // ============================================================
-        //  REPORTS EXPORT
+        //  REPORTS EXPORT (PDF completo com layout da imagem)
         // ============================================================
         reportPdfBtn.addEventListener('click', () => {
             if (withdrawals.length === 0) {
                 showToast('Não há dados para gerar relatório', 'warning');
                 return;
             }
-            generateReportPDF();
+            // Ordena por data crescente
+            const sorted = [...withdrawals].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+            generateGenericReportPDF(sorted, 'RELATÓRIO GERENCIAL');
         });
 
-        function generateReportPDF() {
+        function generateGenericReportPDF(data, title = 'RELATÓRIO GERENCIAL') {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 14;
 
-            doc.setFontSize(20);
+            // Cabeçalho
+            doc.setFontSize(16);
             doc.setFont('helvetica', 'bold');
-            doc.text('📊 Relatório Completo', pageWidth / 2, 18, { align: 'center' });
+            doc.text(title, pageWidth / 2, 20, { align: 'center' });
 
-            doc.setFontSize(10);
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'normal');
-            doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth / 2, 26, { align: 'center' });
+            doc.text('Retiradas de insumos', pageWidth / 2, 28, { align: 'center' });
 
-            const total = withdrawals.length;
-            const items = new Set(withdrawals.map(w => w.product.toLowerCase())).size;
-            const totalQty = withdrawals.reduce((sum, w) => sum + Number(w.quantity), 0);
-            const sectors = new Set(withdrawals.map(w => w.sector || 'Sem setor')).size;
-
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Resumo', 14, 36);
-            doc.setFont('helvetica', 'normal');
+            // Período
+            let periodo = '— a —';
+            if (data.length > 0) {
+                const first = data[0].timestamp;
+                const last = data[data.length - 1].timestamp;
+                periodo = `${formatDate(first)} a ${formatDate(last)}`;
+            }
             doc.setFontSize(10);
-            doc.text(`• Total de retiradas: ${total}`, 14, 43);
-            doc.text(`• Itens diferentes: ${items}`, 14, 49);
-            doc.text(`• Quantidade total: ${totalQty.toFixed(1)}`, 14, 55);
-            doc.text(`• Setores envolvidos: ${sectors}`, 14, 61);
+            doc.text(`Período: ${periodo}`, margin, 38);
 
-            const sorted = [...withdrawals].sort((a, b) => b.timestamp - a.timestamp);
+            // Data de geração
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            doc.text(`Gerado em: ${geradoEm}`, margin, 44);
 
-            const tableData = sorted.map(item => [
-                item.product,
+            // Tabela
+            const tableData = data.map(item => [
                 item.barcode || '-',
-                String(item.quantity),
-                getUnitLabel(item.unit),
+                item.product,
+                `${item.quantity} ${getUnitLabel(item.unit)}`,
                 item.sector || '-',
                 formatDateTime(item.timestamp),
             ]);
 
             doc.autoTable({
-                startY: 68,
+                startY: 52,
                 head: [
-                    ['Produto', 'Código', 'Qtd', 'Un.', 'Setor', 'Data/Hora']
+                    ['CÓDIGO DE BARRAS', 'PRODUTO', 'QTD', 'SETOR', 'DATA/HORA']
                 ],
                 body: tableData,
-                theme: 'striped',
+                theme: 'plain',
                 headStyles: {
-                    fillColor: [37, 99, 235],
-                    textColor: [255, 255, 255],
+                    fillColor: [240, 240, 240],
+                    textColor: [0, 0, 0],
+                    fontStyle: 'bold',
                     fontSize: 9,
                     halign: 'center',
+                    valign: 'middle',
                 },
                 styles: {
-                    fontSize: 8,
-                    cellPadding: 2.5,
+                    fontSize: 9,
+                    cellPadding: 3,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1,
                 },
                 columnStyles: {
-                    0: { cellWidth: 35 },
-                    1: { cellWidth: 28 },
-                    2: { cellWidth: 15, halign: 'center' },
-                    3: { cellWidth: 15, halign: 'center' },
-                    4: { cellWidth: 28 },
-                    5: { cellWidth: 38 },
+                    0: { cellWidth: 30, halign: 'center' },
+                    1: { cellWidth: 'auto' },
+                    2: { cellWidth: 25, halign: 'center' },
+                    3: { cellWidth: 30 },
+                    4: { cellWidth: 35, halign: 'center' },
                 },
-                margin: { left: 10, right: 10 },
+                margin: { left: margin, right: margin },
+                tableWidth: pageWidth - 2 * margin,
             });
 
             const finalY = doc.lastAutoTable.finalY + 6;
             doc.setFontSize(8);
             doc.setFont('helvetica', 'italic');
-            doc.text('Sistema de Retirada para Produção — Relatório completo', pageWidth / 2, finalY, { align: 'center' });
+            doc.text('Sistema de Retirada para Produção', pageWidth / 2, finalY, { align: 'center' });
 
-            doc.save(`relatorio_completo_${new Date().toISOString().slice(0,10)}.pdf`);
+            doc.save(`relatorio_gerencial_${new Date().toISOString().slice(0,10)}.pdf`);
             showToast('Relatório PDF gerado com sucesso!', 'success');
         }
 
+        // ============================================================
+        //  EXPORT: Imagem do relatório completo (layout idêntico ao PDF)
+        // ============================================================
         reportImageBtn.addEventListener('click', () => {
             if (withdrawals.length === 0) {
                 showToast('Não há dados para gerar relatório', 'warning');
                 return;
             }
-            generateReportImage();
+            generateFullReportImage();
         });
 
-        function generateReportImage() {
+        function generateFullReportImage() {
+            const data = [...withdrawals].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+
             const container = document.createElement('div');
             container.style.cssText = `
                 position: fixed; left: -9999px; top: 0;
                 width: 900px; background: #ffffff;
                 font-family: 'Inter', -apple-system, sans-serif;
-                padding: 36px 32px;
+                padding: 40px 36px;
                 border-radius: 0;
             `;
 
-            const total = withdrawals.length;
-            const items = new Set(withdrawals.map(w => w.product.toLowerCase())).size;
-            const totalQty = withdrawals.reduce((sum, w) => sum + Number(w.quantity), 0);
-            const sectors = new Set(withdrawals.map(w => w.sector || 'Sem setor')).size;
+            // Período
+            let periodo = '— a —';
+            if (data.length > 0) {
+                const first = data[0].timestamp;
+                const last = data[data.length - 1].timestamp;
+                periodo = `${formatDate(first)} a ${formatDate(last)}`;
+            }
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
             container.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:3px solid #2563eb; padding-bottom:14px;">
-                    <div>
-                        <div style="font-size:26px; font-weight:700; color:#0f172a;">📊 Relatório de Retiradas</div>
-                        <div style="font-size:14px; color:#64748b; margin-top:4px;">${new Date().toLocaleString('pt-BR')}</div>
-                    </div>
-                    <div style="text-align:right; font-size:14px; color:#64748b;">
-                        <div><strong style="color:#0f172a;">${total}</strong> retiradas</div>
-                        <div><strong style="color:#0f172a;">${items}</strong> itens</div>
-                    </div>
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:28px; font-weight:700; color:#0f172a;">RELATÓRIO GERENCIAL</div>
+                    <div style="font-size:16px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
                 </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-bottom:24px;">
-                    <div style="background:#f1f5f9; padding:14px 16px; border-radius:10px; text-align:center;">
-                        <div style="font-size:28px; font-weight:700; color:#2563eb;">${total}</div>
-                        <div style="font-size:12px; color:#64748b;">Total retiradas</div>
-                    </div>
-                    <div style="background:#f1f5f9; padding:14px 16px; border-radius:10px; text-align:center;">
-                        <div style="font-size:28px; font-weight:700; color:#2563eb;">${items}</div>
-                        <div style="font-size:12px; color:#64748b;">Itens diferentes</div>
-                    </div>
-                    <div style="background:#f1f5f9; padding:14px 16px; border-radius:10px; text-align:center;">
-                        <div style="font-size:28px; font-weight:700; color:#2563eb;">${totalQty.toFixed(1)}</div>
-                        <div style="font-size:12px; color:#64748b;">Quantidade total</div>
-                    </div>
-                    <div style="background:#f1f5f9; padding:14px 16px; border-radius:10px; text-align:center;">
-                        <div style="font-size:28px; font-weight:700; color:#2563eb;">${sectors}</div>
-                        <div style="font-size:12px; color:#64748b;">Setores</div>
-                    </div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                    <div><strong>Período:</strong> ${periodo}</div>
+                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
                 </div>
-
-                <div style="font-size:15px; font-weight:600; color:#0f172a; margin-bottom:10px;">📋 Detalhamento por produto</div>
-                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
                     <thead>
                         <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">Produto</th>
-                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">Qtd total</th>
-                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">Un.</th>
-                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">Retiradas</th>
+                            <th style="padding:12px 10px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO DE BARRAS</th>
+                            <th style="padding:12px 10px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
+                            <th style="padding:12px 10px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
+                            <th style="padding:12px 10px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
+                            <th style="padding:12px 10px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${(() => {
-                            const map = {};
-                            withdrawals.forEach(w => {
-                                const key = w.product.toLowerCase();
-                                if (!map[key]) map[key] = { product: w.product, qty: 0, unit: w.unit, count: 0 };
-                                map[key].qty += Number(w.quantity);
-                                map[key].count += 1;
-                            });
-                            const sorted = Object.values(map).sort((a,b) => b.qty - a.qty);
-                            return sorted.map(p => `
-                                <tr style="border-bottom:1px solid #f1f5f9;">
-                                    <td style="padding:8px 8px; font-weight:500;">${escapeHtml(p.product)}</td>
-                                    <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${p.qty.toFixed(1)}</td>
-                                    <td style="padding:8px 8px; text-align:center;">${getUnitLabel(p.unit)}</td>
-                                    <td style="padding:8px 8px; text-align:center;">${p.count}</td>
-                                </tr>
-                            `).join('');
-                        })()}
+                        ${data.map(item => `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 10px; font-family:monospace; font-size:13px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
+                                <td style="padding:10px 10px; font-weight:500;">${escapeHtml(item.product)}</td>
+                                <td style="padding:10px 10px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
+                                <td style="padding:10px 10px;">${escapeHtml(item.sector || '-')}</td>
+                                <td style="padding:10px 10px; font-size:13px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
+                            </tr>
+                        `).join('')}
                     </tbody>
                 </table>
-
-                <div style="margin-top:24px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; text-align:center;">
+                <div style="margin-top:24px; padding-top:14px; border-top:1px solid #e2e8f0; font-size:12px; color:#94a3b8; text-align:center;">
                     Sistema de Retirada para Produção • Relatório completo gerado automaticamente
                 </div>
             `;
@@ -2072,7 +2166,7 @@
                 logging: false,
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `relatorio_completo_${new Date().toISOString().slice(0,10)}.png`;
+                link.download = `relatorio_gerencial_${new Date().toISOString().slice(0,10)}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 document.body.removeChild(container);
@@ -2106,7 +2200,6 @@
         function init() {
             renderAll();
 
-            // Restaura tab ativa (padrão: Histórico)
             try {
                 const saved = sessionStorage.getItem('activeTab');
                 if (saved && document.getElementById(saved)) {
@@ -2124,7 +2217,7 @@
                 }
             });
 
-            console.log('✅ Sistema de Retirada para Produção iniciado (nova interface)');
+            console.log('✅ Sistema de Retirada para Produção (relatório imagem igual ao PDF)');
             console.log(`📦 ${withdrawals.length} registros carregados`);
         }
 
