@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Controle de Retiradas</title>
+    <title>Retirada Produção</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet" />
@@ -50,8 +50,7 @@
             --radius-xs: 6px;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --tab-height: 68px;
-            --header-main-height: 64px;
-            --header-sub-height: 56px;
+            --header-height: 72px;
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -92,85 +91,77 @@
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
         }
 
-        /* ===== HEADER PRINCIPAL (novo) ===== */
-        .main-header {
+        /* ===== HEADER ===== */
+        .app-header {
             flex-shrink: 0;
-            height: var(--header-main-height);
-            background: var(--primary-gradient);
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            z-index: 25;
-            gap: 10px;
-            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .main-header i {
-            font-size: 24px;
-            color: #fff;
-        }
-
-        .main-header h1 {
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.3px;
-            margin: 0;
-        }
-
-        .main-header .badge-total {
-            margin-left: auto;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 12px;
-            border-radius: 20px;
-        }
-
-        /* ===== SUB HEADER (histórico / relatórios) ===== */
-        .sub-header {
-            flex-shrink: 0;
-            height: var(--header-sub-height);
+            min-height: var(--header-height);
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             background: rgba(255, 255, 255, 0.92);
             gap: 8px;
         }
 
-        .sub-header .title {
-            font-size: 16px;
+        .app-header .header-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-header .header-left h1 {
+            font-size: 17px;
             font-weight: 700;
-            color: var(--text);
+            letter-spacing: -0.3px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            white-space: nowrap;
+            gap: 8px;
+            margin: 0;
         }
 
-        .sub-header .title i {
+        .app-header .header-left h1 i {
             color: var(--primary);
-            font-size: 18px;
+            font-size: 20px;
         }
 
-        .sub-header .actions {
+        .app-header .header-left .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .app-header .header-actions {
             display: flex;
             align-items: center;
             gap: 6px;
             flex-shrink: 0;
         }
 
-        .sub-header .actions .btn {
-            font-size: 12px;
-            padding: 4px 12px;
+        .app-header .header-actions .btn {
+            font-size: 11px;
+            padding: 6px 12px;
             gap: 4px;
             white-space: nowrap;
+        }
+
+        .app-header .header-actions .badge-count {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 20px;
+            min-width: 24px;
+            text-align: center;
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -1174,18 +1165,14 @@
             .group-body .history-item .item-header .item-qty {
                 margin-left: 0;
             }
-            .sub-header {
+            .app-header {
                 flex-wrap: wrap;
                 height: auto;
-                min-height: var(--header-sub-height);
-                padding: 8px 12px;
+                min-height: var(--header-height);
             }
-            .sub-header .title {
-                font-size: 14px;
-            }
-            .sub-header .actions .btn {
-                font-size: 11px;
-                padding: 4px 8px;
+            .app-header .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
             }
         }
 
@@ -1247,30 +1234,26 @@
 <body>
 
     <div id="app">
-        <!-- ===== HEADER PRINCIPAL ===== -->
-        <header class="main-header">
-            <i class="fas fa-boxes"></i>
-            <h1>Controle de Retiradas</h1>
-            <span class="badge-total" id="mainTotalBadge">0</span>
+        <!-- HEADER MELHORADO -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1><i class="fas fa-boxes"></i> Histórico de Retiradas</h1>
+                <p class="subtitle">Visualize, exporte e imprima seus registros</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary btn-sm" id="exportGlobalPdfBtn" aria-label="Exportar tudo em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button class="btn btn-secondary btn-sm" id="exportGlobalImageBtn" aria-label="Exportar tudo como imagem"><i class="fas fa-image"></i> Imagem</button>
+                <span class="badge-count" id="totalBadge">0</span>
+            </div>
         </header>
 
-        <!-- ===== SUB HEADER (dinâmico) ===== -->
-        <div class="sub-header" id="subHeader">
-            <div class="title" id="subHeaderTitle">
-                <i class="fas fa-clock-rotate-left"></i> Histórico de Retiradas
-            </div>
-            <div class="actions" id="subHeaderActions">
-                <!-- Botões serão injetados via JS -->
-            </div>
-        </div>
-
-        <!-- ===== MAIN CONTENT ===== -->
+        <!-- MAIN CONTENT -->
         <div class="main-content" id="mainContent">
 
             <!-- ===== TAB: HISTÓRICO ===== -->
             <div class="tab-content active" id="tabHistory" role="tabpanel" aria-labelledby="tabHistoryBtn">
 
-                <!-- Filtros -->
+                <!-- Painel de filtros -->
                 <div class="history-filters">
                     <div class="filter-group">
                         <label for="filterDateStart">Data inicial</label>
@@ -1304,80 +1287,92 @@
                     <div class="filter-actions">
                         <button class="btn btn-primary" id="applyFiltersBtn"><i class="fas fa-filter"></i> Aplicar Filtros</button>
                         <button class="btn btn-secondary" id="clearFiltersBtn"><i class="fas fa-undo"></i> Limpar Filtros</button>
-                        <button class="btn btn-success" id="saveReportBtn"><i class="fas fa-save"></i> Salvar Relatório</button>
                     </div>
                 </div>
 
-                <!-- Container dos grupos -->
+                <!-- Container dos grupos agrupados por data -->
                 <div id="historyGroupContainer"></div>
                 <div id="historyResultCount" class="history-result-count"></div>
             </div>
 
             <!-- ===== TAB: RELATÓRIOS ===== -->
             <div class="tab-content" id="tabReports" role="tabpanel" aria-labelledby="tabReportsBtn">
-                <!-- Cabeçalho interno (já será substituído pelo sub-header, mas mantemos para consistência) -->
-                <div style="margin-bottom:16px;">
-                    <p style="font-size:14px; color:var(--text-secondary);">
-                        <i class="fas fa-file-alt" style="color:var(--primary);"></i>
-                        Visualize, exporte e imprima seus registros
-                    </p>
-                    <div style="display:flex; gap:8px; margin-top:6px;">
-                        <button class="btn btn-secondary btn-sm" id="reportExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
-                        <button class="btn btn-secondary btn-sm" id="reportExportImage"><i class="fas fa-image"></i> Imagem</button>
+                <!-- Cards de resumo -->
+                <div class="report-summary" id="reportSummary">
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportTotal">0</div>
+                        <div class="stat-label">Total de retiradas</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportItems">0</div>
+                        <div class="stat-label">Produtos distintos</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportSectors">0</div>
+                        <div class="stat-label">Setores envolvidos</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="stat-number" id="reportToday">0</div>
+                        <div class="stat-label">Retiradas hoje</div>
                     </div>
                 </div>
 
-                <!-- Filtros para relatórios -->
-                <div class="history-filters" style="margin-bottom:12px;">
-                    <div class="filter-group">
-                        <label for="reportFilterDateStart">Data inicial</label>
-                        <input type="date" class="form-control" id="reportFilterDateStart" />
+                <!-- Análises: por setor e produtos mais retirados -->
+                <div class="report-analysis-grid">
+                    <div class="report-analysis-card">
+                        <div class="analysis-title"><i class="fas fa-building"></i> Retiradas por setor</div>
+                        <div id="sectorAnalysis">
+                            <p class="text-muted" style="font-size:14px;">Nenhum registro</p>
+                        </div>
                     </div>
-                    <div class="filter-group">
-                        <label for="reportFilterDateEnd">Data final</label>
-                        <input type="date" class="form-control" id="reportFilterDateEnd" />
-                    </div>
-                    <div class="filter-group" style="flex: 2 0 100%;">
-                        <label for="reportFilterKeyword">Buscar por palavra-chave</label>
-                        <input type="text" class="form-control" id="reportFilterKeyword" placeholder="Ex.: produto, setor..." />
-                    </div>
-                    <div class="filter-group">
-                        <label for="reportFilterSort">Ordenar por</label>
-                        <select class="form-control" id="reportFilterSort">
-                            <option value="recent">Data (mais recente)</option>
-                            <option value="oldest">Data (mais antiga)</option>
-                            <option value="product">Produto (A-Z)</option>
-                            <option value="qty">Quantidade (maior)</option>
-                        </select>
-                    </div>
-                    <div class="filter-actions">
-                        <button class="btn btn-primary" id="reportApplyFiltersBtn"><i class="fas fa-filter"></i> Aplicar Filtros</button>
-                        <button class="btn btn-secondary" id="reportClearFiltersBtn"><i class="fas fa-undo"></i> Limpar Filtros</button>
+                    <div class="report-analysis-card">
+                        <div class="analysis-title"><i class="fas fa-trophy"></i> Produtos mais retirados</div>
+                        <div id="productRanking">
+                            <p class="text-muted" style="font-size:14px;">Nenhum registro</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Container dos grupos de relatórios -->
-                <div id="reportGroupContainer"></div>
-                <div id="reportResultCount" class="history-result-count"></div>
+                <!-- Exportação -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-export" style="color:var(--primary);"></i> Relatório completo para baixa</h3>
+                        <span class="badge-light" id="reportTotalBadge">0 retiradas</span>
+                    </div>
+                    <div class="report-actions">
+                        <button class="btn btn-primary" id="reportPdfBtn" aria-label="Gerar relatório PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-secondary" id="reportImageBtn" aria-label="Gerar relatório como imagem"><i class="fas fa-image"></i> Imagem</button>
+                    </div>
+                </div>
+
+                <!-- Detalhamento extra (opcional) -->
+                <div class="card" id="reportDetailCard" style="display:none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list" style="color:var(--primary);"></i> Detalhamento por produto</h3>
+                    </div>
+                    <div id="reportDetailList"></div>
+                </div>
             </div>
         </div>
 
-        <!-- ===== BOTTOM TAB BAR ===== -->
+        <!-- BOTTOM TAB BAR COM ÍCONES REPRESENTATIVOS -->
         <div class="tab-bar" id="tabBar">
+            <!-- Histórico -->
             <button class="tab-item active" data-tab="tabHistory" id="tabHistoryBtn" role="tab" aria-controls="tabHistory" aria-selected="true">
                 <i class="fas fa-clock-rotate-left"></i>
                 <span>Histórico</span>
                 <span class="tab-badge" id="historyBadge" style="display:none;">0</span>
             </button>
 
+            <!-- Botão central + (adicionar) -->
             <button class="tab-item center-btn" id="addButton" aria-label="Adicionar retirada">
                 <i class="fas fa-plus"></i>
             </button>
 
+            <!-- Relatórios -->
             <button class="tab-item" data-tab="tabReports" id="tabReportsBtn" role="tab" aria-controls="tabReports" aria-selected="false">
                 <i class="fas fa-chart-pie"></i>
                 <span>Relatórios</span>
-                <span class="tab-badge" id="reportsBadge" style="display:none;">0</span>
             </button>
         </div>
     </div>
@@ -1436,6 +1431,8 @@
                     <input type="text" class="form-control" id="formSector" placeholder="Ex: Almoxarifado A, Estoque 3..." />
                 </div>
 
+                <!-- Campos Lote e Operador REMOVIDOS -->
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="modalSubmit"><i class="fas fa-check"></i> Registrar</button>
@@ -1457,7 +1454,7 @@
         </div>
     </div>
 
-    <!-- ===== SPINNER ===== -->
+    <!-- ===== SPINNER DE CARREGAMENTO ===== -->
     <div class="spinner-overlay" id="loadingSpinner" aria-hidden="true">
         <div class="spinner"></div>
     </div>
@@ -1467,108 +1464,21 @@
 
     <script>
         // ============================================================
-        //  DATABASE - IndexedDB
+        //  DATA LAYER
         // ============================================================
-        class Database {
-            constructor(dbName = 'WithdrawalsDB', stores = ['history', 'reports']) {
-                this.dbName = dbName;
-                this.stores = stores;
-                this.db = null;
-            }
+        const STORAGE_KEY = 'production_withdrawals';
 
-            async init() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(this.dbName, 1);
-                    request.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        this.stores.forEach(storeName => {
-                            if (!db.objectStoreNames.contains(storeName)) {
-                                const store = db.createObjectStore(storeName, { keyPath: 'id' });
-                                store.createIndex('timestamp', 'timestamp', { unique: false });
-                                store.createIndex('product', 'product', { unique: false });
-                                store.createIndex('sector', 'sector', { unique: false });
-                                if (storeName === 'reports') {
-                                    store.createIndex('historyId', 'historyId', { unique: false });
-                                }
-                            }
-                        });
-                    };
-                    request.onsuccess = (e) => {
-                        this.db = e.target.result;
-                        resolve();
-                    };
-                    request.onerror = (e) => {
-                        reject(e.target.error);
-                    };
-                });
-            }
-
-            async add(storeName, data) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const request = store.add(data);
-                    request.onsuccess = () => resolve(data);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async getAll(storeName) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const request = store.getAll();
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async get(storeName, id) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const request = store.get(id);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async update(storeName, data) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const request = store.put(data);
-                    request.onsuccess = () => resolve(data);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async delete(storeName, id) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const request = store.delete(id);
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            // Buscar por índice
-            async getByIndex(storeName, indexName, value) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const index = store.index(indexName);
-                    const request = index.getAll(value);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            }
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch { return []; }
         }
 
-        // ============================================================
-        //  HELPERS
-        // ============================================================
+        function saveData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
         function generateId() {
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
         }
@@ -1614,10 +1524,6 @@
             return map[value] || value;
         }
 
-        function getDateKey(iso) {
-            return new Date(iso).toISOString().split('T')[0];
-        }
-
         function isToday(iso) {
             const today = new Date();
             const d = new Date(iso);
@@ -1626,42 +1532,15 @@
                 d.getDate() === today.getDate();
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function showToast(message, type = 'success', duration = 2800) {
-            const toast = document.getElementById('toast');
-            if (window.toastTimeout) { clearTimeout(window.toastTimeout);
-                window.toastTimeout = null; }
-            toast.className = 'toast';
-            toast.textContent = message;
-            if (type) toast.classList.add(type);
-            void toast.offsetWidth;
-            toast.classList.add('show');
-            window.toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-                window.toastTimeout = null;
-            }, duration);
-        }
-
-        function showLoading() {
-            document.getElementById('loadingSpinner').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingSpinner').classList.remove('active');
+        function getDateKey(iso) {
+            return new Date(iso).toISOString().split('T')[0];
         }
 
         // ============================================================
         //  STATE
         // ============================================================
-        const db = new Database();
+        let withdrawals = loadData();
         let editingId = null;
-        let editingStore = 'history'; // 'history' ou 'reports'
 
         // ============================================================
         //  DOM REFS
@@ -1669,43 +1548,13 @@
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => document.querySelectorAll(sel);
 
-        const mainTotalBadge = $('#mainTotalBadge');
-        const subHeader = $('#subHeader');
-        const subHeaderTitle = $('#subHeaderTitle');
-        const subHeaderActions = $('#subHeaderActions');
-
+        const mainContent = $('#mainContent');
         const tabHistory = $('#tabHistory');
         const tabReports = $('#tabReports');
         const tabItems = $$('.tab-item');
         const addButton = $('#addButton');
-
-        const historyGroupContainer = $('#historyGroupContainer');
-        const historyResultCount = $('#historyResultCount');
-        const reportGroupContainer = $('#reportGroupContainer');
-        const reportResultCount = $('#reportResultCount');
-
-        // Filtros Histórico
-        const filterDateStart = $('#filterDateStart');
-        const filterDateEnd = $('#filterDateEnd');
-        const filterTimeStart = $('#filterTimeStart');
-        const filterTimeEnd = $('#filterTimeEnd');
-        const filterKeyword = $('#filterKeyword');
-        const filterSort = $('#filterSort');
-        const applyFiltersBtn = $('#applyFiltersBtn');
-        const clearFiltersBtn = $('#clearFiltersBtn');
-        const saveReportBtn = $('#saveReportBtn');
-
-        // Filtros Relatórios
-        const reportFilterDateStart = $('#reportFilterDateStart');
-        const reportFilterDateEnd = $('#reportFilterDateEnd');
-        const reportFilterKeyword = $('#reportFilterKeyword');
-        const reportFilterSort = $('#reportFilterSort');
-        const reportApplyFiltersBtn = $('#reportApplyFiltersBtn');
-        const reportClearFiltersBtn = $('#reportClearFiltersBtn');
-
-        // Export relatórios
-        const reportExportPdf = $('#reportExportPdf');
-        const reportExportImage = $('#reportExportImage');
+        const totalBadge = $('#totalBadge');
+        const historyBadge = $('#historyBadge');
 
         // Modal
         const formModal = $('#formModal');
@@ -1723,16 +1572,103 @@
         const scannerContainer = $('#scanner-container');
         const scannerClose = $('#scannerClose');
 
-        const historyBadge = $('#historyBadge');
-        const reportsBadge = $('#reportsBadge');
+        // History filters
+        const filterDateStart = $('#filterDateStart');
+        const filterDateEnd = $('#filterDateEnd');
+        const filterTimeStart = $('#filterTimeStart');
+        const filterTimeEnd = $('#filterTimeEnd');
+        const filterKeyword = $('#filterKeyword');
+        const filterSort = $('#filterSort');
+        const applyFiltersBtn = $('#applyFiltersBtn');
+        const clearFiltersBtn = $('#clearFiltersBtn');
+
+        // History groups container
+        const historyGroupContainer = $('#historyGroupContainer');
+        const historyResultCount = $('#historyResultCount');
+
+        // Export global
+        const exportGlobalPdfBtn = $('#exportGlobalPdfBtn');
+        const exportGlobalImageBtn = $('#exportGlobalImageBtn');
+
+        // Reports
+        const reportTotal = $('#reportTotal');
+        const reportItems = $('#reportItems');
+        const reportSectors = $('#reportSectors');
+        const reportToday = $('#reportToday');
+        const reportTotalBadge = $('#reportTotalBadge');
+        const sectorAnalysis = $('#sectorAnalysis');
+        const productRanking = $('#productRanking');
+        const reportPdfBtn = $('#reportPdfBtn');
+        const reportImageBtn = $('#reportImageBtn');
+        const reportDetailCard = $('#reportDetailCard');
+        const reportDetailList = $('#reportDetailList');
+
+        // Loading spinner
+        const loadingSpinner = $('#loadingSpinner');
+
+        // Toast
+        const toast = $('#toast');
+        let toastTimeout = null;
 
         // ============================================================
-        //  FUNÇÕES DE FILTRAGEM
+        //  TOAST
         // ============================================================
-        function filterData(data, filters) {
-            const { dateStart, dateEnd, timeStart, timeEnd, keyword, sort } = filters;
-            let filtered = [...data];
+        function showToast(message, type = 'success', duration = 2800) {
+            if (toastTimeout) { clearTimeout(toastTimeout);
+                toastTimeout = null; }
+            toast.className = 'toast';
+            toast.textContent = message;
+            if (type) toast.classList.add(type);
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+                toastTimeout = null;
+            }, duration);
+        }
 
+        // ============================================================
+        //  LOADING SPINNER
+        // ============================================================
+        function showLoading() {
+            loadingSpinner.classList.add('active');
+        }
+
+        function hideLoading() {
+            loadingSpinner.classList.remove('active');
+        }
+
+        // ============================================================
+        //  RENDER
+        // ============================================================
+        function renderAll() {
+            renderBadge();
+            renderHistory();
+            renderReports();
+        }
+
+        function renderBadge() {
+            const count = withdrawals.length;
+            totalBadge.textContent = count;
+            if (count > 0) {
+                historyBadge.textContent = count;
+                historyBadge.style.display = 'flex';
+            } else {
+                historyBadge.style.display = 'none';
+            }
+        }
+
+        function getFilteredData() {
+            const dateStart = filterDateStart.value;
+            const dateEnd = filterDateEnd.value;
+            const timeStart = filterTimeStart.value;
+            const timeEnd = filterTimeEnd.value;
+            const keyword = filterKeyword.value.toLowerCase().trim();
+            const sort = filterSort.value;
+
+            let filtered = [...withdrawals];
+
+            // Filtro por data/hora
             filtered = filtered.filter(item => {
                 const dt = new Date(item.timestamp);
                 const dateStr = dt.toISOString().split('T')[0];
@@ -1745,8 +1681,8 @@
                 return true;
             });
 
+            // Busca por palavra-chave
             if (keyword) {
-                const kw = keyword.toLowerCase().trim();
                 filtered = filtered.filter(item => {
                     const searchable = [
                         item.product,
@@ -1754,10 +1690,11 @@
                         item.sector,
                         item.unit
                     ].join(' ').toLowerCase();
-                    return searchable.includes(kw);
+                    return searchable.includes(keyword);
                 });
             }
 
+            // Ordenação
             switch (sort) {
                 case 'recent':
                     filtered.sort((a, b) => b.timestamp - a.timestamp);
@@ -1774,41 +1711,50 @@
                 default:
                     filtered.sort((a, b) => b.timestamp - a.timestamp);
             }
+
             return filtered;
         }
 
         // ============================================================
-        //  RENDERIZAÇÃO GENÉRICA PARA GRUPOS
+        //  RENDER HISTORY GROUPED BY DATE
         // ============================================================
-        function renderGroups(container, resultCount, data, titlePrefix = '') {
-            if (data.length === 0) {
-                container.innerHTML = `
+        function renderHistory() {
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                historyGroupContainer.innerHTML = `
                     <div class="history-empty">
                         <i class="fas fa-clock"></i>
-                        <p>Nenhum registro encontrado</p>
+                        <p>Nenhuma retirada encontrada</p>
                     </div>
                 `;
-                resultCount.textContent = '';
+                historyResultCount.textContent = '';
                 return;
             }
 
+            // Agrupar por data (YYYY-MM-DD)
             const groups = {};
-            data.forEach(item => {
+            filtered.forEach(item => {
                 const key = getDateKey(item.timestamp);
                 if (!groups[key]) groups[key] = [];
                 groups[key].push(item);
             });
 
+            // Ordenar grupos por data (mais recente primeiro)
             const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
-            let html = '';
 
+            let html = '';
             sortedDates.forEach(dateKey => {
                 const items = groups[dateKey];
+                // ordenar itens por hora (mais recente primeiro)
                 items.sort((a, b) => b.timestamp - a.timestamp);
 
-                const displayDate = formatDateShort(items[0].timestamp);
+                const firstItem = items[0];
+                const displayDate = formatDateShort(firstItem.timestamp);
+                const displayTime = formatTime(firstItem.timestamp);
                 const count = items.length;
 
+                // Gerar HTML dos itens
                 let itemsHtml = '';
                 items.forEach(item => {
                     const qty = item.quantity;
@@ -1817,9 +1763,8 @@
                     const barcode = escapeHtml(item.barcode || '');
                     const sector = escapeHtml(item.sector || '');
 
-                    // Botões de ação: editar e excluir
                     itemsHtml += `
-                        <div class="history-item" data-id="${item.id}" data-store="${item.store || 'history'}">
+                        <div class="history-item" data-id="${item.id}">
                             <div class="item-header">
                                 <span class="item-time"><i class="fas fa-clock"></i> ${formatTime(item.timestamp)}</span>
                                 <span class="item-qty">${qty} ${unit}</span>
@@ -1830,21 +1775,29 @@
                                 ${sector ? `<span><i class="fas fa-location-dot"></i> ${sector}</span>` : ''}
                             </div>
                             <div class="item-actions">
-                                <button class="btn btn-primary btn-sm btn-icon-sm" onclick="editItem('${item.id}', '${item.store || 'history'}')" aria-label="Editar"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm btn-icon-sm" onclick="deleteItem('${item.id}', '${item.store || 'history'}')" aria-label="Excluir"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-primary btn-sm btn-icon-sm" onclick="editItem('${item.id}')" aria-label="Editar este item"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm btn-icon-sm" onclick="deleteItem('${item.id}')" aria-label="Excluir este item"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     `;
                 });
+
+                // Botões de exportação do grupo
+                const groupExportHtml = `
+                    <button class="btn btn-secondary btn-sm" onclick="exportGroupPdf('${dateKey}')" aria-label="Exportar grupo em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportGroupImage('${dateKey}')" aria-label="Exportar grupo como imagem"><i class="fas fa-image"></i> Imagem</button>
+                `;
 
                 html += `
                     <div class="history-group" data-date="${dateKey}">
                         <div class="group-header" onclick="toggleGroup(this)">
                             <div class="group-info">
                                 <span class="group-date"><i class="fas fa-calendar"></i> ${displayDate}</span>
+                                <span class="group-time"><i class="fas fa-clock"></i> ${displayTime}</span>
                                 <span class="group-count"><i class="fas fa-box"></i> ${count} item${count !== 1 ? 's' : ''}</span>
                             </div>
                             <div class="group-actions">
+                                ${groupExportHtml}
                                 <span class="group-toggle"><i class="fas fa-chevron-down"></i></span>
                             </div>
                         </div>
@@ -1855,77 +1808,12 @@
                 `;
             });
 
-            container.innerHTML = html;
-            resultCount.textContent = `${data.length} registro${data.length !== 1 ? 's' : ''} encontrado${data.length !== 1 ? 's' : ''}`;
+            historyGroupContainer.innerHTML = html;
+            historyResultCount.textContent = `${filtered.length} registro${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`;
         }
 
         // ============================================================
-        //  CARREGAR E RENDERIZAR HISTÓRICO
-        // ============================================================
-        async function loadHistory() {
-            const all = await db.getAll('history');
-            // Adicionar campo store para identificação
-            all.forEach(item => item.store = 'history');
-
-            const filters = {
-                dateStart: filterDateStart.value,
-                dateEnd: filterDateEnd.value,
-                timeStart: filterTimeStart.value,
-                timeEnd: filterTimeEnd.value,
-                keyword: filterKeyword.value,
-                sort: filterSort.value,
-            };
-            const filtered = filterData(all, filters);
-            renderGroups(historyGroupContainer, historyResultCount, filtered);
-            updateBadges();
-        }
-
-        // ============================================================
-        //  CARREGAR E RENDERIZAR RELATÓRIOS
-        // ============================================================
-        async function loadReports() {
-            const all = await db.getAll('reports');
-            all.forEach(item => item.store = 'reports');
-
-            const filters = {
-                dateStart: reportFilterDateStart.value,
-                dateEnd: reportFilterDateEnd.value,
-                timeStart: '', // relatórios não têm filtro de hora
-                timeEnd: '',
-                keyword: reportFilterKeyword.value,
-                sort: reportFilterSort.value,
-            };
-            const filtered = filterData(all, filters);
-            renderGroups(reportGroupContainer, reportResultCount, filtered);
-            updateBadges();
-        }
-
-        // ============================================================
-        //  ATUALIZAR BADGES
-        // ============================================================
-        async function updateBadges() {
-            const history = await db.getAll('history');
-            const reports = await db.getAll('reports');
-            const total = history.length;
-            mainTotalBadge.textContent = total;
-
-            if (history.length > 0) {
-                historyBadge.textContent = history.length;
-                historyBadge.style.display = 'flex';
-            } else {
-                historyBadge.style.display = 'none';
-            }
-
-            if (reports.length > 0) {
-                reportsBadge.textContent = reports.length;
-                reportsBadge.style.display = 'flex';
-            } else {
-                reportsBadge.style.display = 'none';
-            }
-        }
-
-        // ============================================================
-        //  TOGGLE GROUP
+        //  GROUP TOGGLE
         // ============================================================
         function toggleGroup(headerEl) {
             const group = headerEl.closest('.history-group');
@@ -1935,110 +1823,131 @@
         }
 
         // ============================================================
-        //  EDITAR ITEM
+        //  EXPORT GROUP FUNCTIONS
         // ============================================================
-        function editItem(id, store) {
-            editingId = id;
-            editingStore = store;
-            // Buscar dados e preencher modal
-            db.get(store, id).then(item => {
-                if (!item) {
-                    showToast('Item não encontrado', 'error');
-                    return;
-                }
-                formProduct.value = item.product || '';
-                formBarcode.value = item.barcode || '';
-                formQuantity.value = item.quantity || '';
-                formUnit.value = item.unit || 'un';
-                formSector.value = item.sector || '';
-                document.querySelector('.modal-title').textContent = 'Editar Retirada';
-                modalSubmit.textContent = 'Atualizar';
-                formModal.classList.add('open');
-                document.body.style.overflow = 'hidden';
+        function getGroupData(dateKey) {
+            const filtered = getFilteredData();
+            return filtered.filter(item => getDateKey(item.timestamp) === dateKey);
+        }
+
+        function exportGroupPdf(dateKey) {
+            const data = getGroupData(dateKey);
+            if (data.length === 0) {
+                showToast('Nenhum dado neste grupo', 'warning');
+                return;
+            }
+            const title = `Retiradas - ${formatDate(data[0].timestamp)}`;
+            generateGenericReportPDF(data, title);
+        }
+
+        function exportGroupImage(dateKey) {
+            const data = getGroupData(dateKey);
+            if (data.length === 0) {
+                showToast('Nenhum dado neste grupo', 'warning');
+                return;
+            }
+            generateGroupImage(data, dateKey);
+        }
+
+        function generateGroupImage(data, dateKey) {
+            showLoading();
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed; left: -9999px; top: 0;
+                width: 800px; background: #ffffff;
+                font-family: 'Inter', -apple-system, sans-serif;
+                padding: 40px 32px;
+                border-radius: 0;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            `;
+
+            const title = `Retiradas - ${formatDate(data[0].timestamp)}`;
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            container.innerHTML = `
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:22px; font-weight:700; color:#0f172a;">${title}</div>
+                    <div style="font-size:14px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; font-size:12px; color:#64748b; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
+                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:8px 8px; font-family:monospace; font-size:12px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
+                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
+                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
+                                <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
+                                <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; text-align:center;">
+                    Sistema de Retirada para Produção • Relatório gerado automaticamente
+                </div>
+            `;
+
+            document.body.appendChild(container);
+
+            html2canvas(container, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `retiradas_${dateKey}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Imagem do grupo exportada!', 'success');
             }).catch(err => {
-                showToast('Erro ao carregar item', 'error');
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Erro ao gerar imagem', 'error');
                 console.error(err);
             });
         }
 
         // ============================================================
-        //  EXCLUIR ITEM
+        //  EXPORT GLOBAL (header)
         // ============================================================
-        async function deleteItem(id, store) {
-            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
-            try {
-                await db.delete(store, id);
-                showToast('Registro excluído', 'success');
-                // Recarregar a aba atual
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab) {
-                    if (activeTab.id === 'tabHistory') await loadHistory();
-                    else if (activeTab.id === 'tabReports') await loadReports();
-                }
-                updateBadges();
-            } catch (err) {
-                showToast('Erro ao excluir', 'error');
-                console.error(err);
-            }
-        }
-
-        // ============================================================
-        //  SALVAR RELATÓRIO (copia do histórico filtrado)
-        // ============================================================
-        async function saveReport() {
-            const allHistory = await db.getAll('history');
-            const filters = {
-                dateStart: filterDateStart.value,
-                dateEnd: filterDateEnd.value,
-                timeStart: filterTimeStart.value,
-                timeEnd: filterTimeEnd.value,
-                keyword: filterKeyword.value,
-                sort: filterSort.value,
-            };
-            const filtered = filterData(allHistory, filters);
-
-            if (filtered.length === 0) {
-                showToast('Nenhum registro para salvar como relatório', 'warning');
-                return;
-            }
-
-            showLoading();
-            try {
-                for (const item of filtered) {
-                    // Cria uma cópia para o relatório
-                    const reportItem = {
-                        id: generateId(),
-                        historyId: item.id, // vincula ao histórico original
-                        product: item.product,
-                        barcode: item.barcode || '',
-                        quantity: item.quantity,
-                        unit: item.unit,
-                        sector: item.sector || '',
-                        timestamp: item.timestamp,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                    };
-                    await db.add('reports', reportItem);
-                }
-                showToast(`${filtered.length} registro(s) salvos como relatório`, 'success');
-                await loadReports();
-                updateBadges();
-            } catch (err) {
-                showToast('Erro ao salvar relatório', 'error');
-                console.error(err);
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // ============================================================
-        //  EXPORTAÇÕES (PDF / IMAGEM) - genéricas
-        // ============================================================
-        function generatePDF(data, title = 'RELATÓRIO') {
+        exportGlobalPdfBtn.addEventListener('click', () => {
+            const data = getFilteredData();
             if (data.length === 0) {
-                showToast('Nenhum dado para exportar', 'warning');
+                showToast('Não há dados para exportar', 'warning');
                 return;
             }
+            generateGenericReportPDF(data, 'RELATÓRIO GERENCIAL - RETIRADAS');
+        });
+
+        exportGlobalImageBtn.addEventListener('click', () => {
+            const data = getFilteredData();
+            if (data.length === 0) {
+                showToast('Não há dados para exportar', 'warning');
+                return;
+            }
+            generateHistoryImage(data);
+        });
+
+        // ============================================================
+        //  GENERIC PDF
+        // ============================================================
+        function generateGenericReportPDF(data, title = 'RELATÓRIO GERENCIAL') {
             showLoading();
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
@@ -2109,20 +2018,18 @@
             const finalY = doc.lastAutoTable.finalY + 6;
             doc.setFontSize(8);
             doc.setFont('helvetica', 'italic');
-            doc.text('Controle de Retiradas - Sistema', pageWidth / 2, finalY, { align: 'center' });
+            doc.text('Sistema de Retirada para Produção', pageWidth / 2, finalY, { align: 'center' });
 
-            doc.save(`relatorio_${new Date().toISOString().slice(0,10)}.pdf`);
+            doc.save(`relatorio_gerencial_${new Date().toISOString().slice(0,10)}.pdf`);
             hideLoading();
-            showToast('PDF gerado com sucesso!', 'success');
+            showToast('Relatório PDF gerado com sucesso!', 'success');
         }
 
-        function generateImage(data, title = 'RELATÓRIO') {
-            if (data.length === 0) {
-                showToast('Nenhum dado para exportar', 'warning');
-                return;
-            }
+        // ============================================================
+        //  GENERATE HISTORY IMAGE (global)
+        // ============================================================
+        function generateHistoryImage(data) {
             showLoading();
-
             const container = document.createElement('div');
             container.style.cssText = `
                 position: fixed; left: -9999px; top: 0;
@@ -2144,7 +2051,7 @@
 
             container.innerHTML = `
                 <div style="text-align:center; margin-bottom:20px;">
-                    <div style="font-size:22px; font-weight:700; color:#0f172a;">${title}</div>
+                    <div style="font-size:22px; font-weight:700; color:#0f172a;">RETIRADAS -</div>
                     <div style="font-size:14px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
                 </div>
                 <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748b; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
@@ -2174,7 +2081,7 @@
                     </tbody>
                 </table>
                 <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; text-align:center;">
-                    Controle de Retiradas - Sistema
+                    Sistema de Retirada para Produção • Relatório gerado automaticamente
                 </div>
             `;
 
@@ -2187,7 +2094,7 @@
                 logging: false,
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `relatorio_${new Date().toISOString().slice(0,10)}.png`;
+                link.download = `retiradas_${new Date().toISOString().slice(0,10)}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 document.body.removeChild(container);
@@ -2202,86 +2109,119 @@
         }
 
         // ============================================================
-        //  EXPORTAÇÕES DOS RELATÓRIOS (aba Relatórios)
+        //  REPORTS
         // ============================================================
-        async function exportReportsPDF() {
-            const all = await db.getAll('reports');
-            const filters = {
-                dateStart: reportFilterDateStart.value,
-                dateEnd: reportFilterDateEnd.value,
-                timeStart: '',
-                timeEnd: '',
-                keyword: reportFilterKeyword.value,
-                sort: reportFilterSort.value,
-            };
-            const filtered = filterData(all, filters);
-            generatePDF(filtered, 'RELATÓRIO DE RETIRADAS');
-        }
+        function renderReports() {
+            const total = withdrawals.length;
+            const items = new Set(withdrawals.map(w => w.product.toLowerCase())).size;
+            const sectorsSet = new Set(withdrawals.map(w => w.sector || 'Sem setor').filter(s => s.trim() !== ''));
+            const sectors = sectorsSet.size;
+            const todayCount = withdrawals.filter(w => isToday(w.timestamp)).length;
 
-        async function exportReportsImage() {
-            const all = await db.getAll('reports');
-            const filters = {
-                dateStart: reportFilterDateStart.value,
-                dateEnd: reportFilterDateEnd.value,
-                timeStart: '',
-                timeEnd: '',
-                keyword: reportFilterKeyword.value,
-                sort: reportFilterSort.value,
-            };
-            const filtered = filterData(all, filters);
-            generateImage(filtered, 'RELATÓRIO DE RETIRADAS');
-        }
+            reportTotal.textContent = total;
+            reportItems.textContent = items;
+            reportSectors.textContent = sectors;
+            reportToday.textContent = todayCount;
+            reportTotalBadge.textContent = `${total} retirada${total !== 1 ? 's' : ''}`;
 
-        // ============================================================
-        //  SUB HEADER DINÂMICO
-        // ============================================================
-        function updateSubHeader(tabId) {
-            if (tabId === 'tabHistory') {
-                subHeaderTitle.innerHTML = `<i class="fas fa-clock-rotate-left"></i> Histórico de Retiradas`;
-                subHeaderActions.innerHTML = `
-                    <button class="btn btn-secondary btn-sm" id="historyExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button class="btn btn-secondary btn-sm" id="historyExportImage"><i class="fas fa-image"></i> Imagem</button>
-                `;
-                // Adicionar eventos
-                const pdfBtn = document.getElementById('historyExportPdf');
-                const imgBtn = document.getElementById('historyExportImage');
-                if (pdfBtn) pdfBtn.onclick = async () => {
-                    const all = await db.getAll('history');
-                    const filters = {
-                        dateStart: filterDateStart.value,
-                        dateEnd: filterDateEnd.value,
-                        timeStart: filterTimeStart.value,
-                        timeEnd: filterTimeEnd.value,
-                        keyword: filterKeyword.value,
-                        sort: filterSort.value,
-                    };
-                    const filtered = filterData(all, filters);
-                    generatePDF(filtered, 'HISTÓRICO DE RETIRADAS');
-                };
-                if (imgBtn) imgBtn.onclick = async () => {
-                    const all = await db.getAll('history');
-                    const filters = {
-                        dateStart: filterDateStart.value,
-                        dateEnd: filterDateEnd.value,
-                        timeStart: filterTimeStart.value,
-                        timeEnd: filterTimeEnd.value,
-                        keyword: filterKeyword.value,
-                        sort: filterSort.value,
-                    };
-                    const filtered = filterData(all, filters);
-                    generateImage(filtered, 'HISTÓRICO DE RETIRADAS');
-                };
-            } else if (tabId === 'tabReports') {
-                subHeaderTitle.innerHTML = `<i class="fas fa-file-alt"></i> Relatórios Salvos`;
-                subHeaderActions.innerHTML = `
-                    <button class="btn btn-secondary btn-sm" id="reportHeaderExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button class="btn btn-secondary btn-sm" id="reportHeaderExportImage"><i class="fas fa-image"></i> Imagem</button>
-                `;
-                const pdfBtn = document.getElementById('reportHeaderExportPdf');
-                const imgBtn = document.getElementById('reportHeaderExportImage');
-                if (pdfBtn) pdfBtn.onclick = exportReportsPDF;
-                if (imgBtn) imgBtn.onclick = exportReportsImage;
+            // Análise por setor
+            const sectorMap = {};
+            withdrawals.forEach(w => {
+                const key = w.sector && w.sector.trim() ? w.sector.trim() : 'Sem setor';
+                sectorMap[key] = (sectorMap[key] || 0) + 1;
+            });
+            const sortedSectors = Object.entries(sectorMap).sort((a, b) => b[1] - a[1]);
+
+            if (sortedSectors.length === 0) {
+                sectorAnalysis.innerHTML = `<p class="text-muted" style="font-size:14px;">Nenhum registro</p>`;
+            } else {
+                let html = `<ul class="analysis-list">`;
+                sortedSectors.forEach(([sector, count]) => {
+                    html += `
+                        <li>
+                            <span class="item-name">${escapeHtml(sector)}</span>
+                            <span class="item-value"><strong>${count}</strong> registro${count !== 1 ? 's' : ''}</span>
+                        </li>
+                    `;
+                });
+                html += `</ul>`;
+                sectorAnalysis.innerHTML = html;
             }
+
+            // Ranking de produtos por quantidade total
+            const productMap = {};
+            withdrawals.forEach(w => {
+                const key = w.product.toLowerCase();
+                if (!productMap[key]) {
+                    productMap[key] = { product: w.product, qty: 0 };
+                }
+                productMap[key].qty += Number(w.quantity);
+            });
+            const sortedProducts = Object.values(productMap).sort((a, b) => b.qty - a.qty);
+
+            if (sortedProducts.length === 0) {
+                productRanking.innerHTML = `<p class="text-muted" style="font-size:14px;">Nenhum registro</p>`;
+            } else {
+                let html = `<ul class="analysis-list">`;
+                sortedProducts.forEach((p, index) => {
+                    const rank = index + 1;
+                    const unit = withdrawals.find(w => w.product.toLowerCase() === p.product.toLowerCase())?.unit || 'un';
+                    html += `
+                        <li>
+                            <span class="item-name">
+                                <span class="rank-number">${rank}</span>
+                                ${escapeHtml(p.product)}
+                            </span>
+                            <span class="item-value"><strong>${p.qty.toFixed(1)}</strong> ${getUnitLabel(unit)}</span>
+                        </li>
+                    `;
+                });
+                html += `</ul>`;
+                productRanking.innerHTML = html;
+            }
+
+            // Detalhamento por produto
+            if (withdrawals.length === 0) {
+                reportDetailCard.style.display = 'none';
+                return;
+            }
+
+            const detailMap = {};
+            withdrawals.forEach(w => {
+                const key = w.product.toLowerCase();
+                if (!detailMap[key]) {
+                    detailMap[key] = { product: w.product, qty: 0, unit: w.unit, count: 0 };
+                }
+                detailMap[key].qty += Number(w.quantity);
+                detailMap[key].count += 1;
+            });
+
+            const sortedDetail = Object.values(detailMap).sort((a, b) => b.qty - a.qty);
+
+            let detailHtml = `<div class="history-list">`;
+            sortedDetail.forEach(p => {
+                detailHtml += `
+                    <div class="history-item" style="padding:10px 14px;">
+                        <div class="item-header" style="margin-bottom:0;">
+                            <span class="item-date">${escapeHtml(p.product)}</span>
+                            <span class="item-qty">${p.qty.toFixed(1)} ${getUnitLabel(p.unit)}</span>
+                        </div>
+                        <div class="item-details" style="margin-top:4px; font-size:12px;">
+                            <span>${p.count} retirada${p.count !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            detailHtml += `</div>`;
+            reportDetailList.innerHTML = detailHtml;
+            reportDetailCard.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // ============================================================
@@ -2302,27 +2242,64 @@
                 btn.setAttribute('aria-selected', 'true');
             }
 
-            updateSubHeader(tabId);
+            if (target) {
+                target.style.animation = 'none';
+                void target.offsetWidth;
+                target.style.animation = 'fadeUp 0.3s ease';
+            }
 
-            if (tabId === 'tabHistory') loadHistory();
-            if (tabId === 'tabReports') loadReports();
+            if (tabId === 'tabHistory') renderHistory();
+            if (tabId === 'tabReports') renderReports();
 
             try {
                 sessionStorage.setItem('activeTab', tabId);
             } catch {}
         }
 
+        document.querySelectorAll('.tab-item[data-tab]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                if (tabId) switchTab(tabId);
+            });
+        });
+
+        addButton.addEventListener('click', () => {
+            openModal(null);
+        });
+
         // ============================================================
         //  MODAL
         // ============================================================
+        function openModal(data) {
+            if (data) {
+                editingId = data.id;
+                formProduct.value = data.product || '';
+                formBarcode.value = data.barcode || '';
+                formQuantity.value = data.quantity || '';
+                formUnit.value = data.unit || 'un';
+                formSector.value = data.sector || '';
+                document.querySelector('.modal-title').textContent = 'Editar Retirada';
+                modalSubmit.textContent = 'Atualizar';
+            } else {
+                editingId = null;
+                form.reset();
+                formUnit.value = 'un';
+                document.querySelector('.modal-title').textContent = 'Nova Retirada';
+                modalSubmit.textContent = 'Registrar';
+                setTimeout(() => formProduct.focus(), 350);
+            }
+            formModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
         function closeModal() {
             formModal.classList.remove('open');
             document.body.style.overflow = '';
             editingId = null;
-            editingStore = 'history';
         }
 
         modalCancel.addEventListener('click', closeModal);
+
         formModal.addEventListener('click', (e) => {
             if (e.target === formModal) closeModal();
         });
@@ -2330,7 +2307,7 @@
         // ============================================================
         //  FORM SUBMIT
         // ============================================================
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
 
             const product = formProduct.value.trim();
@@ -2344,11 +2321,13 @@
                 formProduct.focus();
                 return;
             }
+
             if (isNaN(quantity) || quantity <= 0) {
                 showToast('Informe uma quantidade válida', 'error');
                 formQuantity.focus();
                 return;
             }
+
             if (!unit) {
                 showToast('Selecione a unidade de medida', 'error');
                 return;
@@ -2356,16 +2335,11 @@
 
             const now = new Date().toISOString();
 
-            if (editingId && editingStore) {
-                // Edição
-                try {
-                    const item = await db.get(editingStore, editingId);
-                    if (!item) {
-                        showToast('Item não encontrado', 'error');
-                        return;
-                    }
-                    const updated = {
-                        ...item,
+            if (editingId) {
+                const index = withdrawals.findIndex(w => w.id === editingId);
+                if (index !== -1) {
+                    withdrawals[index] = {
+                        ...withdrawals[index],
                         product,
                         barcode,
                         quantity,
@@ -2373,96 +2347,114 @@
                         sector: sector || '',
                         updatedAt: now,
                     };
-                    await db.update(editingStore, updated);
-
-                    // Se for histórico, atualizar também os relatórios vinculados
-                    if (editingStore === 'history') {
-                        const relatedReports = await db.getByIndex('reports', 'historyId', editingId);
-                        for (const rep of relatedReports) {
-                            const repUpdated = {
-                                ...rep,
-                                product,
-                                barcode,
-                                quantity,
-                                unit,
-                                sector: sector || '',
-                                updatedAt: now,
-                            };
-                            await db.update('reports', repUpdated);
-                        }
-                    }
-
                     showToast('Registro atualizado com sucesso!', 'success');
-                    closeModal();
-                    // Recarregar abas
-                    await loadHistory();
-                    await loadReports();
-                    updateBadges();
-                } catch (err) {
-                    showToast('Erro ao atualizar', 'error');
-                    console.error(err);
                 }
-                return;
-            }
-
-            // Novo registro (sempre no histórico)
-            try {
+            } else {
                 const newRecord = {
                     id: generateId(),
                     product,
-                    barcode: barcode || '',
+                    barcode,
                     quantity,
                     unit,
                     sector: sector || '',
                     timestamp: now,
                     createdAt: now,
-                    updatedAt: now,
                 };
-                await db.add('history', newRecord);
+                withdrawals.push(newRecord);
                 showToast('Retirada registrada com sucesso!', 'success');
-                closeModal();
-                await loadHistory();
-                updateBadges();
-            } catch (err) {
-                showToast('Erro ao registrar', 'error');
-                console.error(err);
+            }
+
+            saveData(withdrawals);
+            closeModal();
+            renderAll();
+
+            if (document.querySelector('#tabHistory.active')) {
+                renderHistory();
+            }
+            if (document.querySelector('#tabReports.active')) {
+                renderReports();
             }
         });
 
         // ============================================================
-        //  SCANNER
+        //  EDIT / DELETE INDIVIDUAL
+        // ============================================================
+        function editItem(id) {
+            const item = withdrawals.find(w => w.id === id);
+            if (item) {
+                openModal(item);
+            } else {
+                showToast('Item não encontrado', 'error');
+            }
+        }
+
+        function deleteItem(id) {
+            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+            withdrawals = withdrawals.filter(w => w.id !== id);
+            saveData(withdrawals);
+            renderAll();
+            showToast('Registro excluído', 'success');
+        }
+
+        // ============================================================
+        //  SCANNER (html5-qrcode)
         // ============================================================
         let html5QrCode = null;
         let isScannerRunning = false;
 
         async function startScanner() {
             if (isScannerRunning) return;
+
             scannerOverlay.classList.add('open');
             document.body.style.overflow = 'hidden';
 
             try {
                 scannerContainer.innerHTML = '';
+
                 const reader = new Html5Qrcode('scanner-container');
-                const config = { fps: 15, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 };
+
+                const config = {
+                    fps: 15,
+                    qrbox: { width: 220, height: 220 },
+                    aspectRatio: 1.0,
+                };
+
+                const formats = [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.QR_CODE,
+                    Html5QrcodeSupportedFormats.DATA_MATRIX,
+                ];
 
                 await reader.start({ facingMode: 'environment' },
                     config,
                     (decodedText) => {
-                        formBarcode.value = decodedText;
-                        showToast(`Código lido: ${decodedText}`, 'success', 1800);
-                        stopScanner();
-                        scannerOverlay.classList.remove('open');
-                        document.body.style.overflow = '';
-                        formQuantity.focus();
+                        handleScanSuccess(decodedText);
                     },
                     (errorMessage) => {}
                 );
+
                 html5QrCode = reader;
                 isScannerRunning = true;
+
             } catch (err) {
-                showToast('Erro ao acessar a câmera', 'error');
+                console.error('Erro ao iniciar scanner:', err);
+                showToast('Erro ao acessar a câmera. Verifique as permissões.', 'error');
                 stopScanner();
             }
+        }
+
+        function handleScanSuccess(decodedText) {
+            formBarcode.value = decodedText;
+            showToast(`Código lido: ${decodedText}`, 'success', 1800);
+            stopScanner();
+            scannerOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+            formQuantity.focus();
         }
 
         async function stopScanner() {
@@ -2483,38 +2475,21 @@
             document.body.style.overflow = '';
         });
 
-        document.querySelectorAll('#scanBarcodeBtn, #scanBarcodeBtnAlt').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                startScanner();
-            });
+        const scanButtons = ['#scanBarcodeBtn', '#scanBarcodeBtnAlt'];
+        scanButtons.forEach(sel => {
+            const btn = document.querySelector(sel);
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    startScanner();
+                });
+            }
         });
 
         // ============================================================
-        //  EVENTOS
+        //  FILTERS ACTIONS
         // ============================================================
-        // Tabs
-        document.querySelectorAll('.tab-item[data-tab]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tabId = btn.dataset.tab;
-                if (tabId) switchTab(tabId);
-            });
-        });
-
-        addButton.addEventListener('click', () => {
-            editingId = null;
-            editingStore = 'history';
-            form.reset();
-            formUnit.value = 'un';
-            document.querySelector('.modal-title').textContent = 'Nova Retirada';
-            modalSubmit.textContent = 'Registrar';
-            formModal.classList.add('open');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => formProduct.focus(), 350);
-        });
-
-        // Filtros
-        applyFiltersBtn.addEventListener('click', loadHistory);
+        applyFiltersBtn.addEventListener('click', renderHistory);
         clearFiltersBtn.addEventListener('click', () => {
             filterDateStart.value = '';
             filterDateEnd.value = '';
@@ -2522,26 +2497,113 @@
             filterTimeEnd.value = '';
             filterKeyword.value = '';
             filterSort.value = 'recent';
-            loadHistory();
+            renderHistory();
         });
 
-        reportApplyFiltersBtn.addEventListener('click', loadReports);
-        reportClearFiltersBtn.addEventListener('click', () => {
-            reportFilterDateStart.value = '';
-            reportFilterDateEnd.value = '';
-            reportFilterKeyword.value = '';
-            reportFilterSort.value = 'recent';
-            loadReports();
+        // ============================================================
+        //  REPORTS EXPORT (PDF e Imagem - relatório completo)
+        // ============================================================
+        reportPdfBtn.addEventListener('click', () => {
+            if (withdrawals.length === 0) {
+                showToast('Não há dados para gerar relatório', 'warning');
+                return;
+            }
+            const sorted = [...withdrawals].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+            generateGenericReportPDF(sorted, 'RELATÓRIO GERENCIAL - COMPLETO');
         });
 
-        // Salvar relatório
-        saveReportBtn.addEventListener('click', saveReport);
+        reportImageBtn.addEventListener('click', () => {
+            if (withdrawals.length === 0) {
+                showToast('Não há dados para gerar relatório', 'warning');
+                return;
+            }
+            generateFullReportImage();
+        });
 
-        // Exportações dos relatórios (botões dentro da aba)
-        reportExportPdf.addEventListener('click', exportReportsPDF);
-        reportExportImage.addEventListener('click', exportReportsImage);
+        function generateFullReportImage() {
+            showLoading();
+            const data = [...withdrawals].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
-        // Teclado
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed; left: -9999px; top: 0;
+                width: 1000px; background: #ffffff;
+                font-family: 'Inter', -apple-system, sans-serif;
+                padding: 40px 36px;
+                border-radius: 0;
+            `;
+
+            let periodo = '— a —';
+            if (data.length > 0) {
+                const first = data[0].timestamp;
+                const last = data[data.length - 1].timestamp;
+                periodo = `${formatDate(first)} a ${formatDate(last)}`;
+            }
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            container.innerHTML = `
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:28px; font-weight:700; color:#0f172a;">RELATÓRIO GERENCIAL</div>
+                    <div style="font-size:16px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                    <div><strong>Período:</strong> ${periodo}</div>
+                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
+                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:8px 8px; font-family:monospace; font-size:12px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
+                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
+                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
+                                <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
+                                <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top:24px; padding-top:14px; border-top:1px solid #e2e8f0; font-size:12px; color:#94a3b8; text-align:center;">
+                    Sistema de Retirada para Produção • Relatório completo gerado automaticamente
+                </div>
+            `;
+
+            document.body.appendChild(container);
+
+            html2canvas(container, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `relatorio_gerencial_${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Relatório em imagem gerado com sucesso!', 'success');
+            }).catch(err => {
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Erro ao gerar imagem', 'error');
+                console.error(err);
+            });
+        }
+
+        // ============================================================
+        //  KEYBOARD SHORTCUTS
+        // ============================================================
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (scannerOverlay.classList.contains('open')) {
@@ -2558,43 +2620,28 @@
         // ============================================================
         //  INIT
         // ============================================================
-        async function init() {
-            showLoading();
+        function init() {
+            renderAll();
+
             try {
-                await db.init();
-                // Inicializar com alguns dados de exemplo se estiver vazio
-                const historyCount = (await db.getAll('history')).length;
-                if (historyCount === 0) {
-                    // Dados de exemplo
-                    const sample = [
-                        { id: generateId(), product: 'Parafuso M8', barcode: '789123', quantity: 50, unit: 'un',
-                            sector: 'Almoxarifado A', timestamp: new Date().toISOString(), createdAt: new Date()
-                                .toISOString(), updatedAt: new Date().toISOString() },
-                        { id: generateId(), product: 'Arruela 1/2', barcode: '456789', quantity: 100, unit: 'un',
-                            sector: 'Estoque 3', timestamp: new Date(Date.now() - 86400000).toISOString(),
-                            createdAt: new Date(Date.now() - 86400000).toISOString(), updatedAt: new Date(Date.now() -
-                                86400000).toISOString() },
-                    ];
-                    for (const item of sample) {
-                        await db.add('history', item);
-                    }
-                }
-
-                // Carregar aba inicial
                 const saved = sessionStorage.getItem('activeTab');
-                const initialTab = (saved && document.getElementById(saved)) ? saved : 'tabHistory';
-                switchTab(initialTab);
-
-                // Atualiza badges
-                await updateBadges();
-
-                console.log('✅ Sistema Controle de Retiradas (IndexedDB)');
-            } catch (err) {
-                showToast('Erro ao inicializar banco de dados', 'error');
-                console.error(err);
-            } finally {
-                hideLoading();
+                if (saved && document.getElementById(saved)) {
+                    switchTab(saved);
+                } else {
+                    switchTab('tabHistory');
+                }
+            } catch {
+                switchTab('tabHistory');
             }
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    renderAll();
+                }
+            });
+
+            console.log('✅ Sistema de Retirada para Produção (agrupado por data)');
+            console.log(`📦 ${withdrawals.length} registros carregados`);
         }
 
         if (document.readyState === 'loading') {
@@ -2603,5 +2650,6 @@
             init();
         }
     </script>
+
 </body>
 </html>
