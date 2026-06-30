@@ -50,7 +50,7 @@
             --radius-xs: 6px;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --tab-height: 68px;
-            --header-height: 56px;
+            --header-height: 72px;
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -68,7 +68,6 @@
             overflow: hidden;
         }
 
-        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -81,7 +80,6 @@
             border-radius: 8px;
         }
 
-        /* ===== APP CONTAINER ===== */
         #app {
             display: flex;
             flex-direction: column;
@@ -96,39 +94,63 @@
         /* ===== HEADER ===== */
         .app-header {
             flex-shrink: 0;
-            height: var(--header-height);
+            min-height: var(--header-height);
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 12px 16px;
             position: sticky;
             top: 0;
             z-index: 20;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             background: rgba(255, 255, 255, 0.92);
+            gap: 8px;
         }
 
-        .app-header h1 {
+        .app-header .header-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-header .header-left h1 {
             font-size: 17px;
             font-weight: 700;
             letter-spacing: -0.3px;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin: 0;
         }
 
-        .app-header h1 i {
+        .app-header .header-left h1 i {
             color: var(--primary);
             font-size: 20px;
+        }
+
+        .app-header .header-left .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .app-header .header-actions {
             display: flex;
             align-items: center;
             gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .app-header .header-actions .btn {
+            font-size: 11px;
+            padding: 6px 12px;
+            gap: 4px;
+            white-space: nowrap;
         }
 
         .app-header .header-actions .badge-count {
@@ -138,6 +160,8 @@
             font-weight: 600;
             padding: 2px 10px;
             border-radius: 20px;
+            min-width: 24px;
+            text-align: center;
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -145,14 +169,13 @@
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: calc(var(--tab-height) + var(--safe-bottom) + 8px);
+            padding: 12px 16px calc(var(--tab-height) + var(--safe-bottom) + 12px);
             -webkit-overflow-scrolling: touch;
         }
 
         /* ===== TABS ===== */
         .tab-content {
             display: none;
-            padding: 16px 16px 0;
             animation: fadeUp 0.3s ease;
         }
 
@@ -249,7 +272,6 @@
             padding: 0 5px;
         }
 
-        /* Botão central de adicionar */
         .tab-item.center-btn {
             flex: 0 0 64px;
             margin-top: -18px;
@@ -672,7 +694,196 @@
             }
         }
 
-        /* ===== HISTORY LIST ===== */
+        /* ===== HISTORY GROUP (ACORDEÃO) ===== */
+        .history-group {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--surface);
+            cursor: pointer;
+            gap: 8px;
+            flex-wrap: wrap;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.15s;
+        }
+
+        .group-header:active {
+            background: var(--bg);
+        }
+
+        .group-header .group-info {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .group-header .group-info .group-date {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .group-header .group-info .group-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .group-header .group-info .group-count {
+            font-size: 13px;
+            background: var(--bg);
+            padding: 2px 10px;
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .group-header .group-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .group-header .group-actions .btn {
+            font-size: 11px;
+            padding: 4px 10px;
+            gap: 4px;
+        }
+
+        .group-header .group-toggle {
+            font-size: 18px;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+            margin-left: 4px;
+        }
+
+        .history-group.expanded .group-toggle {
+            transform: rotate(180deg);
+        }
+
+        .group-body {
+            display: none;
+            padding: 0 16px 16px;
+            border-top: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .history-group.expanded .group-body {
+            display: block;
+        }
+
+        .group-body .history-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            padding: 12px 14px;
+            margin-top: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .group-body .history-item:first-child {
+            margin-top: 12px;
+        }
+
+        .group-body .history-item .item-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px 16px;
+            margin-bottom: 4px;
+        }
+
+        .group-body .history-item .item-header .item-time {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .group-body .history-item .item-header .item-qty {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-left: auto;
+        }
+
+        .group-body .history-item .item-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+        }
+
+        .group-body .history-item .item-details span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .group-body .history-item .item-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            margin-top: 4px;
+        }
+
+        .group-body .history-item .item-actions .btn {
+            font-size: 11px;
+            padding: 4px 12px;
+            flex: 0 1 auto;
+        }
+
+        .group-body .history-item .item-actions .btn-icon-sm {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .history-empty i {
+            font-size: 48px;
+            color: var(--border);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .history-result-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ===== HISTORY FILTERS ===== */
         .history-filters {
             display: flex;
             flex-wrap: wrap;
@@ -723,132 +934,6 @@
 
         .history-filters .filter-actions .btn-secondary {
             background: var(--bg);
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .history-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 14px 16px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            animation: fadeUp 0.2s ease;
-        }
-
-        .history-item .item-header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: baseline;
-            gap: 8px 16px;
-            margin-bottom: 6px;
-        }
-
-        .history-item .item-header .item-date {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .history-item .item-header .item-time {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .history-item .item-header .item-qty {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-left: auto;
-        }
-
-        .history-item .item-details {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 16px;
-        }
-
-        .history-item .item-details span {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .history-item .item-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            border-top: 1px solid var(--border);
-            padding-top: 10px;
-            margin-top: 4px;
-        }
-
-        .history-item .item-actions .btn {
-            font-size: 11px;
-            padding: 4px 12px;
-            flex: 0 1 auto;
-        }
-
-        .history-item .item-actions .btn-icon-sm {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            border-radius: 50%;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .history-empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-
-        .history-empty i {
-            font-size: 48px;
-            color: var(--border);
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .history-result-count {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-            text-align: center;
-        }
-
-        /* ===== HISTORY TOOLBAR ===== */
-        .history-toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .history-toolbar .btn {
-            flex: 1;
-            min-width: 80px;
-            justify-content: center;
-            font-size: 12px;
-            padding: 8px 12px;
-        }
-
-        .history-toolbar .btn-danger {
-            flex: 0.5;
         }
 
         /* ===== REPORTS ===== */
@@ -1061,21 +1146,36 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 8px;
             }
-            .history-toolbar .btn {
-                font-size: 11px;
-                padding: 6px 10px;
+            .group-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
             }
-            .history-item .item-header {
+            .group-header .group-info {
+                justify-content: space-between;
+            }
+            .group-header .group-actions {
+                justify-content: flex-end;
+            }
+            .group-body .history-item .item-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 4px;
             }
-            .history-item .item-header .item-qty {
+            .group-body .history-item .item-header .item-qty {
                 margin-left: 0;
+            }
+            .app-header {
+                flex-wrap: wrap;
+                height: auto;
+                min-height: var(--header-height);
+            }
+            .app-header .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
             }
         }
 
-        /* ===== UTILITY ===== */
         .text-muted {
             color: var(--text-muted);
         }
@@ -1102,7 +1202,6 @@
             width: 100%;
         }
 
-        /* ===== SCROLLBAR DO MODAL ===== */
         .modal::-webkit-scrollbar {
             width: 3px;
         }
@@ -1135,10 +1234,15 @@
 <body>
 
     <div id="app">
-        <!-- HEADER -->
+        <!-- HEADER MELHORADO -->
         <header class="app-header">
-            <h1><i class="fas fa-boxes"></i> Retirada Prod.</h1>
+            <div class="header-left">
+                <h1><i class="fas fa-boxes"></i> Histórico de Retiradas</h1>
+                <p class="subtitle">Visualize, exporte e imprima seus registros</p>
+            </div>
             <div class="header-actions">
+                <button class="btn btn-secondary btn-sm" id="exportGlobalPdfBtn" aria-label="Exportar tudo em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button class="btn btn-secondary btn-sm" id="exportGlobalImageBtn" aria-label="Exportar tudo como imagem"><i class="fas fa-image"></i> Imagem</button>
                 <span class="badge-count" id="totalBadge">0</span>
             </div>
         </header>
@@ -1169,7 +1273,7 @@
                     </div>
                     <div class="filter-group" style="flex: 2 0 100%;">
                         <label for="filterKeyword">Buscar por palavra-chave</label>
-                        <input type="text" class="form-control" id="filterKeyword" placeholder="Ex.: produto, setor, lote, operador..." />
+                        <input type="text" class="form-control" id="filterKeyword" placeholder="Ex.: produto, setor..." />
                     </div>
                     <div class="filter-group">
                         <label for="filterSort">Ordenar por</label>
@@ -1186,19 +1290,8 @@
                     </div>
                 </div>
 
-                <!-- Botões de exportação por período -->
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <button class="btn btn-secondary" id="exportPdfBtn" style="flex:1;" aria-label="Exportar histórico em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button class="btn btn-secondary" id="exportImageBtn" style="flex:1;" aria-label="Exportar histórico como imagem"><i class="fas fa-image"></i> Imagem</button>
-                    <button class="btn btn-danger" id="clearHistoryBtn" style="flex:0.5;" aria-label="Limpar histórico"><i class="fas fa-trash"></i></button>
-                </div>
-
-                <div id="historyListContainer">
-                    <div class="history-empty">
-                        <i class="fas fa-clock"></i>
-                        <p>Nenhuma retirada registrada</p>
-                    </div>
-                </div>
+                <!-- Container dos grupos agrupados por data -->
+                <div id="historyGroupContainer"></div>
                 <div id="historyResultCount" class="history-result-count"></div>
             </div>
 
@@ -1262,7 +1355,7 @@
             </div>
         </div>
 
-        <!-- BOTTOM TAB BAR -->
+        <!-- BOTTOM TAB BAR COM ÍCONES REPRESENTATIVOS -->
         <div class="tab-bar" id="tabBar">
             <!-- Histórico -->
             <button class="tab-item active" data-tab="tabHistory" id="tabHistoryBtn" role="tab" aria-controls="tabHistory" aria-selected="true">
@@ -1338,17 +1431,7 @@
                     <input type="text" class="form-control" id="formSector" placeholder="Ex: Almoxarifado A, Estoque 3..." />
                 </div>
 
-                <!-- NOVOS CAMPOS: LOTE e OPERADOR -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="formLote">Lote <span class="optional">(opcional)</span></label>
-                        <input type="text" class="form-control" id="formLote" placeholder="Ex: Lote 123" />
-                    </div>
-                    <div class="form-group">
-                        <label for="formOperator">Operador <span class="optional">(opcional)</span></label>
-                        <input type="text" class="form-control" id="formOperator" placeholder="Nome do operador" />
-                    </div>
-                </div>
+                <!-- Campos Lote e Operador REMOVIDOS -->
 
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button>
@@ -1449,6 +1532,10 @@
                 d.getDate() === today.getDate();
         }
 
+        function getDateKey(iso) {
+            return new Date(iso).toISOString().split('T')[0];
+        }
+
         // ============================================================
         //  STATE
         // ============================================================
@@ -1477,8 +1564,6 @@
         const formQuantity = $('#formQuantity');
         const formUnit = $('#formUnit');
         const formSector = $('#formSector');
-        const formLote = $('#formLote');
-        const formOperator = $('#formOperator');
         const modalSubmit = $('#modalSubmit');
         const modalCancel = $('#modalCancel');
 
@@ -1497,12 +1582,13 @@
         const applyFiltersBtn = $('#applyFiltersBtn');
         const clearFiltersBtn = $('#clearFiltersBtn');
 
-        // History list
-        const historyListContainer = $('#historyListContainer');
+        // History groups container
+        const historyGroupContainer = $('#historyGroupContainer');
         const historyResultCount = $('#historyResultCount');
-        const exportPdfBtn = $('#exportPdfBtn');
-        const exportImageBtn = $('#exportImageBtn');
-        const clearHistoryBtn = $('#clearHistoryBtn');
+
+        // Export global
+        const exportGlobalPdfBtn = $('#exportGlobalPdfBtn');
+        const exportGlobalImageBtn = $('#exportGlobalImageBtn');
 
         // Reports
         const reportTotal = $('#reportTotal');
@@ -1602,8 +1688,6 @@
                         item.product,
                         item.barcode,
                         item.sector,
-                        item.lote,
-                        item.operator,
                         item.unit
                     ].join(' ').toLowerCase();
                     return searchable.includes(keyword);
@@ -1631,11 +1715,14 @@
             return filtered;
         }
 
+        // ============================================================
+        //  RENDER HISTORY GROUPED BY DATE
+        // ============================================================
         function renderHistory() {
             const filtered = getFilteredData();
 
             if (filtered.length === 0) {
-                historyListContainer.innerHTML = `
+                historyGroupContainer.innerHTML = `
                     <div class="history-empty">
                         <i class="fas fa-clock"></i>
                         <p>Nenhuma retirada encontrada</p>
@@ -1645,44 +1732,385 @@
                 return;
             }
 
-            let html = `<div class="history-list">`;
+            // Agrupar por data (YYYY-MM-DD)
+            const groups = {};
             filtered.forEach(item => {
-                const dateShort = formatDateShort(item.timestamp);
-                const time = formatTime(item.timestamp);
-                const qty = item.quantity;
-                const unit = getUnitLabel(item.unit);
-                const product = escapeHtml(item.product);
-                const barcode = escapeHtml(item.barcode || '');
-                const sector = escapeHtml(item.sector || '');
-                const lote = escapeHtml(item.lote || '');
-                const operator = escapeHtml(item.operator || '');
+                const key = getDateKey(item.timestamp);
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(item);
+            });
+
+            // Ordenar grupos por data (mais recente primeiro)
+            const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+            let html = '';
+            sortedDates.forEach(dateKey => {
+                const items = groups[dateKey];
+                // ordenar itens por hora (mais recente primeiro)
+                items.sort((a, b) => b.timestamp - a.timestamp);
+
+                const firstItem = items[0];
+                const displayDate = formatDateShort(firstItem.timestamp);
+                const displayTime = formatTime(firstItem.timestamp);
+                const count = items.length;
+
+                // Gerar HTML dos itens
+                let itemsHtml = '';
+                items.forEach(item => {
+                    const qty = item.quantity;
+                    const unit = getUnitLabel(item.unit);
+                    const product = escapeHtml(item.product);
+                    const barcode = escapeHtml(item.barcode || '');
+                    const sector = escapeHtml(item.sector || '');
+
+                    itemsHtml += `
+                        <div class="history-item" data-id="${item.id}">
+                            <div class="item-header">
+                                <span class="item-time"><i class="fas fa-clock"></i> ${formatTime(item.timestamp)}</span>
+                                <span class="item-qty">${qty} ${unit}</span>
+                            </div>
+                            <div class="item-details">
+                                <span><i class="fas fa-tag"></i> ${product}</span>
+                                ${barcode ? `<span><i class="fas fa-barcode"></i> ${barcode}</span>` : ''}
+                                ${sector ? `<span><i class="fas fa-location-dot"></i> ${sector}</span>` : ''}
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn btn-primary btn-sm btn-icon-sm" onclick="editItem('${item.id}')" aria-label="Editar este item"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm btn-icon-sm" onclick="deleteItem('${item.id}')" aria-label="Excluir este item"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Botões de exportação do grupo
+                const groupExportHtml = `
+                    <button class="btn btn-secondary btn-sm" onclick="exportGroupPdf('${dateKey}')" aria-label="Exportar grupo em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportGroupImage('${dateKey}')" aria-label="Exportar grupo como imagem"><i class="fas fa-image"></i> Imagem</button>
+                `;
 
                 html += `
-                    <div class="history-item" data-id="${item.id}">
-                        <div class="item-header">
-                            <span class="item-date"><i class="fas fa-calendar"></i> ${dateShort}</span>
-                            <span class="item-time"><i class="fas fa-clock"></i> ${time}</span>
-                            <span class="item-qty">${qty} ${unit}</span>
+                    <div class="history-group" data-date="${dateKey}">
+                        <div class="group-header" onclick="toggleGroup(this)">
+                            <div class="group-info">
+                                <span class="group-date"><i class="fas fa-calendar"></i> ${displayDate}</span>
+                                <span class="group-time"><i class="fas fa-clock"></i> ${displayTime}</span>
+                                <span class="group-count"><i class="fas fa-box"></i> ${count} item${count !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="group-actions">
+                                ${groupExportHtml}
+                                <span class="group-toggle"><i class="fas fa-chevron-down"></i></span>
+                            </div>
                         </div>
-                        <div class="item-details">
-                            <span><i class="fas fa-tag"></i> ${product}</span>
-                            ${barcode ? `<span><i class="fas fa-barcode"></i> ${barcode}</span>` : ''}
-                            ${sector ? `<span><i class="fas fa-location-dot"></i> ${sector}</span>` : ''}
-                            ${lote ? `<span><i class="fas fa-layer-group"></i> ${lote}</span>` : ''}
-                            ${operator ? `<span><i class="fas fa-user"></i> ${operator}</span>` : ''}
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn btn-primary btn-sm btn-icon-sm" onclick="editItem('${item.id}')" aria-label="Editar este item"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-danger btn-sm btn-icon-sm" onclick="deleteItem('${item.id}')" aria-label="Excluir este item"><i class="fas fa-trash"></i></button>
+                        <div class="group-body">
+                            ${itemsHtml}
                         </div>
                     </div>
                 `;
             });
-            html += `</div>`;
-            historyListContainer.innerHTML = html;
+
+            historyGroupContainer.innerHTML = html;
             historyResultCount.textContent = `${filtered.length} registro${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`;
         }
 
+        // ============================================================
+        //  GROUP TOGGLE
+        // ============================================================
+        function toggleGroup(headerEl) {
+            const group = headerEl.closest('.history-group');
+            if (group) {
+                group.classList.toggle('expanded');
+            }
+        }
+
+        // ============================================================
+        //  EXPORT GROUP FUNCTIONS
+        // ============================================================
+        function getGroupData(dateKey) {
+            const filtered = getFilteredData();
+            return filtered.filter(item => getDateKey(item.timestamp) === dateKey);
+        }
+
+        function exportGroupPdf(dateKey) {
+            const data = getGroupData(dateKey);
+            if (data.length === 0) {
+                showToast('Nenhum dado neste grupo', 'warning');
+                return;
+            }
+            const title = `Retiradas - ${formatDate(data[0].timestamp)}`;
+            generateGenericReportPDF(data, title);
+        }
+
+        function exportGroupImage(dateKey) {
+            const data = getGroupData(dateKey);
+            if (data.length === 0) {
+                showToast('Nenhum dado neste grupo', 'warning');
+                return;
+            }
+            generateGroupImage(data, dateKey);
+        }
+
+        function generateGroupImage(data, dateKey) {
+            showLoading();
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed; left: -9999px; top: 0;
+                width: 800px; background: #ffffff;
+                font-family: 'Inter', -apple-system, sans-serif;
+                padding: 40px 32px;
+                border-radius: 0;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            `;
+
+            const title = `Retiradas - ${formatDate(data[0].timestamp)}`;
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            container.innerHTML = `
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:22px; font-weight:700; color:#0f172a;">${title}</div>
+                    <div style="font-size:14px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; font-size:12px; color:#64748b; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
+                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:8px 8px; font-family:monospace; font-size:12px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
+                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
+                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
+                                <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
+                                <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; text-align:center;">
+                    Sistema de Retirada para Produção • Relatório gerado automaticamente
+                </div>
+            `;
+
+            document.body.appendChild(container);
+
+            html2canvas(container, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `retiradas_${dateKey}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Imagem do grupo exportada!', 'success');
+            }).catch(err => {
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Erro ao gerar imagem', 'error');
+                console.error(err);
+            });
+        }
+
+        // ============================================================
+        //  EXPORT GLOBAL (header)
+        // ============================================================
+        exportGlobalPdfBtn.addEventListener('click', () => {
+            const data = getFilteredData();
+            if (data.length === 0) {
+                showToast('Não há dados para exportar', 'warning');
+                return;
+            }
+            generateGenericReportPDF(data, 'RELATÓRIO GERENCIAL - RETIRADAS');
+        });
+
+        exportGlobalImageBtn.addEventListener('click', () => {
+            const data = getFilteredData();
+            if (data.length === 0) {
+                showToast('Não há dados para exportar', 'warning');
+                return;
+            }
+            generateHistoryImage(data);
+        });
+
+        // ============================================================
+        //  GENERIC PDF
+        // ============================================================
+        function generateGenericReportPDF(data, title = 'RELATÓRIO GERENCIAL') {
+            showLoading();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 14;
+
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text(title, pageWidth / 2, 20, { align: 'center' });
+
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Retiradas de insumos', pageWidth / 2, 28, { align: 'center' });
+
+            let periodo = '— a —';
+            if (data.length > 0) {
+                const first = data[0].timestamp;
+                const last = data[data.length - 1].timestamp;
+                periodo = `${formatDate(first)} a ${formatDate(last)}`;
+            }
+            doc.setFontSize(10);
+            doc.text(`Período: ${periodo}`, margin, 38);
+
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            doc.text(`Gerado em: ${geradoEm}`, margin, 44);
+
+            const tableData = data.map(item => [
+                item.barcode || '-',
+                item.product,
+                `${item.quantity} ${getUnitLabel(item.unit)}`,
+                item.sector || '-',
+                formatDateTime(item.timestamp),
+            ]);
+
+            doc.autoTable({
+                startY: 52,
+                head: [
+                    ['CÓDIGO', 'PRODUTO', 'QTD', 'SETOR', 'DATA/HORA']
+                ],
+                body: tableData,
+                theme: 'plain',
+                headStyles: {
+                    fillColor: [240, 240, 240],
+                    textColor: [0, 0, 0],
+                    fontStyle: 'bold',
+                    fontSize: 8,
+                    halign: 'center',
+                    valign: 'middle',
+                },
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1,
+                },
+                columnStyles: {
+                    0: { cellWidth: 20, halign: 'center' },
+                    1: { cellWidth: 'auto' },
+                    2: { cellWidth: 20, halign: 'center' },
+                    3: { cellWidth: 30 },
+                    4: { cellWidth: 30, halign: 'center' },
+                },
+                margin: { left: margin, right: margin },
+                tableWidth: pageWidth - 2 * margin,
+            });
+
+            const finalY = doc.lastAutoTable.finalY + 6;
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'italic');
+            doc.text('Sistema de Retirada para Produção', pageWidth / 2, finalY, { align: 'center' });
+
+            doc.save(`relatorio_gerencial_${new Date().toISOString().slice(0,10)}.pdf`);
+            hideLoading();
+            showToast('Relatório PDF gerado com sucesso!', 'success');
+        }
+
+        // ============================================================
+        //  GENERATE HISTORY IMAGE (global)
+        // ============================================================
+        function generateHistoryImage(data) {
+            showLoading();
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed; left: -9999px; top: 0;
+                width: 800px; background: #ffffff;
+                font-family: 'Inter', -apple-system, sans-serif;
+                padding: 40px 32px;
+                border-radius: 0;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            `;
+
+            let periodo = '— a —';
+            if (data.length > 0) {
+                const first = data[0].timestamp;
+                const last = data[data.length - 1].timestamp;
+                periodo = `${formatDate(first)} a ${formatDate(last)}`;
+            }
+            const now = new Date();
+            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            container.innerHTML = `
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:22px; font-weight:700; color:#0f172a;">RETIRADAS -</div>
+                    <div style="font-size:14px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748b; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                    <div><strong>Período:</strong> ${periodo}</div>
+                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
+                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
+                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:8px 8px; font-family:monospace; font-size:12px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
+                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
+                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
+                                <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
+                                <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; text-align:center;">
+                    Sistema de Retirada para Produção • Relatório gerado automaticamente
+                </div>
+            `;
+
+            document.body.appendChild(container);
+
+            html2canvas(container, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `retiradas_${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Imagem exportada com sucesso!', 'success');
+            }).catch(err => {
+                document.body.removeChild(container);
+                hideLoading();
+                showToast('Erro ao gerar imagem', 'error');
+                console.error(err);
+            });
+        }
+
+        // ============================================================
+        //  REPORTS
+        // ============================================================
         function renderReports() {
             const total = withdrawals.length;
             const items = new Set(withdrawals.map(w => w.product.toLowerCase())).size;
@@ -1850,8 +2278,6 @@
                 formQuantity.value = data.quantity || '';
                 formUnit.value = data.unit || 'un';
                 formSector.value = data.sector || '';
-                formLote.value = data.lote || '';
-                formOperator.value = data.operator || '';
                 document.querySelector('.modal-title').textContent = 'Editar Retirada';
                 modalSubmit.textContent = 'Atualizar';
             } else {
@@ -1889,8 +2315,6 @@
             const quantity = parseFloat(formQuantity.value);
             const unit = formUnit.value;
             const sector = formSector.value.trim();
-            const lote = formLote.value.trim();
-            const operator = formOperator.value.trim();
 
             if (!product) {
                 showToast('Informe o nome do produto', 'error');
@@ -1921,8 +2345,6 @@
                         quantity,
                         unit,
                         sector: sector || '',
-                        lote: lote || '',
-                        operator: operator || '',
                         updatedAt: now,
                     };
                     showToast('Registro atualizado com sucesso!', 'success');
@@ -1935,8 +2357,6 @@
                     quantity,
                     unit,
                     sector: sector || '',
-                    lote: lote || '',
-                    operator: operator || '',
                     timestamp: now,
                     createdAt: now,
                 };
@@ -2081,133 +2501,7 @@
         });
 
         // ============================================================
-        //  EXPORT: PDF (History) - layout gerencial
-        // ============================================================
-        exportPdfBtn.addEventListener('click', () => {
-            const data = getFilteredData();
-            if (data.length === 0) {
-                showToast('Não há dados para exportar', 'warning');
-                return;
-            }
-            generateGenericReportPDF(data, 'RELATÓRIO GERENCIAL');
-        });
-
-        // ============================================================
-        //  EXPORT: Imagem (History) - mesmo layout do PDF
-        // ============================================================
-        exportImageBtn.addEventListener('click', () => {
-            const data = getFilteredData();
-            if (data.length === 0) {
-                showToast('Não há dados para exportar', 'warning');
-                return;
-            }
-            generateHistoryImage(data);
-        });
-
-        function generateHistoryImage(data) {
-            showLoading();
-            const container = document.createElement('div');
-            container.style.cssText = `
-                position: fixed; left: -9999px; top: 0;
-                width: 800px; background: #ffffff;
-                font-family: 'Inter', -apple-system, sans-serif;
-                padding: 40px 32px;
-                border-radius: 0;
-                box-shadow: 0 4px 24px rgba(0,0,0,0.05);
-            `;
-
-            let periodo = '— a —';
-            if (data.length > 0) {
-                const first = data[0].timestamp;
-                const last = data[data.length - 1].timestamp;
-                periodo = `${formatDate(first)} a ${formatDate(last)}`;
-            }
-            const now = new Date();
-            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-            container.innerHTML = `
-                <div style="text-align:center; margin-bottom:20px;">
-                    <div style="font-size:22px; font-weight:700; color:#0f172a;">RETIRADAS -</div>
-                    <div style="font-size:14px; color:#64748b; margin-top:2px;">Retiradas de insumos</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748b; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
-                    <div><strong>Período:</strong> ${periodo}</div>
-                    <div><strong>Gerado em:</strong> ${geradoEm}</div>
-                </div>
-                <table style="width:100%; border-collapse:collapse; font-size:13px;">
-                    <thead>
-                        <tr style="background:#f1f5f9; border-bottom:2px solid #e2e8f0;">
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">CÓDIGO</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
-                            <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">LOTE</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">OPERADOR</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.map(item => `
-                            <tr style="border-bottom:1px solid #f1f5f9;">
-                                <td style="padding:8px 8px; font-family:monospace; font-size:12px; color:#64748b;">${escapeHtml(item.barcode || '-')}</td>
-                                <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
-                                <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
-                                <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
-                                <td style="padding:8px 8px;">${escapeHtml(item.lote || '-')}</td>
-                                <td style="padding:8px 8px;">${escapeHtml(item.operator || '-')}</td>
-                                <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#94a3b8; text-align:center;">
-                    Sistema de Retirada para Produção • Relatório gerado automaticamente
-                </div>
-            `;
-
-            document.body.appendChild(container);
-
-            html2canvas(container, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `retiradas_${new Date().toISOString().slice(0,10)}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                document.body.removeChild(container);
-                hideLoading();
-                showToast('Imagem exportada com sucesso!', 'success');
-            }).catch(err => {
-                document.body.removeChild(container);
-                hideLoading();
-                showToast('Erro ao gerar imagem', 'error');
-                console.error(err);
-            });
-        }
-
-        // ============================================================
-        //  CLEAR HISTORY
-        // ============================================================
-        clearHistoryBtn.addEventListener('click', () => {
-            const filtered = getFilteredData();
-            if (filtered.length === 0) {
-                showToast('Nenhum registro para limpar', 'warning');
-                return;
-            }
-            if (confirm(`Tem certeza que deseja remover ${filtered.length} registro(s)?`)) {
-                const ids = new Set(filtered.map(w => w.id));
-                withdrawals = withdrawals.filter(w => !ids.has(w.id));
-                saveData(withdrawals);
-                renderAll();
-                showToast(`${ids.size} registro(s) removido(s)`, 'success');
-            }
-        });
-
-        // ============================================================
-        //  REPORTS EXPORT (PDF completo com layout da imagem)
+        //  REPORTS EXPORT (PDF e Imagem - relatório completo)
         // ============================================================
         reportPdfBtn.addEventListener('click', () => {
             if (withdrawals.length === 0) {
@@ -2215,94 +2509,9 @@
                 return;
             }
             const sorted = [...withdrawals].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-            generateGenericReportPDF(sorted, 'RELATÓRIO GERENCIAL');
+            generateGenericReportPDF(sorted, 'RELATÓRIO GERENCIAL - COMPLETO');
         });
 
-        function generateGenericReportPDF(data, title = 'RELATÓRIO GERENCIAL') {
-            showLoading();
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 14;
-
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text(title, pageWidth / 2, 20, { align: 'center' });
-
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Retiradas de insumos', pageWidth / 2, 28, { align: 'center' });
-
-            let periodo = '— a —';
-            if (data.length > 0) {
-                const first = data[0].timestamp;
-                const last = data[data.length - 1].timestamp;
-                periodo = `${formatDate(first)} a ${formatDate(last)}`;
-            }
-            doc.setFontSize(10);
-            doc.text(`Período: ${periodo}`, margin, 38);
-
-            const now = new Date();
-            const geradoEm = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            doc.text(`Gerado em: ${geradoEm}`, margin, 44);
-
-            const tableData = data.map(item => [
-                item.barcode || '-',
-                item.product,
-                `${item.quantity} ${getUnitLabel(item.unit)}`,
-                item.sector || '-',
-                item.lote || '-',
-                item.operator || '-',
-                formatDateTime(item.timestamp),
-            ]);
-
-            doc.autoTable({
-                startY: 52,
-                head: [
-                    ['CÓDIGO', 'PRODUTO', 'QTD', 'SETOR', 'LOTE', 'OPERADOR', 'DATA/HORA']
-                ],
-                body: tableData,
-                theme: 'plain',
-                headStyles: {
-                    fillColor: [240, 240, 240],
-                    textColor: [0, 0, 0],
-                    fontStyle: 'bold',
-                    fontSize: 8,
-                    halign: 'center',
-                    valign: 'middle',
-                },
-                styles: {
-                    fontSize: 8,
-                    cellPadding: 2,
-                    lineColor: [200, 200, 200],
-                    lineWidth: 0.1,
-                },
-                columnStyles: {
-                    0: { cellWidth: 20, halign: 'center' },
-                    1: { cellWidth: 'auto' },
-                    2: { cellWidth: 20, halign: 'center' },
-                    3: { cellWidth: 22 },
-                    4: { cellWidth: 18 },
-                    5: { cellWidth: 22 },
-                    6: { cellWidth: 28, halign: 'center' },
-                },
-                margin: { left: margin, right: margin },
-                tableWidth: pageWidth - 2 * margin,
-            });
-
-            const finalY = doc.lastAutoTable.finalY + 6;
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'italic');
-            doc.text('Sistema de Retirada para Produção', pageWidth / 2, finalY, { align: 'center' });
-
-            doc.save(`relatorio_gerencial_${new Date().toISOString().slice(0,10)}.pdf`);
-            hideLoading();
-            showToast('Relatório PDF gerado com sucesso!', 'success');
-        }
-
-        // ============================================================
-        //  EXPORT: Imagem do relatório completo (layout idêntico ao PDF)
-        // ============================================================
         reportImageBtn.addEventListener('click', () => {
             if (withdrawals.length === 0) {
                 showToast('Não há dados para gerar relatório', 'warning');
@@ -2349,8 +2558,6 @@
                             <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">PRODUTO</th>
                             <th style="padding:10px 8px; text-align:center; font-weight:600; color:#0f172a;">QTD</th>
                             <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">SETOR</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">LOTE</th>
-                            <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">OPERADOR</th>
                             <th style="padding:10px 8px; text-align:left; font-weight:600; color:#0f172a;">DATA/HORA</th>
                         </tr>
                     </thead>
@@ -2361,8 +2568,6 @@
                                 <td style="padding:8px 8px; font-weight:500;">${escapeHtml(item.product)}</td>
                                 <td style="padding:8px 8px; text-align:center; font-weight:600; color:#2563eb;">${item.quantity} ${getUnitLabel(item.unit)}</td>
                                 <td style="padding:8px 8px;">${escapeHtml(item.sector || '-')}</td>
-                                <td style="padding:8px 8px;">${escapeHtml(item.lote || '-')}</td>
-                                <td style="padding:8px 8px;">${escapeHtml(item.operator || '-')}</td>
                                 <td style="padding:8px 8px; font-size:12px; color:#64748b;">${formatDateTime(item.timestamp)}</td>
                             </tr>
                         `).join('')}
@@ -2435,7 +2640,7 @@
                 }
             });
 
-            console.log('✅ Sistema de Retirada para Produção (filtros por período e exportação)');
+            console.log('✅ Sistema de Retirada para Produção (agrupado por data)');
             console.log(`📦 ${withdrawals.length} registros carregados`);
         }
 
