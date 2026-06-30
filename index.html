@@ -33,24 +33,25 @@
         }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
+            --primary: #1e40af;
             --primary-light: #dbeafe;
+            --primary-dark: #1e3a8a;
             --primary-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
             --surface: #ffffff;
-            --bg: #f1f5f9;
+            --bg: #f8fafc;
             --text: #0f172a;
-            --text-secondary: #64748b;
+            --text-secondary: #475569;
             --text-muted: #94a3b8;
             --border: #e2e8f0;
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.10);
             --radius: 16px;
             --radius-sm: 10px;
             --radius-xs: 6px;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --tab-height: 68px;
-            --header-height: 72px;
+            --tab-height: 72px;
+            --header-height: 68px;
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -60,7 +61,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
             color: var(--text);
-            font-size: 15px;
+            font-size: 16px;
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -88,7 +89,7 @@
             margin: 0 auto;
             background: var(--bg);
             position: relative;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.04);
         }
 
         /* ===== HEADER ===== */
@@ -100,7 +101,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 12px 20px;
             position: sticky;
             top: 0;
             z-index: 20;
@@ -116,7 +117,7 @@
         }
 
         .app-header .header-left h1 {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
             letter-spacing: -0.3px;
             display: flex;
@@ -127,7 +128,7 @@
 
         .app-header .header-left h1 i {
             color: var(--primary);
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .app-header .header-left .subtitle {
@@ -147,7 +148,7 @@
         }
 
         .app-header .header-actions .btn {
-            font-size: 11px;
+            font-size: 12px;
             padding: 6px 12px;
             gap: 4px;
             white-space: nowrap;
@@ -156,12 +157,13 @@
         .app-header .header-actions .badge-count {
             background: var(--primary-light);
             color: var(--primary);
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 20px;
-            min-width: 24px;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 30px;
+            min-width: 28px;
             text-align: center;
+            border: 1px solid rgba(37, 99, 235, 0.15);
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -169,14 +171,14 @@
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 12px 16px calc(var(--tab-height) + var(--safe-bottom) + 12px);
+            padding: 16px 16px calc(var(--tab-height) + var(--safe-bottom) + 16px);
             -webkit-overflow-scrolling: touch;
         }
 
         /* ===== TABS ===== */
         .tab-content {
             display: none;
-            animation: fadeUp 0.3s ease;
+            animation: fadeUp 0.35s ease;
         }
 
         .tab-content.active {
@@ -186,7 +188,7 @@
         @keyframes fadeUp {
             from {
                 opacity: 0;
-                transform: translateY(12px);
+                transform: translateY(16px);
             }
             to {
                 opacity: 1;
@@ -237,13 +239,14 @@
         }
 
         .tab-item i {
-            font-size: 22px;
+            font-size: 24px;
             transition: var(--transition);
         }
 
         .tab-item span {
             font-size: 10px;
             letter-spacing: 0.2px;
+            font-weight: 500;
         }
 
         .tab-item.active {
@@ -256,16 +259,16 @@
 
         .tab-item .tab-badge {
             position: absolute;
-            top: 4px;
+            top: 2px;
             right: 50%;
-            transform: translateX(calc(50% + 20px));
+            transform: translateX(calc(50% + 22px));
             background: #ef4444;
             color: #fff;
             font-size: 10px;
             font-weight: 700;
             min-width: 18px;
             height: 18px;
-            border-radius: 20px;
+            border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -273,14 +276,14 @@
         }
 
         .tab-item.center-btn {
-            flex: 0 0 64px;
-            margin-top: -18px;
+            flex: 0 0 68px;
+            margin-top: -22px;
             background: var(--primary-gradient);
             color: #fff;
             border-radius: 50%;
-            width: 64px;
-            height: 64px;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            width: 68px;
+            height: 68px;
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
             transition: var(--transition);
             display: flex;
             align-items: center;
@@ -290,7 +293,7 @@
         }
 
         .tab-item.center-btn i {
-            font-size: 30px;
+            font-size: 32px;
             color: #fff;
         }
 
@@ -307,34 +310,43 @@
             background: var(--surface);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 16px;
+            padding: 18px;
             margin-bottom: 16px;
             border: 1px solid var(--border);
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
         }
 
         .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .card-header h3 {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .card-header .badge-light {
             background: var(--bg);
-            padding: 2px 10px;
-            border-radius: 20px;
+            padding: 4px 12px;
+            border-radius: 30px;
             font-size: 12px;
             color: var(--text-secondary);
+            font-weight: 500;
         }
 
         /* ===== FORM ===== */
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
@@ -353,7 +365,7 @@
 
         .form-control {
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             font-size: 15px;
@@ -368,7 +380,7 @@
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
             background: #fff;
         }
 
@@ -377,7 +389,7 @@
         }
 
         select.form-control {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 14px center;
             padding-right: 40px;
@@ -392,13 +404,14 @@
         .form-actions {
             display: flex;
             gap: 10px;
-            margin-top: 8px;
+            margin-top: 12px;
         }
 
         .form-actions button {
             flex: 1;
         }
 
+        /* ===== BUTTONS ===== */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -414,16 +427,21 @@
             transition: var(--transition);
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            text-decoration: none;
         }
 
         .btn:active {
-            transform: scale(0.97);
+            transform: scale(0.96);
         }
 
         .btn-primary {
             background: var(--primary-gradient);
             color: #fff;
-            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
         }
 
         .btn-primary:active {
@@ -436,7 +454,7 @@
             border: 1.5px solid var(--border);
         }
 
-        .btn-secondary:active {
+        .btn-secondary:hover {
             background: var(--border);
         }
 
@@ -446,7 +464,7 @@
             border: 1.5px solid #fecaca;
         }
 
-        .btn-danger:active {
+        .btn-danger:hover {
             background: #fecaca;
         }
 
@@ -456,7 +474,7 @@
             border: 1.5px solid #bbf7d0;
         }
 
-        .btn-success:active {
+        .btn-success:hover {
             background: #bbf7d0;
         }
 
@@ -466,14 +484,14 @@
         }
 
         .btn-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             padding: 0;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
         }
 
         .btn-block {
@@ -487,7 +505,7 @@
             border: 1.5px solid var(--primary);
         }
 
-        .btn-outline-primary:active {
+        .btn-outline-primary:hover {
             background: var(--primary-light);
         }
 
@@ -496,12 +514,12 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
+            padding: 10px 16px;
             background: var(--primary-light);
             color: var(--primary);
             border: 1.5px dashed var(--primary);
             border-radius: var(--radius-sm);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
@@ -518,7 +536,7 @@
         }
 
         .scan-btn i {
-            font-size: 18px;
+            font-size: 20px;
         }
 
         /* ===== MODAL ===== */
@@ -553,7 +571,7 @@
             transform: translateY(40px) scale(0.96);
             transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow-y: auto;
-            padding: 20px 20px 24px;
+            padding: 24px 20px 28px;
             box-shadow: var(--shadow-lg);
         }
 
@@ -570,7 +588,7 @@
         }
 
         .modal-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 6px;
         }
@@ -578,7 +596,7 @@
         .modal-subtitle {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         /* ===== SCANNER OVERLAY ===== */
@@ -628,10 +646,10 @@
             -webkit-backdrop-filter: blur(8px);
             border: none;
             color: #fff;
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -648,16 +666,16 @@
         }
 
         .scanner-overlay .scanner-hint {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            margin-top: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            margin-top: 20px;
             text-align: center;
             padding: 0 20px;
         }
 
         .scanner-overlay .scanner-hint i {
             display: block;
-            font-size: 32px;
+            font-size: 36px;
             margin-bottom: 8px;
             color: rgba(255, 255, 255, 0.5);
         }
@@ -700,9 +718,13 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             margin-bottom: 14px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
             transition: var(--transition);
+        }
+
+        .history-group:hover {
+            box-shadow: var(--shadow);
         }
 
         .group-header {
@@ -747,8 +769,8 @@
         .group-header .group-info .group-count {
             font-size: 13px;
             background: var(--bg);
-            padding: 2px 10px;
-            border-radius: 20px;
+            padding: 2px 12px;
+            border-radius: 30px;
             color: var(--text-secondary);
             font-weight: 500;
         }
@@ -767,7 +789,7 @@
         }
 
         .group-header .group-toggle {
-            font-size: 18px;
+            font-size: 20px;
             color: var(--text-muted);
             transition: transform 0.3s;
             margin-left: 4px;
@@ -853,8 +875,8 @@
         }
 
         .group-body .history-item .item-actions .btn-icon-sm {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             padding: 0;
             border-radius: 50%;
             font-size: 14px;
@@ -865,12 +887,12 @@
 
         .history-empty {
             text-align: center;
-            padding: 40px 20px;
+            padding: 48px 20px;
             color: var(--text-secondary);
         }
 
         .history-empty i {
-            font-size: 48px;
+            font-size: 56px;
             color: var(--border);
             margin-bottom: 12px;
             display: block;
@@ -891,7 +913,7 @@
             margin-bottom: 16px;
             background: var(--surface);
             border-radius: var(--radius-sm);
-            padding: 14px;
+            padding: 16px;
             border: 1px solid var(--border);
         }
 
@@ -940,7 +962,7 @@
         .report-summary {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
@@ -948,12 +970,13 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 14px 16px;
+            padding: 16px 12px;
             text-align: center;
+            box-shadow: var(--shadow-sm);
         }
 
         .report-stat .stat-number {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: var(--primary);
         }
@@ -961,7 +984,7 @@
         .report-stat .stat-label {
             font-size: 12px;
             color: var(--text-secondary);
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
         .report-analysis-grid {
@@ -975,11 +998,12 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 14px 16px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
         }
 
         .report-analysis-card .analysis-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text);
             margin-bottom: 8px;
@@ -1026,13 +1050,13 @@
 
         .report-analysis-card .analysis-list .rank-number {
             display: inline-block;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             background: var(--primary-light);
             color: var(--primary);
             border-radius: 50%;
             text-align: center;
-            line-height: 22px;
+            line-height: 24px;
             font-size: 12px;
             font-weight: 700;
             margin-right: 8px;
@@ -1112,8 +1136,8 @@
         }
 
         .spinner-overlay .spinner {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border: 4px solid var(--border);
             border-top-color: var(--primary);
             border-radius: 50%;
@@ -1214,7 +1238,7 @@
             #app {
                 max-width: 480px;
                 border-radius: 0;
-                box-shadow: 0 8px 48px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 8px 48px rgba(0, 0, 0, 0.08);
             }
             .tab-bar {
                 max-width: 480px;
@@ -1234,11 +1258,11 @@
 <body>
 
     <div id="app">
-        <!-- HEADER MELHORADO -->
+        <!-- HEADER -->
         <header class="app-header">
             <div class="header-left">
-                <h1><i class="fas fa-boxes"></i> Histórico de Retiradas</h1>
-                <p class="subtitle">Visualize, exporte e imprima seus registros</p>
+                <h1><i class="fas fa-boxes"></i> Retiradas</h1>
+                <p class="subtitle">Histórico completo com agrupamento por data</p>
             </div>
             <div class="header-actions">
                 <button class="btn btn-secondary btn-sm" id="exportGlobalPdfBtn" aria-label="Exportar tudo em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
@@ -1336,7 +1360,7 @@
                 <!-- Exportação -->
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa-file-export" style="color:var(--primary);"></i> Relatório completo para baixa</h3>
+                        <h3><i class="fas fa-file-export" style="color:var(--primary);"></i> Relatório completo</h3>
                         <span class="badge-light" id="reportTotalBadge">0 retiradas</span>
                     </div>
                     <div class="report-actions">
@@ -1345,7 +1369,7 @@
                     </div>
                 </div>
 
-                <!-- Detalhamento extra (opcional) -->
+                <!-- Detalhamento extra -->
                 <div class="card" id="reportDetailCard" style="display:none;">
                     <div class="card-header">
                         <h3><i class="fas fa-list" style="color:var(--primary);"></i> Detalhamento por produto</h3>
@@ -1355,7 +1379,7 @@
             </div>
         </div>
 
-        <!-- BOTTOM TAB BAR COM ÍCONES REPRESENTATIVOS -->
+        <!-- BOTTOM TAB BAR -->
         <div class="tab-bar" id="tabBar">
             <!-- Histórico -->
             <button class="tab-item active" data-tab="tabHistory" id="tabHistoryBtn" role="tab" aria-controls="tabHistory" aria-selected="true">
@@ -1431,8 +1455,6 @@
                     <input type="text" class="form-control" id="formSector" placeholder="Ex: Almoxarifado A, Estoque 3..." />
                 </div>
 
-                <!-- Campos Lote e Operador REMOVIDOS -->
-
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="modalSubmit"><i class="fas fa-check"></i> Registrar</button>
@@ -1464,21 +1486,74 @@
 
     <script>
         // ============================================================
-        //  DATA LAYER
+        //  DATABASE (IndexedDB)
         // ============================================================
-        const STORAGE_KEY = 'production_withdrawals';
+        const DB_NAME = 'withdrawalsDB';
+        const STORE_NAME = 'withdrawals';
 
-        function loadData() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                return raw ? JSON.parse(raw) : [];
-            } catch { return []; }
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (ev) => {
+                    const db = ev.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        store.createIndex('timestamp', 'timestamp', { unique: false });
+                        store.createIndex('product', 'product', { unique: false });
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
         }
 
-        function saveData(data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        async function dbGetAll() {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
         }
 
+        async function dbAdd(record) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.add(record);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function dbUpdate(record) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.put(record);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function dbDelete(id) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
         function generateId() {
             return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
         }
@@ -1536,10 +1611,17 @@
             return new Date(iso).toISOString().split('T')[0];
         }
 
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // ============================================================
         //  STATE
         // ============================================================
-        let withdrawals = loadData();
+        let withdrawals = [];
         let editingId = null;
 
         // ============================================================
@@ -1636,6 +1718,26 @@
 
         function hideLoading() {
             loadingSpinner.classList.remove('active');
+        }
+
+        // ============================================================
+        //  DATA LOAD / SAVE
+        // ============================================================
+        async function loadData() {
+            showLoading();
+            try {
+                withdrawals = await dbGetAll();
+            } catch (e) {
+                console.error('Erro ao carregar dados:', e);
+                withdrawals = [];
+                showToast('Erro ao carregar dados do banco', 'error');
+            }
+            hideLoading();
+        }
+
+        async function saveData() {
+            // Não é mais usado diretamente, pois cada operação salva individualmente.
+            // Mantido para compatibilidade.
         }
 
         // ============================================================
@@ -1746,7 +1848,6 @@
             let html = '';
             sortedDates.forEach(dateKey => {
                 const items = groups[dateKey];
-                // ordenar itens por hora (mais recente primeiro)
                 items.sort((a, b) => b.timestamp - a.timestamp);
 
                 const firstItem = items[0];
@@ -1754,7 +1855,6 @@
                 const displayTime = formatTime(firstItem.timestamp);
                 const count = items.length;
 
-                // Gerar HTML dos itens
                 let itemsHtml = '';
                 items.forEach(item => {
                     const qty = item.quantity;
@@ -1782,7 +1882,6 @@
                     `;
                 });
 
-                // Botões de exportação do grupo
                 const groupExportHtml = `
                     <button class="btn btn-secondary btn-sm" onclick="exportGroupPdf('${dateKey}')" aria-label="Exportar grupo em PDF"><i class="fas fa-file-pdf"></i> PDF</button>
                     <button class="btn btn-secondary btn-sm" onclick="exportGroupImage('${dateKey}')" aria-label="Exportar grupo como imagem"><i class="fas fa-image"></i> Imagem</button>
@@ -2217,13 +2316,6 @@
             reportDetailCard.style.display = 'block';
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
         // ============================================================
         //  TABS
         // ============================================================
@@ -2305,9 +2397,9 @@
         });
 
         // ============================================================
-        //  FORM SUBMIT
+        //  FORM SUBMIT (IndexedDB)
         // ============================================================
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const product = formProduct.value.trim();
@@ -2334,45 +2426,59 @@
             }
 
             const now = new Date().toISOString();
+            showLoading();
 
-            if (editingId) {
-                const index = withdrawals.findIndex(w => w.id === editingId);
-                if (index !== -1) {
-                    withdrawals[index] = {
-                        ...withdrawals[index],
+            try {
+                if (editingId) {
+                    const index = withdrawals.findIndex(w => w.id === editingId);
+                    if (index !== -1) {
+                        const updated = {
+                            ...withdrawals[index],
+                            product,
+                            barcode,
+                            quantity,
+                            unit,
+                            sector: sector || '',
+                            updatedAt: now,
+                        };
+                        await dbUpdate(updated);
+                        withdrawals[index] = updated;
+                        showToast('Registro atualizado com sucesso!', 'success');
+                    } else {
+                        showToast('Registro não encontrado', 'error');
+                        hideLoading();
+                        return;
+                    }
+                } else {
+                    const newRecord = {
+                        id: generateId(),
                         product,
                         barcode,
                         quantity,
                         unit,
                         sector: sector || '',
-                        updatedAt: now,
+                        timestamp: now,
+                        createdAt: now,
                     };
-                    showToast('Registro atualizado com sucesso!', 'success');
+                    await dbAdd(newRecord);
+                    withdrawals.push(newRecord);
+                    showToast('Retirada registrada com sucesso!', 'success');
                 }
-            } else {
-                const newRecord = {
-                    id: generateId(),
-                    product,
-                    barcode,
-                    quantity,
-                    unit,
-                    sector: sector || '',
-                    timestamp: now,
-                    createdAt: now,
-                };
-                withdrawals.push(newRecord);
-                showToast('Retirada registrada com sucesso!', 'success');
-            }
 
-            saveData(withdrawals);
-            closeModal();
-            renderAll();
+                closeModal();
+                renderAll();
 
-            if (document.querySelector('#tabHistory.active')) {
-                renderHistory();
-            }
-            if (document.querySelector('#tabReports.active')) {
-                renderReports();
+                if (document.querySelector('#tabHistory.active')) {
+                    renderHistory();
+                }
+                if (document.querySelector('#tabReports.active')) {
+                    renderReports();
+                }
+            } catch (err) {
+                console.error('Erro ao salvar:', err);
+                showToast('Erro ao salvar registro', 'error');
+            } finally {
+                hideLoading();
             }
         });
 
@@ -2388,12 +2494,20 @@
             }
         }
 
-        function deleteItem(id) {
+        async function deleteItem(id) {
             if (!confirm('Tem certeza que deseja excluir este registro?')) return;
-            withdrawals = withdrawals.filter(w => w.id !== id);
-            saveData(withdrawals);
-            renderAll();
-            showToast('Registro excluído', 'success');
+            showLoading();
+            try {
+                await dbDelete(id);
+                withdrawals = withdrawals.filter(w => w.id !== id);
+                renderAll();
+                showToast('Registro excluído', 'success');
+            } catch (err) {
+                console.error('Erro ao excluir:', err);
+                showToast('Erro ao excluir registro', 'error');
+            } finally {
+                hideLoading();
+            }
         }
 
         // ============================================================
@@ -2620,7 +2734,8 @@
         // ============================================================
         //  INIT
         // ============================================================
-        function init() {
+        async function init() {
+            await loadData();
             renderAll();
 
             try {
@@ -2636,11 +2751,12 @@
 
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
-                    renderAll();
+                    // Recarregar dados ao voltar para a aba
+                    loadData().then(() => renderAll());
                 }
             });
 
-            console.log('✅ Sistema de Retirada para Produção (agrupado por data)');
+            console.log('✅ Sistema de Retirada para Produção (IndexedDB)');
             console.log(`📦 ${withdrawals.length} registros carregados`);
         }
 
